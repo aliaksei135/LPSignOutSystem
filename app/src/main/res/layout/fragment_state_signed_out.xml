@@ -1,0 +1,61 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context="com.apilko.signoutsystem.Fragments.stateSignedOutFragment">
+
+    <com.sevenheaven.segmentcontrol.SegmentControl
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/house_button2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="32sp"
+        app:colors="#0099CC"
+        app:cornerRadius="5dp"
+        app:direction="vertical"
+        app:horizonGap="10dp"
+        app:separatorWidth="2dp"
+        app:boundWidth="4dp"
+        app:texts="Field|Fryer|Grove|Reckitt"
+        app:verticalGap="10dp"
+        android:layout_marginStart="140dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentStart="true"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Study Period"
+        android:id="@+id/study_period_button2"
+        android:layout_above="@+id/house_button2"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="92dp"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Green"
+        android:id="@+id/going_to_green_button2"
+        android:layout_alignTop="@+id/study_period_button2"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="78dp"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cancel"
+        android:backgroundTint="#b5ff0000"
+        android:id="@+id/cancel_button2"
+        android:layout_alignParentBottom="true"
+        android:layout_alignEnd="@+id/going_to_green_button2"
+        android:layout_marginBottom="152dp"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sign In"
+        android:id="@+id/sign_in_button2"
+        android:layout_alignTop="@+id/cancel_button2"
+        android:layout_centerHorizontal="true"/>
+
+</RelativeLayout>

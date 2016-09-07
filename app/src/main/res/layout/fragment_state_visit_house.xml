@@ -1,0 +1,53 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context="com.apilko.signoutsystem.Fragments.stateVisitHouseFragment">
+
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Study Period"
+        android:id="@+id/study_period_button5"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="90dp"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Home"
+        android:id="@+id/going_home_button5"
+        android:layout_alignTop="@+id/study_period_button5"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="78dp"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cancel"
+        android:backgroundTint="#b5ff0000"
+        android:id="@+id/cancel_button5"
+        android:layout_alignParentBottom="true"
+        android:layout_alignEnd="@+id/going_home_button5"
+        android:layout_marginBottom="152dp"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sign In"
+        android:id="@+id/sign_in_button5"
+        android:layout_alignTop="@+id/cancel_button5"
+        android:layout_centerHorizontal="true"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Green"
+        android:id="@+id/going_to_green_button5"
+        android:layout_centerVertical="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="148dp"/>
+
+</RelativeLayout>

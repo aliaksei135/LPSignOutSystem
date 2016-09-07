@@ -1,0 +1,73 @@
+apply plugin: 'com.android.application'
+apply plugin: 'com.getkeepsafe.dexcount'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.3"
+
+    defaultConfig {
+        applicationId "com.apilko.signoutsystem"
+        minSdkVersion 17
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            zipAlignEnabled true
+            proguardFile 'proguard-signoutsystem.txt'
+        }
+        debug {
+            minifyEnabled false
+            shrinkResources false
+            zipAlignEnabled false
+            proguardFile 'proguard-signoutsystem.txt'
+        }
+    }
+}
+
+
+dexcount {
+    format = "list"
+    includeClasses = false
+    includeFieldCount = true
+    includeTotalMethodCount = true
+    orderByMethodCount = true
+    verbose = false
+    maxTreeDepth = Integer.MAX_VALUE
+    teamCityIntegration = false
+    enableForInstantRun = false
+}
+
+repositories {
+    maven {
+        url "https://jitpack.io"
+    }
+}
+
+dependencies {
+    compile('com.google.api-client:google-api-client-android:1.22.0') {exclude group: 'org.apache.httpcomponents'}
+    compile('com.google.apis:google-api-services-sheets:v4-rev19-1.22.0') {exclude group: 'org.apache.httpcomponents'}
+    compile('com.google.android.gms:play-services-identity:9.2.0') {exclude group: 'com.google.guava'}
+    compile 'com.google.android.gms:play-services-auth:9.2.0'
+
+    compile 'com.android.support:appcompat-v7:23.4.0'
+    compile 'com.android.support:design:23.4.0'
+    compile 'com.android.support:support-v4:23.4.0'
+
+    compile 'com.squareup.okhttp3:okhttp:3.3.1'
+    compile 'com.squareup.okhttp3:logging-interceptor:3.3.1'
+    compile 'com.squareup.okio:okio:1.8.0'
+    compile 'com.squareup.picasso:picasso:2.5.2'
+
+    compile 'net.sf.biweekly:biweekly:0.4.6'
+    compile 'com.github.tibolte:agendacalendarview:1.0.4'
+    compile 'com.7heaven.widgets:segmentcontrol:1.14'
+    compile 'com.survivingwithandroid:weatherlib:1.6.0'
+    compile 'com.survivingwithandroid:weatherlib_okhttpclient:1.6.0'
+
+    compile files('libs/FDxSDKProAndroid.jar')
+    compile files('libs/jasypt-1.9.2.jar')
+}

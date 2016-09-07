@@ -1,0 +1,61 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context="com.apilko.signoutsystem.Fragments.stateAtGreenFragment">
+
+    <com.sevenheaven.segmentcontrol.SegmentControl
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/house_button4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="140dp"
+        android:textSize="32sp"
+        app:boundWidth="4dp"
+        app:colors="#0099CC"
+        app:cornerRadius="5dp"
+        app:direction="vertical"
+        app:horizonGap="10dp"
+        app:separatorWidth="2dp"
+        app:texts="Field|Fryer|Grove|Reckitt"
+        app:verticalGap="10dp" />
+
+    <Button
+        android:id="@+id/going_to_green_button4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/house_button4"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="92dp"
+        android:text="Green" />
+
+    <Button
+        android:id="@+id/going_home_button4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/going_to_green_button4"
+        android:layout_marginEnd="78dp"
+        android:text="Home" />
+
+    <Button
+        android:id="@+id/cancel_button4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/going_home_button4"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="152dp"
+        android:backgroundTint="#b5ff0000"
+        android:text="Cancel" />
+
+    <Button
+        android:id="@+id/sign_in_button4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/cancel_button4"
+        android:layout_centerHorizontal="true"
+        android:text="Sign In" />
+
+</RelativeLayout>

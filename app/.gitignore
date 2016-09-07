@@ -1,0 +1,13 @@
+*.iml
+.gradle
+/local.properties
+/.idea
+.DS_Store
+/build
+/captures
+client_id.json
+google-services.json
+client_secret.json
+/projectFilesBackup
+/gradlew
+/gradlew.bat
