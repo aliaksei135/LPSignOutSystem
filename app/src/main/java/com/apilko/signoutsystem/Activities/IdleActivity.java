@@ -93,13 +93,21 @@ public class IdleActivity extends AppCompatActivity implements SGFingerPresentEv
     @Override
     public void onAttachedToWindow() {
         super.onAttachedToWindow();
-
         //Handle loading of content in separate threads for smooth UI loading
         notifDisplayHandler.postDelayed(notifUpdateThread, 10000);
         weatherUpdateHandler.post(weatherUpdateThread);
         calendarUpdateHandler.post(calendarUpdateThread);
 
-        autoOn.start();
+//        autoOn.start();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        notifDisplayHandler.removeCallbacks(notifUpdateThread);
+        weatherUpdateHandler.removeCallbacks(weatherUpdateThread);
+        calendarUpdateHandler.removeCallbacks(calendarUpdateThread);
+        finish();
     }
 
     @Override
