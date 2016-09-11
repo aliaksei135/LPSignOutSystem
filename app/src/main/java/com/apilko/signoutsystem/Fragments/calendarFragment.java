@@ -23,8 +23,6 @@ import java.util.Locale;
 public class calendarFragment extends Fragment implements CalendarPickerController {
 
     private static AgendaCalendarView agendaCalendarView;
-    Long calendarLastUpdateTimeMillis;
-    List<CalendarEvent> events;
 
     public calendarFragment() {
         // Required empty public constructor
@@ -55,21 +53,12 @@ public class calendarFragment extends Fragment implements CalendarPickerControll
 
         maxDate.add(Calendar.MONTH, 2);
 
-        if (calendarLastUpdateTimeMillis == null
-                || (System.currentTimeMillis() - calendarLastUpdateTimeMillis) >= 14400000) {
-            CalendarRemoteFetch calFetch = CalendarRemoteFetch.getInstance(context);
+        CalendarRemoteFetch calFetch = CalendarRemoteFetch.getInstance(context);
 
-            events = calFetch.getParsedCalData();
+        List<CalendarEvent> events = calFetch.getParsedCalData();
 
-            if (agendaCalendarView != null) {
-                agendaCalendarView.init(events, minDate, maxDate, Locale.UK, this);
-            }
-
-            calendarLastUpdateTimeMillis = System.currentTimeMillis();
-        } else {
-            if (agendaCalendarView != null) {
-                agendaCalendarView.init(events, minDate, maxDate, Locale.UK, this);
-            }
+        if (agendaCalendarView != null) {
+            agendaCalendarView.init(events, minDate, maxDate, Locale.UK, this);
         }
     }
 

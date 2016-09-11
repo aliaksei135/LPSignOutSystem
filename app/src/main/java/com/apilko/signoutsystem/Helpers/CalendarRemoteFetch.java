@@ -33,6 +33,8 @@ import biweekly.io.text.ICalReader;
 public class CalendarRemoteFetch {
 
     private static final String CALENDAR_URL = "http://www.leightonpark.com/media/calendar/ical/Calendar";
+    static Long calendarLastUpdateTimeMillis;
+    static List<CalendarEvent> events;
     private static long currentFileHash;
     private static CalendarRemoteFetch ourInstance;
     private Context context;
@@ -51,7 +53,15 @@ public class CalendarRemoteFetch {
     }
 
     public List<CalendarEvent> getParsedCalData() {
-        return convertCalData(getRawCalData());
+
+        if (calendarLastUpdateTimeMillis == null
+                || (System.currentTimeMillis() - calendarLastUpdateTimeMillis) >= 14400000 //4 Hours
+                || events == null) {
+            events = convertCalData(getRawCalData());
+            return events;
+        } else {
+            return events;
+        }
     }
 
     private List<CalendarEvent> convertCalData(List<VEvent> rawCalData) {
