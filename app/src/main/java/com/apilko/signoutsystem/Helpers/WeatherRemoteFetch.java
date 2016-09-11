@@ -2,6 +2,7 @@ package com.apilko.signoutsystem.Helpers;
 
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.support.v4.util.ArrayMap;
 
 import com.survivingwithandroid.weather.lib.WeatherClient;
@@ -76,31 +77,7 @@ public class WeatherRemoteFetch {
         if (weatherLastUpdateTimeMillis == null
                 || (System.currentTimeMillis() - weatherLastUpdateTimeMillis) >= 1200000
                 || weather == null) {
-            final Map<String, Object> result = new ArrayMap<>();
-            WeatherRequest request = new WeatherRequest(CITY_LON, CITY_LAT);
-            client.getCurrentCondition(request, new WeatherClient.WeatherEventListener() {
-                @Override
-                public void onWeatherRetrieved(CurrentWeather weather) {
-                    result.put("Temperature", String.valueOf(weather.weather.temperature.getTemp()));
-                    result.put("Wind Speed", String.valueOf(weather.weather.wind.getSpeed()));
-                    result.put("Wind Degrees", String.valueOf(weather.weather.wind.getDeg()));
-                    result.put("Icon", weather.weather.currentCondition.getIcon());
-
-                    WeatherRemoteFetch.weather = result;
-                    WeatherRemoteFetch.weatherLastUpdateTimeMillis = System.currentTimeMillis();
-                    weatherCallback.weatherReadyCallback(result);
-                }
-
-                @Override
-                public void onWeatherError(WeatherLibException wle) {
-                    weatherCallback.weatherReadyCallback(null);
-                }
-
-                @Override
-                public void onConnectionError(Throwable t) {
-                    weatherCallback.weatherReadyCallback(null);
-                }
-            });
+            new GetWeatherTask().execute();
         } else {
             weatherCallback.weatherReadyCallback(weather);
         }
@@ -110,6 +87,31 @@ public class WeatherRemoteFetch {
         if (forecastLastUpdateTimeMillis == null
                 || (System.currentTimeMillis() - forecastLastUpdateTimeMillis) >= 1200000
                 || forecast == null) {
+            new GetForecastTask().execute();
+        } else {
+            forecastCallback.weatherForecastReadyCallback(forecast);
+        }
+    }
+
+    public interface WeatherCallback {
+        void weatherReadyCallback(Map<String, Object> result);
+
+        void weatherForecastReadyCallback(Map<String, Map<String, Object>> forecast);
+    }
+
+    private class GetForecastTask extends AsyncTask<Void, Void, Void> {
+
+        public GetForecastTask() {
+            super();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            fetchForecast();
+            return null;
+        }
+
+        void fetchForecast() {
             final Map<String, Map<String, Object>> result = new ArrayMap<>();
             WeatherRequest request = new WeatherRequest(CITY_LON, CITY_LAT);
             client.getHourForecastWeather(request, new WeatherClient.HourForecastWeatherEventListener() {
@@ -158,15 +160,48 @@ public class WeatherRemoteFetch {
                     weatherCallback.weatherForecastReadyCallback(null);
                 }
             });
-        } else {
-            forecastCallback.weatherForecastReadyCallback(forecast);
         }
     }
 
-    public interface WeatherCallback {
-        void weatherReadyCallback(Map<String, Object> result);
+    private class GetWeatherTask extends AsyncTask<Void, Void, Void> {
 
-        void weatherForecastReadyCallback(Map<String, Map<String, Object>> forecast);
+        public GetWeatherTask() {
+            super();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            fetchWeather();
+            return null;
+        }
+
+        void fetchWeather() {
+            final Map<String, Object> result = new ArrayMap<>();
+            WeatherRequest request = new WeatherRequest(CITY_LON, CITY_LAT);
+            client.getCurrentCondition(request, new WeatherClient.WeatherEventListener() {
+                @Override
+                public void onWeatherRetrieved(CurrentWeather weather) {
+                    result.put("Temperature", String.valueOf(weather.weather.temperature.getTemp()));
+                    result.put("Wind Speed", String.valueOf(weather.weather.wind.getSpeed()));
+                    result.put("Wind Degrees", String.valueOf(weather.weather.wind.getDeg()));
+                    result.put("Icon", weather.weather.currentCondition.getIcon());
+
+                    WeatherRemoteFetch.weather = result;
+                    WeatherRemoteFetch.weatherLastUpdateTimeMillis = System.currentTimeMillis();
+                    weatherCallback.weatherReadyCallback(result);
+                }
+
+                @Override
+                public void onWeatherError(WeatherLibException wle) {
+                    weatherCallback.weatherReadyCallback(null);
+                }
+
+                @Override
+                public void onConnectionError(Throwable t) {
+                    weatherCallback.weatherReadyCallback(null);
+                }
+            });
+        }
     }
 
 }

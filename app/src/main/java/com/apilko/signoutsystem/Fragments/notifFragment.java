@@ -3,6 +3,7 @@ package com.apilko.signoutsystem.Fragments;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,11 +21,10 @@ import java.util.concurrent.ExecutionException;
 
 public class notifFragment extends Fragment {
 
+    Long notifLastUpdateTimeMillis;
     private TextSwitcher notifSwitcher;
     private List<String> notifList;
-    private long notifListCurrentHash;
     private int index;
-
     private GoogleSheetsHandler sheetsHandler;
 
     public notifFragment() {
@@ -69,12 +69,10 @@ public class notifFragment extends Fragment {
 
         //Update Notifs if old
         if (notifList == null ||
-                notifList.size() <= 0 ||
-                notifList.hashCode() != notifListCurrentHash) {
-
+                notifLastUpdateTimeMillis == null
+                || (System.currentTimeMillis() - notifLastUpdateTimeMillis) >= 600000) {
+            Log.d("NotifFragment", "Notifications List is Updated");
             notifList = getNotifList();
-            assert notifList != null;
-            notifListCurrentHash = notifList.hashCode();
         }
 
         if (index >= notifList.size()) {
