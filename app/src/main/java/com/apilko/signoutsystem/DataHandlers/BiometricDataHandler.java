@@ -103,9 +103,7 @@ public class BiometricDataHandler {
         return minBuffer;
     }
 
-    private int matchBioData(byte[] toVerifyData) {
-        //encrypt data first for higher efficiency db search
-        //toVerifyData = encryptor.encrypt(toVerifyData);
+    private int matchBioData(byte[] toVerifyData, int year) {
         //Get number of records in db
         long recordNum = dbHandler.getRecordNum();
         //Iterate through local db to find fingerprint
@@ -113,23 +111,24 @@ public class BiometricDataHandler {
         boolean[] match = new boolean[1];
         for (int i = 0; i < recordNum; i++) {
             match[0] = false;
-            storedData = strongDecryptBioData(dbHandler.getBioImage(i));
+            storedData = dbHandler.getBioImage(i, year);
             bioLib.MatchTemplate(storedData, toVerifyData, SGFDxSecurityLevel.SL_NORMAL, match);
             if (match[0]) {
                 return i;
             }
         }
+        //Return for new user or unable to find entry
         return -1;
     }
 
-    public int getAndMatchBioData() {
+    public int getAndMatchBioData(int year) {
 
-        return matchBioData(extractBioData(captureImage()));
+        return matchBioData(extractBioData(captureImage()), year);
     }
 
-    public int getAndMatchBioDataTest(byte[] imgBuffer) {
+    public int getAndMatchBioDataTest(byte[] imgBuffer, int year) {
 
-        return matchBioData(extractBioData(imgBuffer));
+        return matchBioData(extractBioData(imgBuffer), year);
     }
 
     private byte[] captureImage() {
@@ -141,7 +140,7 @@ public class BiometricDataHandler {
             } else {
                 Toast.makeText(context, "Scan finger again", Toast.LENGTH_LONG).show();
                 try {
-                    //Wait for 2 seconds before retrying
+                    //Wait for 4 seconds before retrying
                     Thread.sleep(4000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();

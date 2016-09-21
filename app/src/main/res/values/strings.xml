@@ -20,7 +20,22 @@
     <string name="initText">Identify yourself or select button below</string>
     <string name="manual_signing">Manual Signing</string>
 
-    <!--Available houses   -->
+    <string-array name="year_groups">
+        <item>Year 7</item>
+        <item>Year 8</item>
+        <item>Year 9</item>
+        <item>Year 10</item>
+        <item>Year 11</item>
+        <item>Lower Sixth</item>
+        <item>Upper Sixth</item>
+    </string-array>
+
+    <string-array name="houses">
+        <item>Grove</item>
+        <item>Fryer</item>
+        <item>Reckitt</item>
+        <item>Field</item>
+    </string-array>
 
     <string name="_3_hour_forecast">9 Hour Forecast</string>
 

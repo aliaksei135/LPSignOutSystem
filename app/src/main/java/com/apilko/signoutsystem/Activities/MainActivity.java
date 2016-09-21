@@ -164,7 +164,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             @Override
             public void onClick(View v) {
 
-                debugMethod();
+                showYearSelectDialog();
             }
         });
         assert idleActTestButton != null;
@@ -195,15 +195,15 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             @Override
             public void onClick(View v) {
                 showProgressDialog();
-                int matchResult = bioHandler.getAndMatchBioDataTest(debugBytes);
+                int matchResult = bioHandler.getAndMatchBioDataTest(debugBytes, 13);
                 if (matchResult == -1) {
                     hideProgressDialog();
                     makeNewUser();
                 } else {
                     hideProgressDialog();
                     Intent selectionIntent = new Intent(MainActivity.this, SelectionActivity.class);
-                    selectionIntent.putExtra("name", dbHandler.getName((long) matchResult));
-                    selectionIntent.putExtra("state", dbHandler.getWhereabouts((long) matchResult));
+                    selectionIntent.putExtra("name", dbHandler.getName((long) matchResult, 13));
+                    selectionIntent.putExtra("state", dbHandler.getWhereabouts((long) matchResult, 13));
                     startActivityForResult(selectionIntent, REQUEST_SELECTION);
                 }
             }
@@ -287,11 +287,11 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
     private void debugMethod() {
         //Create db record first
-        dbHandler.addNewRecord("Steve", "School", debugBytes, false);
+        dbHandler.addNewRecord("Steve", "School", 13, debugBytes, false);
         //Send off to selection activity
         Intent selectionIntent = new Intent(this, SelectionActivity.class);
         selectionIntent.putExtra("name", "Steve");
-        selectionIntent.putExtra("state", dbHandler.getWhereabouts("Steve"));
+        selectionIntent.putExtra("state", dbHandler.getWhereabouts("Steve", 13));
         startActivityForResult(selectionIntent, REQUEST_SELECTION);
     }
 
@@ -326,9 +326,10 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                     String location = data.getStringExtra("location");
                     String type = data.getStringExtra("type");
                     String[] info = {name, location, type};
+                    int year = data.getIntExtra("year", 13);
 
                     if (sheetsHandler.makeNewLogEntry(info, serverAuthCode)) {
-                        dbHandler.updateLocation(name, location);
+                        dbHandler.updateLocation(name, location, year);
                         Toast.makeText(this, "All done!", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(this, "That didn't work! Try again!", Toast.LENGTH_SHORT).show();
@@ -395,13 +396,19 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         houseSpinner.setAdapter(adapter);
         layout.addView(houseSpinner);
 
+        final Spinner yearSpinner = new Spinner(this);
+        final ArrayAdapter<String> adap = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, new String[]{"Select your year", "7", "8", "9", "10", "11", "12", "13"});
+        adap.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        yearSpinner.setAdapter(adap);
+        layout.addView(yearSpinner);
+
         builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                if (!(nameInput.getText() == null) || !(houseSpinner.getSelectedItem().equals("Select your House"))) {
+                if (!(nameInput.getText() == null) || !(houseSpinner.getSelectedItem().equals("Select your House")) || !(yearSpinner.getSelectedItem().equals("Select your year"))) {
                     dialog.cancel();
-                    dbHandler.addNewRecord(nameInput.getText().toString(), houseSpinner.getSelectedItem().toString(), getRescan(), false);
+                    dbHandler.addNewRecord(nameInput.getText().toString(), houseSpinner.getSelectedItem().toString(), Integer.parseInt(yearSpinner.getSelectedItem().toString()), getRescan(), false);
                 }
             }
         })
@@ -439,18 +446,108 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     public void SGFingerPresentCallback() {
 
         autoOn.stop();
+        showYearSelectDialog();
+    }
+
+    private void showYearSelectDialog() {
+        final int[] year = new int[1];
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Choose your Year");
+        builder.setItems(R.array.year_groups, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case 0:
+                        year[0] = 7;
+                        break;
+                    case 1:
+                        year[0] = 8;
+                        break;
+                    case 2:
+                        year[0] = 9;
+                        break;
+                    case 3:
+                        year[0] = 10;
+                        break;
+                    case 4:
+                        year[0] = 11;
+                        break;
+                    case 5:
+                        year[0] = 12;
+                        break;
+                    case 6:
+                        year[0] = 13;
+                        break;
+                    default:
+                        year[0] = 13;
+                        break;
+                }
+
+                handleBioID(year[0]);
+            }
+        });
+
+        builder.setNeutralButton("House Visitor", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                showVisitorSelectDialog();
+            }
+        });
+
+        builder.create().show();
+    }
+
+    private void showVisitorSelectDialog() {
+        final int[] year = new int[1];
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select Your House");
+        builder.setItems(R.array.houses, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case 0:
+                        //Grove visitor
+                        year[0] = 1;
+                        break;
+                    case 1:
+                        //Fryer Visitor
+                        year[0] = 5;
+                        break;
+                    case 2:
+                        //Reckitt visitor
+                        year[0] = 3;
+                        break;
+                    case 3:
+                        //Field visitor
+                        year[0] = 2;
+                        break;
+                    default:
+                        year[0] = 13;
+                        break;
+                }
+                handleBioID(year[0]);
+            }
+        });
+        builder.create().show();
+    }
+
+    private void handleBioID(int year) {
         showProgressDialog();
-        int matchResult = bioHandler.getAndMatchBioData();
+        int matchResult = bioHandler.getAndMatchBioData(year);
         if (matchResult == -1) {
             hideProgressDialog();
             makeNewUser();
         } else {
-            hideProgressDialog();
+
             Intent selectionIntent = new Intent(this, SelectionActivity.class);
-            selectionIntent.putExtra("name", dbHandler.getName((long) matchResult));
-            selectionIntent.putExtra("state", dbHandler.getWhereabouts((long) matchResult));
+            selectionIntent.putExtra("name", dbHandler.getName((long) matchResult, year));
+            selectionIntent.putExtra("state", dbHandler.getWhereabouts((long) matchResult, year));
+            hideProgressDialog();
             startActivityForResult(selectionIntent, REQUEST_SELECTION);
         }
+
     }
 
     private byte[] getRescan() {

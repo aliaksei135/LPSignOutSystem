@@ -20,9 +20,9 @@ android {
             proguardFile 'proguard-signoutsystem.txt'
         }
         debug {
-            minifyEnabled false
-            shrinkResources false
-            zipAlignEnabled false
+            minifyEnabled true
+            shrinkResources true
+            zipAlignEnabled true
             proguardFile 'proguard-signoutsystem.txt'
         }
     }
