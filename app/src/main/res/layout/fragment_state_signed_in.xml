@@ -4,58 +4,74 @@
              android:layout_height="match_parent"
              tools:context="com.apilko.signoutsystem.Fragments.stateSignedInFragment">
 
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:text="I am going to..."
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textSize="48sp" />
+
     <com.sevenheaven.segmentcontrol.SegmentControl
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/house_button1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="140dp"
         android:textSize="32sp"
+        app:boundWidth="4dp"
         app:colors="#0099CC"
         app:cornerRadius="5dp"
         app:direction="vertical"
         app:horizonGap="10dp"
         app:separatorWidth="2dp"
-        app:boundWidth="4dp"
         app:texts="Field|Fryer|Grove|Reckitt"
-        app:verticalGap="10dp"
-        android:layout_marginStart="140dp"
-        android:layout_centerVertical="true"
-        android:layout_alignParentStart="true"/>
+        app:verticalGap="10dp" />
 
     <Button
+        android:id="@+id/study_period_button1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Study Period"
-        android:id="@+id/study_period_button1"
         android:layout_above="@+id/house_button1"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="92dp"/>
+        android:layout_marginBottom="92dp"
+        android:drawableLeft="@drawable/edu"
+        android:drawablePadding="2dp"
+        android:text="Study Period" />
 
     <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Green"
         android:id="@+id/going_to_green_button1"
-        android:layout_alignTop="@+id/study_period_button1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:layout_marginEnd="78dp"/>
+        android:layout_alignTop="@+id/study_period_button1"
+        android:layout_marginEnd="78dp"
+        android:drawableLeft="@drawable/edu"
+        android:drawablePadding="2dp"
+        android:text="Green" />
 
     <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Cancel"
-        android:backgroundTint="#b5ff0000"
         android:id="@+id/cancel_button1"
-        android:layout_alignParentBottom="true"
-        android:layout_alignEnd="@+id/going_to_green_button1"
-        android:layout_marginBottom="152dp"/>
-
-    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Home"
+        android:layout_alignEnd="@+id/going_to_green_button1"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="152dp"
+        android:backgroundTint="#b5ff0000"
+        android:text="Cancel" />
+
+    <Button
         android:id="@+id/going_home_button1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignTop="@+id/cancel_button1"
-        android:layout_centerHorizontal="true"/>
+        android:layout_centerHorizontal="true"
+        android:drawableLeft="@drawable/edu"
+        android:drawablePadding="2dp"
+        android:text="Home" />
 
 </RelativeLayout>

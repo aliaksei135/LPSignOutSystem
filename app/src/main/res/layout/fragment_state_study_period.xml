@@ -4,6 +4,16 @@
                 android:layout_height="match_parent"
                 tools:context="com.apilko.signoutsystem.Fragments.stateAtGreenFragment">
 
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:text="I am going to..."
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textSize="48sp" />
+
     <com.sevenheaven.segmentcontrol.SegmentControl
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/house_button4"
@@ -29,6 +39,8 @@
         android:layout_above="@+id/house_button4"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="92dp"
+        android:drawableLeft="@drawable/edu"
+        android:drawablePadding="2dp"
         android:text="Green" />
 
     <Button
@@ -38,6 +50,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignTop="@+id/going_to_green_button4"
         android:layout_marginEnd="78dp"
+        android:drawableLeft="@drawable/edu"
+        android:drawablePadding="2dp"
         android:text="Home" />
 
     <Button
@@ -48,6 +62,8 @@
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="152dp"
         android:backgroundTint="#b5ff0000"
+        android:drawableLeft="@drawable/edu"
+        android:drawablePadding="2dp"
         android:text="Cancel" />
 
     <Button
@@ -56,6 +72,8 @@
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/cancel_button4"
         android:layout_centerHorizontal="true"
+        android:drawableLeft="@drawable/edu"
+        android:drawablePadding="2dp"
         android:text="Sign In" />
 
 </RelativeLayout>
