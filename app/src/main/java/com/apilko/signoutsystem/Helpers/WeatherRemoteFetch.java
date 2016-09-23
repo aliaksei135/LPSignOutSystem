@@ -36,11 +36,10 @@ public class WeatherRemoteFetch {
     private WeatherRemoteFetch(Context context) {
 
         WeatherConfig config = new WeatherConfig();
-        config.ApiKey = "7533e026aba6ce727d53b58b40747a45";
+        config.ApiKey = "0cf885aa8ebcb4149df4b8c615ee4778";
         config.lang = "en";
         config.unitSystem = WeatherConfig.UNIT_SYSTEM.M;
 
-        //TODO Sort why the hell this has randomly stopped working
         client = new WeatherDefaultClient();
         WeatherClient.ClientBuilder builder = new WeatherClient.ClientBuilder();
 

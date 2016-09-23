@@ -46,5 +46,6 @@
 -keep class github.**
 -keep class net.**
 -keep class com.github.**
+-keep class com.survivingwithandroid.**
 -keep class android.support.v4.app.** { *; }
 -keep interface android.support.v4.app.** { *; }
