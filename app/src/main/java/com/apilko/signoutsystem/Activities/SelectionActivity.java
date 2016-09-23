@@ -1,9 +1,13 @@
 package com.apilko.signoutsystem.Activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Gravity;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.apilko.signoutsystem.Fragments.stateAtGreenFragment;
 import com.apilko.signoutsystem.Fragments.stateSignedInFragment;
@@ -29,7 +33,6 @@ public class SelectionActivity extends AppCompatActivity implements
         Intent intent = getIntent();
         String state = intent.getStringExtra("state");
         name = intent.getStringExtra("name");
-        String serverAuthCode = intent.getStringExtra("serverAuthCode");
 
         TextView currentStateTextView = (TextView) findViewById(R.id.currentStateTextView);
         if (currentStateTextView != null) {
@@ -115,6 +118,38 @@ public class SelectionActivity extends AppCompatActivity implements
         }
     }
 
+    private void userActionConfirm(final Intent resultIntent) {
+
+        String type = resultIntent.getStringExtra("location");
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Confirmation");
+
+        TextView textView = new TextView(this);
+        textView.setText(type + "?");
+        textView.setGravity(Gravity.CENTER);
+        textView.setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Large);
+        textView.setPadding(5, 5, 5, 5);
+        builder.setView(textView);
+
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                sendResultIntent(resultIntent);
+            }
+        });
+
+        //No need for OCL as result defaults to false
+        builder.setNegativeButton("No", null);
+
+        builder.create().show();
+    }
+
+    private void sendResultIntent(Intent result) {
+        setResult(RESULT_OK, result);
+        finish();
+    }
+
     @Override
     //Fragment Listener interface implementation
     public void onFragmentInteraction(String type) {
@@ -129,69 +164,56 @@ public class SelectionActivity extends AppCompatActivity implements
                 result.putExtra("location", "Signed Out");
                 //Not functional for now, added for compatibility with other methods in future eg NFC
                 result.putExtra("type", "Fingerprint");
-                setResult(RESULT_OK, result);
-                finish();
                 break;
             case "GREEN":
                 result.putExtra("name", name);
                 result.putExtra("location", "Gone to Green");
                 //Not functional for now, added for compatibility with other methods in future eg NFC
                 result.putExtra("type", "Fingerprint");
-                setResult(RESULT_OK, result);
-                finish();
                 break;
             case "STUDY_PERIOD":
                 result.putExtra("name", name);
                 result.putExtra("location", "Study Period");
                 //Not functional for now, added for compatibility with other methods in future eg NFC
                 result.putExtra("type", "Fingerprint");
-                setResult(RESULT_OK, result);
-                finish();
                 break;
             case "VISIT_HOUSE_FIELD":
                 result.putExtra("name", name);
                 result.putExtra("location", "Visiting Field");
                 //Not functional for now, added for compatibility with other methods in future eg NFC
                 result.putExtra("type", "Fingerprint");
-                setResult(RESULT_OK, result);
-                finish();
                 break;
             case "VISIT_HOUSE_GROVE":
                 result.putExtra("name", name);
                 result.putExtra("location", "Visiting Grove");
                 //Not functional for now, added for compatibility with other methods in future eg NFC
                 result.putExtra("type", "Fingerprint");
-                setResult(RESULT_OK, result);
-                finish();
                 break;
             case "VISIT_HOUSE_RECKITT":
                 result.putExtra("name", name);
                 result.putExtra("location", "Visiting Reckitt");
                 //Not functional for now, added for compatibility with other methods in future eg NFC
                 result.putExtra("type", "Fingerprint");
-                setResult(RESULT_OK, result);
-                finish();
                 break;
             case "VISIT_HOUSE_FRYER":
                 result.putExtra("name", name);
                 result.putExtra("location", "Visiting Fryer");
                 //Not functional for now, added for compatibility with other methods in future eg NFC
                 result.putExtra("type", "Fingerprint");
-                setResult(RESULT_OK, result);
-                finish();
                 break;
             case "SIGN_IN":
                 result.putExtra("name", name);
                 result.putExtra("location", "Signed In");
                 //Not functional for now, added for compatibility with other methods in future eg NFC
                 result.putExtra("type", "Fingerprint");
-                setResult(RESULT_OK, result);
-                finish();
                 break;
             default:
+                Toast.makeText(this, "That didn't work!", Toast.LENGTH_SHORT).show();
                 setResult(RESULT_CANCELED);
                 finish();
                 break;
         }
+        userActionConfirm(result);
     }
+
 }

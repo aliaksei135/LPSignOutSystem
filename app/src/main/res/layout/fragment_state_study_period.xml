@@ -62,8 +62,6 @@
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="152dp"
         android:backgroundTint="#b5ff0000"
-        android:drawableLeft="@drawable/edu"
-        android:drawablePadding="2dp"
         android:text="Cancel" />
 
     <Button

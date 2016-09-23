@@ -105,7 +105,7 @@ public class BiometricDataHandler {
 
     private int matchBioData(byte[] toVerifyData, int year) {
         //Get number of records in db
-        long recordNum = dbHandler.getRecordNum();
+        long recordNum = dbHandler.getRecordNum(year);
         //Iterate through local db to find fingerprint
         byte[] storedData;
         boolean[] match = new boolean[1];

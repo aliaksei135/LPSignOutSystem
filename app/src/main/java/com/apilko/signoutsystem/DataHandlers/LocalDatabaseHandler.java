@@ -18,7 +18,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
     public static final int RECKITT_VISITOR = 3;
     public static final int SCHOOL_VISITOR = 4;
     public static final int FRYER_VISITOR = 5;
-    private static final String TABLE_PEOPLE = "people"; //SQL table of people and their properties
+
     //SQL table for each year
     private static final String TABLE_Y13 = "year13";
     private static final String TABLE_Y12 = "year12";
@@ -51,6 +51,9 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
     private LocalDatabaseHandler(Context context) {
 
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+
+        //This is weird as onCreate should be called automagically
+        onCreate(getWritableDatabase());
     }
 
     public static LocalDatabaseHandler getInstance(Context context) {
@@ -73,10 +76,10 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
         return cursor.getBlob(6);
     }
 
-    public long getRecordNum() {
+    public long getRecordNum(int year) {
 
         SQLiteDatabase db = getReadableDatabase();
-        long recordNum = DatabaseUtils.longForQuery(db, "SELECT COUNT (*) FROM " + TABLE_PEOPLE + ";", null);
+        long recordNum = DatabaseUtils.longForQuery(db, "SELECT COUNT (*) FROM " + getYearTable(year) + ";", null);
         db.close();
         return recordNum;
     }
@@ -228,20 +231,23 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
 
-        String query = "CREATE TABLE " + TABLE_PEOPLE + "(" +
-                COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT" + "," +
-                COLUMN_NAME + " TEXT" + "," +
-                COLUMN_NATIVE_HOUSE + " TEXT" + "," +
-                COLUMN_STATE + " INTEGER" + "," +
-                COLUMN_WHEREABOUTS + " TEXT" + "," +
-                COLUMN_TAG_ID + " BLOB" + "," +
-                COLUMN_BIO_IMAGE + " BLOB" +
-                " )";
+        String query;
 
-        db.execSQL(query);
+//DEBUG only table
+//        String query = "CREATE TABLE IF NOT EXISTS " + TABLE_PEOPLE + "(" +
+//                COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT" + "," +
+//                COLUMN_NAME + " TEXT" + "," +
+//                COLUMN_NATIVE_HOUSE + " TEXT" + "," +
+//                COLUMN_STATE + " INTEGER" + "," +
+//                COLUMN_WHEREABOUTS + " TEXT" + "," +
+//                COLUMN_TAG_ID + " BLOB" + "," +
+//                COLUMN_BIO_IMAGE + " BLOB" +
+//                " )";
+//
+//        db.execSQL(query);
 
         //Fryer only tables
-/*        query = "CREATE TABLE " + TABLE_Y7 + "(" +
+/*        query = "CREATE TABLE IF NOT EXISTS " + TABLE_Y7 + "(" +
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT" + "," +
                 COLUMN_NAME + " TEXT" + "," +
                 COLUMN_NATIVE_HOUSE + " TEXT" + "," +
@@ -253,7 +259,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
 
         db.execSQL(query);
 
-        query = "CREATE TABLE " + TABLE_Y8 + "(" +
+        query = "CREATE TABLE IF NOT EXISTS " + TABLE_Y8 + "(" +
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT" + "," +
                 COLUMN_NAME + " TEXT" + "," +
                 COLUMN_NATIVE_HOUSE + " TEXT" + "," +
@@ -265,7 +271,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
 
         db.execSQL(query);*/
 
-        query = "CREATE TABLE " + TABLE_Y9 + "(" +
+        query = "CREATE TABLE IF NOT EXISTS " + TABLE_Y9 + "(" +
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT" + "," +
                 COLUMN_NAME + " TEXT" + "," +
                 COLUMN_NATIVE_HOUSE + " TEXT" + "," +
@@ -277,7 +283,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
 
         db.execSQL(query);
 
-        query = "CREATE TABLE " + TABLE_Y10 + "(" +
+        query = "CREATE TABLE IF NOT EXISTS " + TABLE_Y10 + "(" +
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT" + "," +
                 COLUMN_NAME + " TEXT" + "," +
                 COLUMN_NATIVE_HOUSE + " TEXT" + "," +
@@ -289,7 +295,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
 
         db.execSQL(query);
 
-        query = "CREATE TABLE " + TABLE_Y11 + "(" +
+        query = "CREATE TABLE IF NOT EXISTS " + TABLE_Y11 + "(" +
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT" + "," +
                 COLUMN_NAME + " TEXT" + "," +
                 COLUMN_NATIVE_HOUSE + " TEXT" + "," +
@@ -301,7 +307,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
 
         db.execSQL(query);
 
-        query = "CREATE TABLE " + TABLE_Y12 + "(" +
+        query = "CREATE TABLE IF NOT EXISTS " + TABLE_Y12 + "(" +
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT" + "," +
                 COLUMN_NAME + " TEXT" + "," +
                 COLUMN_NATIVE_HOUSE + " TEXT" + "," +
@@ -313,7 +319,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
 
         db.execSQL(query);
 
-        query = "CREATE TABLE " + TABLE_Y13 + "(" +
+        query = "CREATE TABLE IF NOT EXISTS " + TABLE_Y13 + "(" +
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT" + "," +
                 COLUMN_NAME + " TEXT" + "," +
                 COLUMN_NATIVE_HOUSE + " TEXT" + "," +
@@ -325,7 +331,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
 
         db.execSQL(query);
 
-        query = "CREATE TABLE " + TABLE_GROVE_VISITOR + "(" +
+        query = "CREATE TABLE IF NOT EXISTS " + TABLE_GROVE_VISITOR + "(" +
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT" + "," +
                 COLUMN_NAME + " TEXT" + "," +
                 COLUMN_NATIVE_HOUSE + " TEXT" + "," +
@@ -337,7 +343,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
 
         db.execSQL(query);
 
-        query = "CREATE TABLE " + TABLE_FIELD_VISITOR + "(" +
+        query = "CREATE TABLE IF NOT EXISTS " + TABLE_FIELD_VISITOR + "(" +
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT" + "," +
                 COLUMN_NAME + " TEXT" + "," +
                 COLUMN_NATIVE_HOUSE + " TEXT" + "," +
@@ -349,7 +355,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
 
         db.execSQL(query);
 
-        query = "CREATE TABLE " + TABLE_RECKITT_VISITOR + "(" +
+        query = "CREATE TABLE IF NOT EXISTS " + TABLE_RECKITT_VISITOR + "(" +
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT" + "," +
                 COLUMN_NAME + " TEXT" + "," +
                 COLUMN_NATIVE_HOUSE + " TEXT" + "," +
@@ -361,7 +367,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
 
         db.execSQL(query);
 
-        query = "CREATE TABLE " + TABLE_FRYER_VISITOR + "(" +
+        query = "CREATE TABLE IF NOT EXISTS " + TABLE_FRYER_VISITOR + "(" +
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT" + "," +
                 COLUMN_NAME + " TEXT" + "," +
                 COLUMN_NATIVE_HOUSE + " TEXT" + "," +
@@ -377,7 +383,13 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         //Delete current tables
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PEOPLE + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_Y7 + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_Y8 + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_Y9 + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_Y10 + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_Y11 + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_Y12 + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_Y13 + ";");
         //Rebuild tables
         onCreate(db);
     }

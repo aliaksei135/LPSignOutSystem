@@ -164,7 +164,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             @Override
             public void onClick(View v) {
 
-                showYearSelectDialog();
+                debugMethod();
             }
         });
         assert idleActTestButton != null;
