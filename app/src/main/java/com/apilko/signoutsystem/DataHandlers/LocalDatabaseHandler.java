@@ -228,26 +228,39 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
+    public void resetAllToRegistered() {
+        String query;
+        SQLiteDatabase db = getWritableDatabase();
+
+        query = "UPDATE " + TABLE_Y7 + " SET " + COLUMN_WHEREABOUTS + " = " + "Registered";
+        db.execSQL(query);
+
+        query = "UPDATE " + TABLE_Y8 + " SET " + COLUMN_WHEREABOUTS + " = " + "Registered";
+        db.execSQL(query);
+
+        query = "UPDATE " + TABLE_Y9 + " SET " + COLUMN_WHEREABOUTS + " = " + "Registered";
+        db.execSQL(query);
+
+        query = "UPDATE " + TABLE_Y10 + " SET " + COLUMN_WHEREABOUTS + " = " + "Registered";
+        db.execSQL(query);
+
+        query = "UPDATE " + TABLE_Y11 + " SET " + COLUMN_WHEREABOUTS + " = " + "Registered";
+        db.execSQL(query);
+
+        query = "UPDATE " + TABLE_Y12 + " SET " + COLUMN_WHEREABOUTS + " = " + "Registered";
+        db.execSQL(query);
+
+        query = "UPDATE " + TABLE_Y13 + " SET " + COLUMN_WHEREABOUTS + " = " + "Registered";
+        db.execSQL(query);
+    }
+
     @Override
     public void onCreate(SQLiteDatabase db) {
 
         String query;
 
-//DEBUG only table
-//        String query = "CREATE TABLE IF NOT EXISTS " + TABLE_PEOPLE + "(" +
-//                COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT" + "," +
-//                COLUMN_NAME + " TEXT" + "," +
-//                COLUMN_NATIVE_HOUSE + " TEXT" + "," +
-//                COLUMN_STATE + " INTEGER" + "," +
-//                COLUMN_WHEREABOUTS + " TEXT" + "," +
-//                COLUMN_TAG_ID + " BLOB" + "," +
-//                COLUMN_BIO_IMAGE + " BLOB" +
-//                " )";
-//
-//        db.execSQL(query);
-
         //Fryer only tables
-/*        query = "CREATE TABLE IF NOT EXISTS " + TABLE_Y7 + "(" +
+        query = "CREATE TABLE IF NOT EXISTS " + TABLE_Y7 + "(" +
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT" + "," +
                 COLUMN_NAME + " TEXT" + "," +
                 COLUMN_NATIVE_HOUSE + " TEXT" + "," +
@@ -269,7 +282,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
                 COLUMN_BIO_IMAGE + " BLOB" +
                 " )";
 
-        db.execSQL(query);*/
+        db.execSQL(query);
 
         query = "CREATE TABLE IF NOT EXISTS " + TABLE_Y9 + "(" +
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT" + "," +

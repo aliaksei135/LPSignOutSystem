@@ -45,6 +45,8 @@ public class stateAtGreenFragment extends Fragment {
 
         super.onViewCreated(view, savedInstanceState);
 
+        int year = getArguments().getInt("year");
+
         SegmentControl houseButton = (SegmentControl) getView().findViewById(R.id.house_button3);
         houseButton.setOnSegmentControlClickListener(new SegmentControl.OnSegmentControlClickListener() {
             @Override

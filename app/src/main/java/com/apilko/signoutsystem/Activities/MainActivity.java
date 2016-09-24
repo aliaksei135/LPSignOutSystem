@@ -52,8 +52,6 @@ import SecuGen.FDxSDKPro.SGFingerPresentEvent;
 @Keep
 public class MainActivity extends AppCompatActivity implements SGFingerPresentEvent, GoogleApiClient.OnConnectionFailedListener {
 
-
-    ////////////////////////DEFINE CONSTANTS////////////////////////////////////
     private static final int REQUEST_SELECTION = 530;
     private static final int REQUEST_FIRST_LAUNCH = 531;
 
@@ -138,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
 //        bioLib = new JSGFPLib((UsbManager) getSystemService(Context.USB_SERVICE));
 //        try {
-//            bioHandler = biometricDataHandler.getInstance(bioLib, this);
+//            bioHandler = BiometricDataHandler.getInstance(bioLib, this);
 //        } catch (Resources.NotFoundException e) {
 //            AlertDialog.Builder builder = new AlertDialog.Builder(this);
 //            builder.setCancelable(false);
@@ -544,6 +542,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             Intent selectionIntent = new Intent(this, SelectionActivity.class);
             selectionIntent.putExtra("name", dbHandler.getName((long) matchResult, year));
             selectionIntent.putExtra("state", dbHandler.getWhereabouts((long) matchResult, year));
+            selectionIntent.putExtra("year", year);
             hideProgressDialog();
             startActivityForResult(selectionIntent, REQUEST_SELECTION);
         }

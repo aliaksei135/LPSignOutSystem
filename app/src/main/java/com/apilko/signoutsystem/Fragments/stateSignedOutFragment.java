@@ -1,6 +1,7 @@
 package com.apilko.signoutsystem.Fragments;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -8,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.apilko.signoutsystem.R;
 import com.sevenheaven.segmentcontrol.SegmentControl;
@@ -72,12 +74,7 @@ public class stateSignedOutFragment extends Fragment {
             }
         });
         Button atGreenButton = (Button) getView().findViewById(R.id.going_to_green_button2);
-        atGreenButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onButtonPressed("GREEN");
-            }
-        });
+
         Button signInButton = (Button) getView().findViewById(R.id.sign_in_button2);
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,6 +89,25 @@ public class stateSignedOutFragment extends Fragment {
                 onButtonPressed("CANCEL");
             }
         });
+
+        int year = getArguments().getInt("year");
+
+        if (year > 11) {
+            atGreenButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onButtonPressed("GREEN");
+                }
+            });
+        } else {
+            atGreenButton.setBackgroundColor(Color.RED);
+            atGreenButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(getContext(), "Not Allowed!", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 
     private void onButtonPressed(String type) {

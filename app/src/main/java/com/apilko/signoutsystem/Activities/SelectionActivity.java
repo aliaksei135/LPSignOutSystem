@@ -33,6 +33,7 @@ public class SelectionActivity extends AppCompatActivity implements
         Intent intent = getIntent();
         String state = intent.getStringExtra("state");
         name = intent.getStringExtra("name");
+        int year = intent.getIntExtra("year", 13);
 
         TextView currentStateTextView = (TextView) findViewById(R.id.currentStateTextView);
         if (currentStateTextView != null) {
@@ -44,75 +45,93 @@ public class SelectionActivity extends AppCompatActivity implements
                 return;
             }
 
+            Bundle bundle = new Bundle();
+            bundle.putInt("year", year);
+
             switch (state) {
                 case "SIGN_IN":
                     stateSignedInFragment stateSignedInFrag = stateSignedInFragment.newInstance();
+                    stateSignedInFrag.setArguments(bundle);
                     getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, stateSignedInFrag).commit();
                     break;
                 case "Signed In":
                     stateSignedInFrag = stateSignedInFragment.newInstance();
+                    stateSignedInFrag.setArguments(bundle);
                     getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, stateSignedInFrag).commit();
                     break;
                 case "SIGN_OUT":
                     stateSignedOutFragment stateSignedOutFrag = stateSignedOutFragment.newInstance();
+                    stateSignedOutFrag.setArguments(bundle);
                     getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, stateSignedOutFrag).commit();
                     break;
                 case "Signed Out":
                     stateSignedOutFrag = stateSignedOutFragment.newInstance();
+                    stateSignedOutFrag.setArguments(bundle);
                     getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, stateSignedOutFrag).commit();
                     break;
                 case "AT_GREEN":
                     stateAtGreenFragment stateAtGreenFrag = stateAtGreenFragment.newInstance();
+                    stateAtGreenFrag.setArguments(bundle);
                     getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, stateAtGreenFrag).commit();
                     break;
                 case "Gone to Green":
                     stateAtGreenFrag = stateAtGreenFragment.newInstance();
+                    stateAtGreenFrag.setArguments(bundle);
                     getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, stateAtGreenFrag).commit();
                     break;
                 case "STUDY_PERIOD":
                     stateStudyPeriodFragment stateStudyPeriodFrag = stateStudyPeriodFragment.newInstance();
+                    stateStudyPeriodFrag.setArguments(bundle);
                     getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, stateStudyPeriodFrag).commit();
                     break;
                 case "Study Period":
                     stateStudyPeriodFrag = stateStudyPeriodFragment.newInstance();
+                    stateStudyPeriodFrag.setArguments(bundle);
                     getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, stateStudyPeriodFrag).commit();
                     break;
                 case "VISIT_HOUSE_FIELD":
                     stateVisitHouseFragment stateVisitFieldHouseFrag = stateVisitHouseFragment.newInstance("FIELD");
+                    stateVisitFieldHouseFrag.setArguments(bundle);
                     getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, stateVisitFieldHouseFrag).commit();
                     break;
                 case "Visiting Field":
                     stateVisitFieldHouseFrag = stateVisitHouseFragment.newInstance("FIELD");
+                    stateVisitFieldHouseFrag.setArguments(bundle);
                     getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, stateVisitFieldHouseFrag).commit();
                     break;
                 case "VISIT_HOUSE_GROVE":
                     stateVisitHouseFragment stateVisitGroveHouseFrag = stateVisitHouseFragment.newInstance("GROVE");
+                    stateVisitGroveHouseFrag.setArguments(bundle);
                     getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, stateVisitGroveHouseFrag).commit();
                     break;
                 case "Visiting Grove":
                     stateVisitGroveHouseFrag = stateVisitHouseFragment.newInstance("GROVE");
+                    stateVisitGroveHouseFrag.setArguments(bundle);
                     getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, stateVisitGroveHouseFrag).commit();
                     break;
                 case "VISIT_HOUSE_RECKITT":
                     stateVisitHouseFragment stateVisitReckittHouseFrag = stateVisitHouseFragment.newInstance("RECKITT");
+                    stateVisitReckittHouseFrag.setArguments(bundle);
                     getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, stateVisitReckittHouseFrag).commit();
                     break;
                 case "Visiting Reckitt":
                     stateVisitReckittHouseFrag = stateVisitHouseFragment.newInstance("RECKITT");
+                    stateVisitReckittHouseFrag.setArguments(bundle);
                     getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, stateVisitReckittHouseFrag).commit();
                     break;
                 case "VISIT_HOUSE_FRYER":
                     stateVisitHouseFragment stateVisitFryerHouseFrag = stateVisitHouseFragment.newInstance("FRYER");
+                    stateVisitFryerHouseFrag.setArguments(bundle);
                     getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, stateVisitFryerHouseFrag).commit();
                     break;
                 case "Visiting Fryer":
                     stateVisitFryerHouseFrag = stateVisitHouseFragment.newInstance("FRYER");
+                    stateVisitFryerHouseFrag.setArguments(bundle);
                     getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, stateVisitFryerHouseFrag).commit();
                     break;
                 default:
                     //Display all possible states fragment
                     //TODO Handle this
-//                    getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, currentFrag).commit();
                     break;
             }
         }
