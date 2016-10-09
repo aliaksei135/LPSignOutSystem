@@ -44,6 +44,8 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
     private static final String COLUMN_WHEREABOUTS = "whereabouts"; //String, shows the persons whereabouts
     private static final String COLUMN_TAG_ID = "tag_id"; //BLOB (Byte[]), the ID of the persons NFC Tag
     private static final String COLUMN_BIO_IMAGE = "bio_image"; //BLOB (Byte[]) , the image of the persons fingerprint /////// Could be useful: http://stackoverflow.com/questions/7331310/how-to-store-image-as-blob-in-sqlite-how-to-retrieve-it
+    private static final String COLUMN_PIN = "pin"; //Integer, A unique PIN for manual identification
+
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "data.db";
     private static LocalDatabaseHandler ourInstance;
@@ -52,7 +54,6 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
 
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
 
-        //This is weird as onCreate should be called automagically
         onCreate(getWritableDatabase());
     }
 
@@ -108,7 +109,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
         return whereabouts;
     }
 
-    public void addNewRecord(String name, String house, int year, byte[] ID, boolean isNFC) {
+    public void addNewRecord(String name, String house, int year, int pin, byte[] ID, boolean isNFC) {
         //Add new data to buffer
         ContentValues values = new ContentValues();
         if (isNFC) {
@@ -119,6 +120,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
         values.put(COLUMN_NAME, name);
         values.put(COLUMN_STATE, 1);
         values.put(COLUMN_NATIVE_HOUSE, house);
+        values.put(COLUMN_PIN, pin);
         values.put(COLUMN_WHEREABOUTS, "Signed In");
 
         //Push values to db
@@ -126,6 +128,10 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         db.insert(table, null, values);
         db.close();
+    }
+
+    public boolean checkPINCollision(int year, int pin) {
+        return findRecord(COLUMN_PIN, pin, year);
     }
 
     public void updateID(String name, Object newID, boolean isNFC, int year) throws IllegalArgumentException {
@@ -267,7 +273,8 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
                 COLUMN_STATE + " INTEGER" + "," +
                 COLUMN_WHEREABOUTS + " TEXT" + "," +
                 COLUMN_TAG_ID + " BLOB" + "," +
-                COLUMN_BIO_IMAGE + " BLOB" +
+                COLUMN_BIO_IMAGE + " BLOB" + "," +
+                COLUMN_PIN + " INTEGER" +
                 " )";
 
         db.execSQL(query);
@@ -279,7 +286,8 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
                 COLUMN_STATE + " INTEGER" + "," +
                 COLUMN_WHEREABOUTS + " TEXT" + "," +
                 COLUMN_TAG_ID + " BLOB" + "," +
-                COLUMN_BIO_IMAGE + " BLOB" +
+                COLUMN_BIO_IMAGE + " BLOB" + "," +
+                COLUMN_PIN + " INTEGER" +
                 " )";
 
         db.execSQL(query);
@@ -291,7 +299,8 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
                 COLUMN_STATE + " INTEGER" + "," +
                 COLUMN_WHEREABOUTS + " TEXT" + "," +
                 COLUMN_TAG_ID + " BLOB" + "," +
-                COLUMN_BIO_IMAGE + " BLOB" +
+                COLUMN_BIO_IMAGE + " BLOB" + "," +
+                COLUMN_PIN + " INTEGER" +
                 " )";
 
         db.execSQL(query);
@@ -303,7 +312,8 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
                 COLUMN_STATE + " INTEGER" + "," +
                 COLUMN_WHEREABOUTS + " TEXT" + "," +
                 COLUMN_TAG_ID + " BLOB" + "," +
-                COLUMN_BIO_IMAGE + " BLOB" +
+                COLUMN_BIO_IMAGE + " BLOB" + "," +
+                COLUMN_PIN + " INTEGER" +
                 " )";
 
         db.execSQL(query);
@@ -315,7 +325,8 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
                 COLUMN_STATE + " INTEGER" + "," +
                 COLUMN_WHEREABOUTS + " TEXT" + "," +
                 COLUMN_TAG_ID + " BLOB" + "," +
-                COLUMN_BIO_IMAGE + " BLOB" +
+                COLUMN_BIO_IMAGE + " BLOB" + "," +
+                COLUMN_PIN + " INTEGER" +
                 " )";
 
         db.execSQL(query);
@@ -327,7 +338,8 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
                 COLUMN_STATE + " INTEGER" + "," +
                 COLUMN_WHEREABOUTS + " TEXT" + "," +
                 COLUMN_TAG_ID + " BLOB" + "," +
-                COLUMN_BIO_IMAGE + " BLOB" +
+                COLUMN_BIO_IMAGE + " BLOB" + "," +
+                COLUMN_PIN + " INTEGER" +
                 " )";
 
         db.execSQL(query);
@@ -339,7 +351,8 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
                 COLUMN_STATE + " INTEGER" + "," +
                 COLUMN_WHEREABOUTS + " TEXT" + "," +
                 COLUMN_TAG_ID + " BLOB" + "," +
-                COLUMN_BIO_IMAGE + " BLOB" +
+                COLUMN_BIO_IMAGE + " BLOB" + "," +
+                COLUMN_PIN + " INTEGER" +
                 " )";
 
         db.execSQL(query);
@@ -351,7 +364,8 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
                 COLUMN_STATE + " INTEGER" + "," +
                 COLUMN_WHEREABOUTS + " TEXT" + "," +
                 COLUMN_TAG_ID + " BLOB" + "," +
-                COLUMN_BIO_IMAGE + " BLOB" +
+                COLUMN_BIO_IMAGE + " BLOB" + "," +
+                COLUMN_PIN + " INTEGER" +
                 " )";
 
         db.execSQL(query);
@@ -363,7 +377,8 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
                 COLUMN_STATE + " INTEGER" + "," +
                 COLUMN_WHEREABOUTS + " TEXT" + "," +
                 COLUMN_TAG_ID + " BLOB" + "," +
-                COLUMN_BIO_IMAGE + " BLOB" +
+                COLUMN_BIO_IMAGE + " BLOB" + "," +
+                COLUMN_PIN + " INTEGER" +
                 " )";
 
         db.execSQL(query);
@@ -375,7 +390,8 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
                 COLUMN_STATE + " INTEGER" + "," +
                 COLUMN_WHEREABOUTS + " TEXT" + "," +
                 COLUMN_TAG_ID + " BLOB" + "," +
-                COLUMN_BIO_IMAGE + " BLOB" +
+                COLUMN_BIO_IMAGE + " BLOB" + "," +
+                COLUMN_PIN + " INTEGER" +
                 " )";
 
         db.execSQL(query);
@@ -387,7 +403,8 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
                 COLUMN_STATE + " INTEGER" + "," +
                 COLUMN_WHEREABOUTS + " TEXT" + "," +
                 COLUMN_TAG_ID + " BLOB" + "," +
-                COLUMN_BIO_IMAGE + " BLOB" +
+                COLUMN_BIO_IMAGE + " BLOB" + "," +
+                COLUMN_PIN + " INTEGER" +
                 " )";
 
         db.execSQL(query);

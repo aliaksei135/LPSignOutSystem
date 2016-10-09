@@ -9,19 +9,14 @@ import SecuGen.FDxSDKPro.JSGFPLib;
 import SecuGen.FDxSDKPro.SGAutoOnEventNotifier;
 import SecuGen.FDxSDKPro.SGFingerPresentEvent;
 
-public class FingerprintMonitorService extends IntentService implements SGFingerPresentEvent {
+public class MonitorService extends IntentService implements SGFingerPresentEvent {
 
     static final String TAG = "FingerprintMonitor";
 
     JSGFPLib bioLibrary;
     private SGAutoOnEventNotifier autoOn;
 
-    /**
-     * Creates an IntentService.  Invoked by your subclass's constructor.
-     *
-     * @param name Used to name the worker thread, important only for debugging.
-     */
-    public FingerprintMonitorService(String name, JSGFPLib bioLib) {
+    public MonitorService(String name, JSGFPLib bioLib) {
         super(name);
         bioLibrary = bioLib;
         autoOn = new SGAutoOnEventNotifier(bioLib, this);

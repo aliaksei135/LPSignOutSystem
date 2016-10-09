@@ -13,6 +13,7 @@ import com.google.api.services.sheets.v4.SheetsScopes;
 
 import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -44,6 +45,8 @@ import com.apilko.signoutsystem.DataHandlers.BiometricDataHandler;
 import com.apilko.signoutsystem.DataHandlers.GoogleSheetsHandler;
 import com.apilko.signoutsystem.DataHandlers.LocalDatabaseHandler;
 import com.apilko.signoutsystem.R;
+
+import java.util.Calendar;
 
 import SecuGen.FDxSDKPro.JSGFPLib;
 import SecuGen.FDxSDKPro.SGAutoOnEventNotifier;
@@ -148,6 +151,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         sheetsHandler = GoogleSheetsHandler.getInstance(this);
         dbHandler = LocalDatabaseHandler.getInstance(this);
 
+
         assert manualSigningButton != null;
         manualSigningButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -226,13 +230,32 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         return serverAuthCode;
     }
 
+    private void scheduleResetRegistered() {
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        //Schedule reset to registered state task
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent resetIntent = new Intent(this, MainActivity.class);
+        resetIntent.putExtra("type", "ResetRegistered");
+        PendingIntent taskIntent = PendingIntent.getBroadcast(this, 0, resetIntent, 0);
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(System.currentTimeMillis());
+        cal.set(Calendar.HOUR_OF_DAY, 1);
+        cal.set(Calendar.MINUTE, 30);
+
+        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), AlarmManager.INTERVAL_DAY, taskIntent);
+    }
+
     @Override
     protected void onStart() {
 
         super.onStart();
 
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         boolean isFirstRun = sharedPreferences.getBoolean("isFirstRun", true);
+        boolean scheduledTasksSet = sharedPreferences.getBoolean("scheduledTasksSet", false);
 
         if (isFirstRun) {
             //show start activity
@@ -256,16 +279,26 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                 opr.setResultCallback(new ResultCallback<GoogleSignInResult>() {
                     @Override
                     public void onResult(@NonNull GoogleSignInResult googleSignInResult) {
-
-                        MainActivity.serverAuthCode = googleSignInResult.getSignInAccount().getServerAuthCode();
+                        if (googleSignInResult.getSignInAccount() != null) {
+                            //TODO Fix this being null fsr
+                            MainActivity.serverAuthCode = googleSignInResult.getSignInAccount().getServerAuthCode();
+                        } else {
+                            startActivityForResult(new Intent(MainActivity.this, FirstLaunch.class), REQUEST_FIRST_LAUNCH);
+                        }
                         hideProgressDialog();
                         Log.d(TAG, "handleSignInResult:" + googleSignInResult.isSuccess());
+                        sharedPreferences.edit().putBoolean("isFirstRun", false).commit();
                     }
                 });
             }
+
         }
 
-        sharedPreferences.edit().putBoolean("isFirstRun", false).commit();
+        if (!scheduledTasksSet) {
+            scheduleResetRegistered();
+            sharedPreferences.edit().putBoolean("scheduledTasksSet", true);
+        }
+
     }
 
     @Override
@@ -279,13 +312,36 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
 
     private void manualIdentify() {
-        //TODO Manual Identification
-        Toast.makeText(MainActivity.this, "Not implemented yet!", Toast.LENGTH_SHORT).show();
+        final AlertDialog.Builder bldr = new AlertDialog.Builder(this);
+        bldr.setTitle("Manual Identification");
+        final EditText pinField = new EditText(this);
+        pinField.setHint("Enter your PIN");
+        pinField.setInputType(InputType.TYPE_CLASS_NUMBER);
+        bldr.setView(pinField);
+        bldr.setPositiveButton("Enter", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (pinField.getText() == null) {
+                    Toast.makeText(MainActivity.this, "No PIN entered", Toast.LENGTH_SHORT).show();
+                    bldr.show();
+                } else {
+                    handlePINID(pinField.getText().toString());
+                }
+            }
+        });
+        bldr.setNegativeButton("Cancel", null);
+
+        bldr.create().show();
+    }
+
+    private void handlePINID(String text) {
+        int pin = Integer.parseInt(text);
+
     }
 
     private void debugMethod() {
         //Create db record first
-        dbHandler.addNewRecord("Steve", "School", 13, debugBytes, false);
+        dbHandler.addNewRecord("Steve", "School", 9, 7700737, debugBytes, false);
         //Send off to selection activity
         Intent selectionIntent = new Intent(this, SelectionActivity.class);
         selectionIntent.putExtra("name", "Steve");
@@ -363,12 +419,11 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         }
     }
 
-    @SuppressWarnings("deprecation")
     private void makeNewUser() {
 
         Toast.makeText(this, "New User", Toast.LENGTH_LONG).show();
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Enter Name and House");
 
         LinearLayout layout = new LinearLayout(this);
@@ -400,23 +455,63 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         yearSpinner.setAdapter(adap);
         layout.addView(yearSpinner);
 
-        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+        final TextView pinTitle = new TextView(this);
+        pinTitle.setText("Enter a PIN as a backup");
+        pinTitle.setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Medium);
+        layout.addView(pinTitle);
+
+        final EditText pinField = new EditText(this);
+        pinField.setHint("Enter a PIN");
+        pinField.setInputType(InputType.TYPE_CLASS_NUMBER);
+        layout.addView(pinField);
+
+        final EditText pinConfirmField = new EditText(this);
+        pinConfirmField.setHint("Confirm your PIN");
+        pinConfirmField.setInputType(InputType.TYPE_CLASS_NUMBER);
+        layout.addView(pinConfirmField);
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                if (!(nameInput.getText() == null) || !(houseSpinner.getSelectedItem().equals("Select your House")) || !(yearSpinner.getSelectedItem().equals("Select your year"))) {
-                    dialog.cancel();
-                    dbHandler.addNewRecord(nameInput.getText().toString(), houseSpinner.getSelectedItem().toString(), Integer.parseInt(yearSpinner.getSelectedItem().toString()), getRescan(), false);
+                if (!(nameInput.getText() == null)
+                        || !(houseSpinner.getSelectedItem().equals("Select your House"))
+                        || !(yearSpinner.getSelectedItem().equals("Select your year"))
+                        || pinField.getText() == null
+                        || pinConfirmField.getText() == null) {
+
+                    if (pinField.getText().toString().equals(pinConfirmField.getText().toString())) {
+
+                        int year = Integer.parseInt(yearSpinner.getSelectedItem().toString());
+                        int pin = Integer.parseInt(pinConfirmField.getText().toString());
+
+                        if (dbHandler.checkPINCollision(year, pin)) {
+                            dbHandler.addNewRecord(nameInput.getText().toString(),
+                                    houseSpinner.getSelectedItem().toString(),
+                                    Integer.parseInt(yearSpinner.getSelectedItem().toString()),
+                                    Integer.parseInt(pinConfirmField.getText().toString()),
+                                    getRescan(),
+                                    false);
+                            dialog.cancel();
+                        } else {
+                            builder.show();
+                            Toast.makeText(MainActivity.this, "PIN Collision!\nPlease enter a new PIN", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(MainActivity.this, "PINs don't match", Toast.LENGTH_SHORT).show();
+                        builder.show();
+                    }
                 }
             }
-        })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+        });
 
-                        dialog.cancel();
-                    }
-                });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                dialog.cancel();
+            }
+        });
 
         builder.setView(layout);
         builder.show();
@@ -433,6 +528,9 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             case "fingerprint":
                 //Fingerprint present
                 SGFingerPresentCallback();
+                break;
+            case "ResetRegistered":
+                dbHandler.resetAllToRegistered();
                 break;
             default:
                 //Do nothing
