@@ -18,34 +18,29 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
     public static final int RECKITT_VISITOR = 3;
     public static final int SCHOOL_VISITOR = 4;
     public static final int FRYER_VISITOR = 5;
-
+    //Same columns for all tables
+    public static final String COLUMN_ID = "id"; //Integer, A unique identifier for each person **PRIMARY KEY**
+    public static final String COLUMN_NAME = "name"; //String, Persons full name
+    public static final String COLUMN_NATIVE_HOUSE = "home_house"; //String, Persons home house
+    public static final String COLUMN_STATE = "state"; //Integer (Boolean), 1 (True)=In House, else 0 (false) = Out of House
+    public static final String COLUMN_WHEREABOUTS = "whereabouts"; //String, shows the persons whereabouts
+    public static final String COLUMN_TAG_ID = "tag_id"; //BLOB (Byte[]), the ID of the persons NFC Tag
+    public static final String COLUMN_BIO_IMAGE = "bio_image"; //BLOB (Byte[]) , the image of the persons fingerprint /////// Could be useful: http://stackoverflow.com/questions/7331310/how-to-store-image-as-blob-in-sqlite-how-to-retrieve-it
+    public static final String COLUMN_PIN = "pin"; //Integer, A unique PIN for manual identification
     //SQL table for each year
     private static final String TABLE_Y13 = "year13";
     private static final String TABLE_Y12 = "year12";
     private static final String TABLE_Y11 = "year11";
     private static final String TABLE_Y10 = "year10";
     private static final String TABLE_Y9 = "year9";
-
     //Fryer only SQL tables
     private static final String TABLE_Y8 = "year8";
     private static final String TABLE_Y7 = "year7";
-
     //Grove visitor tables
     private static final String TABLE_GROVE_VISITOR = "visitorGrove";
     private static final String TABLE_FIELD_VISITOR = "visitorField";
     private static final String TABLE_RECKITT_VISITOR = "visitorReckitt";
     private static final String TABLE_FRYER_VISITOR = "visitorFryer";
-
-    //Same columns for all tables
-    private static final String COLUMN_ID = "id"; //Integer, A unique identifier for each person **PRIMARY KEY**
-    private static final String COLUMN_NAME = "name"; //String, Persons full name
-    private static final String COLUMN_NATIVE_HOUSE = "home_house"; //String, Persons home house
-    private static final String COLUMN_STATE = "state"; //Integer (Boolean), 1 (True)=In House, else 0 (false) = Out of House
-    private static final String COLUMN_WHEREABOUTS = "whereabouts"; //String, shows the persons whereabouts
-    private static final String COLUMN_TAG_ID = "tag_id"; //BLOB (Byte[]), the ID of the persons NFC Tag
-    private static final String COLUMN_BIO_IMAGE = "bio_image"; //BLOB (Byte[]) , the image of the persons fingerprint /////// Could be useful: http://stackoverflow.com/questions/7331310/how-to-store-image-as-blob-in-sqlite-how-to-retrieve-it
-    private static final String COLUMN_PIN = "pin"; //Integer, A unique PIN for manual identification
-
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "data.db";
     private static LocalDatabaseHandler ourInstance;
@@ -67,20 +62,34 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
-    public byte[] getBioImage(long id, int year) {
+    byte[] getBioImage(long id, int year) {
 
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT  FROM " + getYearTable(year) + " WHERE " + COLUMN_ID + " = " + id + ";", null);
-        db.close();
-        cursor.close();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + getYearTable(year) + " ;", null);
         //Column 7 is the Bio image which we want (cursor is zero indexed)
-        return cursor.getBlob(6);
+        cursor.move((int) id);
+        byte[] bioImg = cursor.getBlob(6);
+        cursor.close();
+        db.close();
+        return bioImg;
+    }
+
+    public long getPin(long id, int year) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.query(false, getYearTable(year), new String[]{COLUMN_PIN}, COLUMN_ID + " = " + id, null, null, null, null, null);
+        long pin = 0;
+        if (c != null && c.moveToFirst()) {
+            pin = c.getLong(0);
+            c.close();
+        }
+        db.close();
+        return pin;
     }
 
     public long getRecordNum(int year) {
 
         SQLiteDatabase db = getReadableDatabase();
-        long recordNum = DatabaseUtils.longForQuery(db, "SELECT COUNT (*) FROM " + getYearTable(year) + ";", null);
+        long recordNum = DatabaseUtils.queryNumEntries(db, getYearTable(year));
         db.close();
         return recordNum;
     }
@@ -88,7 +97,12 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
     public String getName(long id, int year) {
 
         SQLiteDatabase db = getReadableDatabase();
-        String name = DatabaseUtils.stringForQuery(db, "SELECT " + COLUMN_NAME + " FROM " + getYearTable(year) + " WHERE " + COLUMN_ID + " = " + id + ";", null);
+        Cursor c = db.query(true, getYearTable(year), new String[]{COLUMN_NAME}, COLUMN_ID + " = " + id, null, null, null, null, null);
+        String name = "";
+        if (c != null && c.moveToFirst()) {
+            name = c.getString(0);
+            c.close();
+        }
         db.close();
         return name;
     }
@@ -130,7 +144,10 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
         db.close();
     }
 
-    public boolean checkPINCollision(int year, int pin) {
+    /*
+    Returns true if PIN EXISTS
+     */
+    public boolean checkPINCollision(int year, long pin) {
         return findRecord(COLUMN_PIN, pin, year);
     }
 
@@ -153,7 +170,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
-    private boolean findRecord(String field, Object key, int year) {
+    public boolean findRecord(String field, Object key, int year) {
 
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor;
@@ -197,7 +214,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
-    public void deleteRecord(byte[] tagID, int year) {
+    public void deleteRecordbyNFC(byte[] tagID, int year) {
 
         SQLiteDatabase db = getWritableDatabase();
         String table = getYearTable(year);

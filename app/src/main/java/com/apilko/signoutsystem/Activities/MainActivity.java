@@ -22,6 +22,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
@@ -53,7 +54,7 @@ import SecuGen.FDxSDKPro.SGAutoOnEventNotifier;
 import SecuGen.FDxSDKPro.SGFingerPresentEvent;
 
 @Keep
-public class MainActivity extends AppCompatActivity implements SGFingerPresentEvent, GoogleApiClient.OnConnectionFailedListener {
+public class MainActivity extends AppCompatActivity implements SGFingerPresentEvent, GoogleApiClient.OnConnectionFailedListener, DialogInterface.OnDismissListener {
 
     private static final int REQUEST_SELECTION = 530;
     private static final int REQUEST_FIRST_LAUNCH = 531;
@@ -137,16 +138,18 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
         registerReceiver(mUsbReceiver, filter);
 
-//        bioLib = new JSGFPLib((UsbManager) getSystemService(Context.USB_SERVICE));
-//        try {
-//            bioHandler = BiometricDataHandler.getInstance(bioLib, this);
-//        } catch (Resources.NotFoundException e) {
-//            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//            builder.setCancelable(false);
-//            builder.setTitle("Device not connected");
-//            builder.setMessage("Restart app with device connected");
-//            builder.show();
-//        }
+        bioLib = new JSGFPLib((UsbManager) getSystemService(Context.USB_SERVICE));
+        bioLib.AutoOnEnabled();
+        bioLib.OpenDevice(0);
+        try {
+            bioHandler = BiometricDataHandler.getInstance(bioLib, this);
+        } catch (Resources.NotFoundException e) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setCancelable(false);
+            builder.setTitle("Device not connected");
+            builder.setMessage("Restart app with device connected");
+            builder.show();
+        }
 
         sheetsHandler = GoogleSheetsHandler.getInstance(this);
         dbHandler = LocalDatabaseHandler.getInstance(this);
@@ -197,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             @Override
             public void onClick(View v) {
                 showProgressDialog();
-                int matchResult = bioHandler.getAndMatchBioDataTest(debugBytes, 13);
+                int matchResult = bioHandler.getAndMatchBioData(13);
                 if (matchResult == -1) {
                     hideProgressDialog();
                     makeNewUser();
@@ -211,8 +214,6 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             }
         });
 
-//        autoOn = new SGAutoOnEventNotifier(bioLib, this);
-//        autoOn.start();
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestScopes(new Scope(SheetsScopes.SPREADSHEETS))
@@ -280,7 +281,6 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                     @Override
                     public void onResult(@NonNull GoogleSignInResult googleSignInResult) {
                         if (googleSignInResult.getSignInAccount() != null) {
-                            //TODO Fix this being null fsr
                             MainActivity.serverAuthCode = googleSignInResult.getSignInAccount().getServerAuthCode();
                         } else {
                             startActivityForResult(new Intent(MainActivity.this, FirstLaunch.class), REQUEST_FIRST_LAUNCH);
@@ -292,11 +292,15 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                 });
             }
 
+            autoOn = new SGAutoOnEventNotifier(bioLib, this);
+            autoOn.start();
+
         }
 
         if (!scheduledTasksSet) {
             scheduleResetRegistered();
-            sharedPreferences.edit().putBoolean("scheduledTasksSet", true);
+            scheduledTasksSet = true;
+            sharedPreferences.edit().putBoolean("scheduledTasksSet", true).commit();
         }
 
     }
@@ -306,8 +310,8 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
         super.onDestroy();
         unregisterReceiver(mUsbReceiver);
-//        bioLib.CloseDevice();
-//        bioLib.Close();
+        bioLib.CloseDevice();
+        bioLib.Close();
     }
 
 
@@ -325,7 +329,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                     Toast.makeText(MainActivity.this, "No PIN entered", Toast.LENGTH_SHORT).show();
                     bldr.show();
                 } else {
-                    handlePINID(pinField.getText().toString());
+                    showYearSelectDialog(null, pinField.getText().toString(), false);
                 }
             }
         });
@@ -334,9 +338,38 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         bldr.create().show();
     }
 
-    private void handlePINID(String text) {
-        int pin = Integer.parseInt(text);
+    private void handlePINID(String text, int year) {
+        long pin = Long.parseLong(text);
+        showProgressDialog();
+        boolean pinExists = dbHandler.checkPINCollision(year, pin);
+        if (pinExists) {
+            int matchResult = 0;
+            long numRecords = dbHandler.getRecordNum(year);
+            if (numRecords <= 0) {
+                matchResult = -1;
+            } else {
+                for (int i = 0; i < numRecords; i++) {
+                    long dbPin = dbHandler.getPin(i, year);
+                    if (dbPin == pin) {
+                        matchResult = i;
+                        break;
+                    }
+                    matchResult++;
+                }
+            }
+            if (matchResult == -1) {
+                hideProgressDialog();
+                makeNewUser();
+            } else {
 
+                Intent selectionIntent = new Intent(this, SelectionActivity.class);
+                selectionIntent.putExtra("name", dbHandler.getName((long) matchResult, year));
+                selectionIntent.putExtra("state", dbHandler.getWhereabouts((long) matchResult, year));
+                selectionIntent.putExtra("year", year);
+                hideProgressDialog();
+                startActivityForResult(selectionIntent, REQUEST_SELECTION);
+            }
+        }
     }
 
     private void debugMethod() {
@@ -389,7 +422,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                         Toast.makeText(this, "That didn't work! Try again!", Toast.LENGTH_SHORT).show();
                     }
                     //Display confirmation
-                    Toast.makeText(this, name + type, Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Goodbye " + name + "!", Toast.LENGTH_LONG).show();
                 } else if (resultCode == RESULT_CANCELED) {
                     Toast.makeText(MainActivity.this, "Cancelled", Toast.LENGTH_SHORT).show();
                 }
@@ -407,6 +440,8 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                         editor.apply();
                         mCredential.setSelectedAccountName(accountName);
                     }
+
+                    autoOn.start();
 
                 } else {
                     if (data != null) {
@@ -426,7 +461,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Enter Name and House");
 
-        LinearLayout layout = new LinearLayout(this);
+        final LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
 
         final TextView nameTitle = new TextView(this);
@@ -448,6 +483,11 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         houseSpinner.setAdapter(adapter);
         layout.addView(houseSpinner);
+
+        final TextView yearTitle = new TextView(this);
+        houseTitle.setText("Year");
+        houseTitle.setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Medium);
+        layout.addView(yearTitle);
 
         final Spinner yearSpinner = new Spinner(this);
         final ArrayAdapter<String> adap = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, new String[]{"Select your year", "7", "8", "9", "10", "11", "12", "13"});
@@ -473,48 +513,69 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                //This is overridden after the dialog shows anyway
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //This is overridden after the dialog shows anyway
+            }
+        });
 
-                if (!(nameInput.getText() == null)
+        builder.setView(layout);
+        builder.setCancelable(false);
+
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!(nameInput.getText().toString().isEmpty())
                         || !(houseSpinner.getSelectedItem().equals("Select your House"))
                         || !(yearSpinner.getSelectedItem().equals("Select your year"))
-                        || pinField.getText() == null
-                        || pinConfirmField.getText() == null) {
+                        || !(pinField.getText().toString().isEmpty())
+                        || !(pinConfirmField.getText().toString().isEmpty())) {
 
                     if (pinField.getText().toString().equals(pinConfirmField.getText().toString())) {
 
                         int year = Integer.parseInt(yearSpinner.getSelectedItem().toString());
                         int pin = Integer.parseInt(pinConfirmField.getText().toString());
 
-                        if (dbHandler.checkPINCollision(year, pin)) {
-                            dbHandler.addNewRecord(nameInput.getText().toString(),
-                                    houseSpinner.getSelectedItem().toString(),
-                                    Integer.parseInt(yearSpinner.getSelectedItem().toString()),
-                                    Integer.parseInt(pinConfirmField.getText().toString()),
-                                    getRescan(),
-                                    false);
-                            dialog.cancel();
+                        if (!(dbHandler.checkPINCollision(year, pin))) {
+
+                            if (!(pinField.getText().toString().length() <= 4)) {
+
+                                pushNewUser(nameInput.getText().toString(),
+                                        houseSpinner.getSelectedItem().toString(),
+                                        Integer.parseInt(yearSpinner.getSelectedItem().toString()),
+                                        Integer.parseInt(pinConfirmField.getText().toString()));
+
+                                dialog.cancel();
+                            } else {
+                                Toast.makeText(MainActivity.this, "PIN must be at least 5 digits long", Toast.LENGTH_SHORT).show();
+                            }
+
                         } else {
-                            builder.show();
                             Toast.makeText(MainActivity.this, "PIN Collision!\nPlease enter a new PIN", Toast.LENGTH_SHORT).show();
                         }
                     } else {
                         Toast.makeText(MainActivity.this, "PINs don't match", Toast.LENGTH_SHORT).show();
-                        builder.show();
                     }
+                } else {
+                    Toast.makeText(MainActivity.this, "Enter ALL the information", Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        dialog.getButton(DialogInterface.BUTTON_NEGATIVE).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-
+            public void onClick(View v) {
+                dialog.setOnDismissListener(MainActivity.this);
                 dialog.cancel();
             }
         });
-
-        builder.setView(layout);
-        builder.show();
     }
 
     @Override
@@ -542,11 +603,19 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     public void SGFingerPresentCallback() {
 
         autoOn.stop();
-        showYearSelectDialog();
+        final byte[] bioData = bioHandler.getProcessedBioData();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                showYearSelectDialog(bioData, null, true);
+            }
+        });
     }
 
-    private void showYearSelectDialog() {
+    private void showYearSelectDialog(final byte[] bioData, final String pin, final boolean isBio) {
         final int[] year = new int[1];
+
+        hideProgressDialog();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Choose your Year");
@@ -580,21 +649,25 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                         break;
                 }
 
-                handleBioID(year[0]);
+                if (isBio) {
+                    handleBioID(year[0], bioData);
+                } else {
+                    handlePINID(pin, year[0]);
+                }
             }
         });
 
         builder.setNeutralButton("House Visitor", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                showVisitorSelectDialog();
+                showVisitorSelectDialog(bioData);
             }
         });
 
         builder.create().show();
     }
 
-    private void showVisitorSelectDialog() {
+    private void showVisitorSelectDialog(final byte[] bioData) {
         final int[] year = new int[1];
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -623,15 +696,15 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                         year[0] = 13;
                         break;
                 }
-                handleBioID(year[0]);
+                handleBioID(year[0], bioData);
             }
         });
         builder.create().show();
     }
 
-    private void handleBioID(int year) {
+    private void handleBioID(int year, byte[] bioData) {
         showProgressDialog();
-        int matchResult = bioHandler.getAndMatchBioData(year);
+        int matchResult = bioHandler.matchBioData(bioData, year);
         if (matchResult == -1) {
             hideProgressDialog();
             makeNewUser();
@@ -647,18 +720,24 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
     }
 
-    private byte[] getRescan() {
+    private void pushNewUser(final String name, final String house, final int year, final int pin) {
 
-        Toast.makeText(this, "New User Registration\nScan same finger again", Toast.LENGTH_LONG).show();
-        return null;
-//        //Wait for 2.5 seconds for user interaction
-//        try {
-//            Thread.sleep(2500);
-//
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//        return bioHandler.getProcessedBioData();
+        Toast.makeText(this, "New User Pushed", Toast.LENGTH_LONG).show();
+
+        AlertDialog.Builder bldr = new AlertDialog.Builder(this);
+        bldr.setTitle("New User Enrollment");
+        bldr.setMessage("Place same finger on scanner and press OK to enroll");
+        bldr.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                byte[] bioData = bioHandler.getProcessedBioData();
+                dbHandler.addNewRecord(name, house, year, pin, bioData, false);
+                Toast.makeText(MainActivity.this, name + ", you are now enrolled", Toast.LENGTH_LONG).show();
+            }
+        });
+        bldr.setOnDismissListener(this);
+        bldr.show();
+
     }
 
     @Override
@@ -668,4 +747,13 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 //        finish();
     }
 
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        try {
+            Thread.sleep(1500);
+            autoOn.start();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 }

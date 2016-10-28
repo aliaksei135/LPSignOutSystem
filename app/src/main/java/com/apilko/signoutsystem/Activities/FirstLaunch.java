@@ -10,11 +10,14 @@ import com.google.android.gms.common.api.Scope;
 import com.google.api.services.sheets.v4.SheetsScopes;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.apilko.signoutsystem.R;
 
@@ -63,13 +66,21 @@ public class FirstLaunch extends AppCompatActivity implements GoogleApiClient.On
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             Log.d(TAG, "Sign in result: " + result.isSuccess());
             if (result.isSuccess()) {
-                setResult(RESULT_OK, new Intent(this, MainActivity.class).putExtra("result", "Success!").putExtra("authCode", result.getSignInAccount().getServerAuthCode()));
-                finish();
+                if (result.getSignInAccount().getServerAuthCode() != null) {
+                    prefs.edit().putBoolean("isFirstRun", false).commit();
+                    setResult(RESULT_OK, new Intent(this, MainActivity.class).putExtra("result", "Success!").putExtra("authCode", result.getSignInAccount().getServerAuthCode()));
+                    finish();
+                } else {
+                    Toast.makeText(this, "Server didn't return auth code!\nApp terminated", Toast.LENGTH_SHORT).show();
+                    System.exit(1);
+                }
             } else {
                 setResult(RESULT_CANCELED);
                 finish();
