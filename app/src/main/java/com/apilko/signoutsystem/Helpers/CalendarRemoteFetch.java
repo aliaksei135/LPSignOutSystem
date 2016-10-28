@@ -16,11 +16,9 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
@@ -33,8 +31,8 @@ import biweekly.io.text.ICalReader;
 public class CalendarRemoteFetch {
 
     private static final String CALENDAR_URL = "http://www.leightonpark.com/media/calendar/ical/Calendar";
-    static Long calendarLastUpdateTimeMillis;
-    static List<CalendarEvent> events;
+    private static Long calendarLastUpdateTimeMillis;
+    private static List<CalendarEvent> events;
     private static long currentFileHash;
     private static CalendarRemoteFetch ourInstance;
     private Context context;
@@ -71,28 +69,21 @@ public class CalendarRemoteFetch {
         SimpleDateFormat endFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.UK);
         for (VEvent event : rawCalData) {
             //This is bound to have something wrong with it
-            try {
-                Date startDate = startFormat.parse(event.getDateStart().getValue().toString());
-                Calendar startCal = startFormat.getCalendar();
+            Calendar startCal = startFormat.getCalendar();
+            Calendar endCal = endFormat.getCalendar();
 
-                Date endDate = endFormat.parse(event.getDateEnd().getValue().toString());
-                Calendar endCal = endFormat.getCalendar();
+            CalendarEvent calEvent = new BaseCalendarEvent(
+                    event.hashCode(), //Use hash of event as Unique ID
+                    android.graphics.Color.DKGRAY, //Use Cyan as the colour for all events
+                    event.getSummary().getValue(), //Actually the title
+                    " ", //Empty description
+                    " ", //Empty Location
+                    startCal.getTime().getTime(), //Start time/date
+                    endCal.getTime().getTime(), //End time/date
+                    1, //Events are all day
+                    null);
 
-                CalendarEvent calEvent = new BaseCalendarEvent(
-                        event.hashCode(), //Use hash of event as Unique ID
-                        android.graphics.Color.DKGRAY, //Use Cyan as the colour for all events
-                        event.getSummary().getValue(), //Actually the title
-                        " ", //Empty description
-                        " ", //Empty Location
-                        startCal.getTime().getTime(), //Start time/date
-                        endCal.getTime().getTime(), //End time/date
-                        1, //Events are all day
-                        null);
-
-                result.add(calEvent);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+            result.add(calEvent);
 
 
         }

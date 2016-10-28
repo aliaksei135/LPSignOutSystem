@@ -21,17 +21,17 @@ import java.util.Map;
 public class forecastFragment extends Fragment implements WeatherRemoteFetch.WeatherCallback {
 
     private static final String ICON_BASE_URL = "http://openweathermap.org/img/w/";
-    //UI elements
-    private static ImageView firstIconView;
-    private static ImageView secondIconView;
-    private static ImageView thirdIconView;
-    private static TextView firstTempView;
-    private static TextView secondTempView;
-    private static TextView thirdTempView;
-    private static TextView firstTimeView;
-    private static TextView secondTimeView;
-    private static TextView thirdTimeView;
     private static Context context;
+    //UI elements
+    private ImageView firstIconView;
+    private ImageView secondIconView;
+    private ImageView thirdIconView;
+    private TextView firstTempView;
+    private TextView secondTempView;
+    private TextView thirdTempView;
+    private TextView firstTimeView;
+    private TextView secondTimeView;
+    private TextView thirdTimeView;
     private WeatherRemoteFetch weatherFetch;
 
     public forecastFragment() {

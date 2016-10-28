@@ -23,14 +23,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @Keep
 public class GoogleSheetsHandler {
 
-    private static final List<String> SCOPES = Arrays.asList(SheetsScopes.SPREADSHEETS);
+    private static final List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS);
     private static GoogleSheetsHandler ourInstance;
     private static String authCode;
     private final String SPREADSHEET_ID;
@@ -165,20 +165,14 @@ public class GoogleSheetsHandler {
 
         @Override
         protected Boolean doInBackground(String... params) {
-            try {
-                return updateDatafromApi(params);
-            } catch (IOException e) {
-                e.printStackTrace();
-                cancel(true);
-                return false;
-            }
+            return updateDatafromApi(params);
         }
 
-        private Boolean updateDatafromApi(String[] params) throws IOException {
+        private Boolean updateDatafromApi(String[] params) {
 
             ValueRange range = new ValueRange();
             List<List<Object>> valuesList = new ArrayList<>();
-            valuesList.add(Arrays.<Object>asList(params));
+            valuesList.add(Collections.singletonList((Object) params));
             range.setValues(valuesList);
 
             try {

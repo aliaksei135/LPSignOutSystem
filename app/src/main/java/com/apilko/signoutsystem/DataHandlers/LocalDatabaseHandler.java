@@ -13,20 +13,20 @@ import android.util.Log;
 @Keep
 public class LocalDatabaseHandler extends SQLiteOpenHelper {
 
-    public static final int GROVE_VISITOR = 1;
-    public static final int FIELD_VISITOR = 2;
-    public static final int RECKITT_VISITOR = 3;
     public static final int SCHOOL_VISITOR = 4;
-    public static final int FRYER_VISITOR = 5;
+    private static final int GROVE_VISITOR = 1;
+    private static final int FIELD_VISITOR = 2;
+    private static final int RECKITT_VISITOR = 3;
+    private static final int FRYER_VISITOR = 5;
     //Same columns for all tables
-    public static final String COLUMN_ID = "id"; //Integer, A unique identifier for each person **PRIMARY KEY**
-    public static final String COLUMN_NAME = "name"; //String, Persons full name
-    public static final String COLUMN_NATIVE_HOUSE = "home_house"; //String, Persons home house
-    public static final String COLUMN_STATE = "state"; //Integer (Boolean), 1 (True)=In House, else 0 (false) = Out of House
-    public static final String COLUMN_WHEREABOUTS = "whereabouts"; //String, shows the persons whereabouts
-    public static final String COLUMN_TAG_ID = "tag_id"; //BLOB (Byte[]), the ID of the persons NFC Tag
-    public static final String COLUMN_BIO_IMAGE = "bio_image"; //BLOB (Byte[]) , the image of the persons fingerprint /////// Could be useful: http://stackoverflow.com/questions/7331310/how-to-store-image-as-blob-in-sqlite-how-to-retrieve-it
-    public static final String COLUMN_PIN = "pin"; //Integer, A unique PIN for manual identification
+    private static final String COLUMN_ID = "id"; //Integer, A unique identifier for each person **PRIMARY KEY**
+    private static final String COLUMN_NAME = "name"; //String, Persons full name
+    private static final String COLUMN_NATIVE_HOUSE = "home_house"; //String, Persons home house
+    private static final String COLUMN_STATE = "state"; //Integer (Boolean), 1 (True)=In House, else 0 (false) = Out of House
+    private static final String COLUMN_WHEREABOUTS = "whereabouts"; //String, shows the persons whereabouts
+    private static final String COLUMN_TAG_ID = "tag_id"; //BLOB (Byte[]), the ID of the persons NFC Tag
+    private static final String COLUMN_BIO_IMAGE = "bio_image"; //BLOB (Byte[]) , the image of the persons fingerprint /////// Could be useful: http://stackoverflow.com/questions/7331310/how-to-store-image-as-blob-in-sqlite-how-to-retrieve-it
+    private static final String COLUMN_PIN = "pin"; //Integer, A unique PIN for manual identification
     //SQL table for each year
     private static final String TABLE_Y13 = "year13";
     private static final String TABLE_Y12 = "year12";
@@ -170,7 +170,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
-    public boolean findRecord(String field, Object key, int year) {
+    private boolean findRecord(String field, Object key, int year) {
 
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor;

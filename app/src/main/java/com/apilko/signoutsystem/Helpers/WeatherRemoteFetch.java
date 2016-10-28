@@ -25,9 +25,10 @@ public class WeatherRemoteFetch {
     static final String OWM_CITY_ID = "2639577";
     private static final double CITY_LAT = 51.436623;
     private static final double CITY_LON = -0.945724;
-    static Long weatherLastUpdateTimeMillis, forecastLastUpdateTimeMillis;
-    static Map<String, Object> weather;
-    static Map<String, Map<String, Object>> forecast;
+    private static Long weatherLastUpdateTimeMillis;
+    private static Long forecastLastUpdateTimeMillis;
+    private static Map<String, Object> weather;
+    private static Map<String, Map<String, Object>> forecast;
     private static WeatherRemoteFetch ourInstance;
     private WeatherClient client;
     private WeatherCallback weatherCallback;

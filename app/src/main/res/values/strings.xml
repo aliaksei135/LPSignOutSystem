@@ -17,8 +17,8 @@
     -->
 
 
-    <string name="initText">Identify yourself or select button below</string>
-    <string name="manual_signing">Manual Signing</string>
+    <string name="initText">Scan your finger or use your PIN</string>
+    <string name="manual_signing">Use your PIN</string>
 
     <string-array name="year_groups">
         <item>Year 7</item>

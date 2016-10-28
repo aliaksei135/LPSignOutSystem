@@ -73,12 +73,15 @@ public class IdleActivity extends AppCompatActivity implements SGFingerPresentEv
         }
     };
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_idle);
+
+        if (getIntent() != null) {
+
+        }
 
         notifFrag = (notifFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_notif);
         forecastFrag = new forecastFragment();

@@ -124,6 +124,10 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Get rid of the unneeded action bar
+        if (getActionBar() != null) {
+            getActionBar().hide();
+        }
 
         Button manualSigningButton = (Button) findViewById(R.id.manualSigningButton);
 
@@ -131,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         Button idleActTestButton = (Button) findViewById(R.id.idleActTestButton);
         Button flActTestButton = (Button) findViewById(R.id.flActTestButton);
         Button newUserTestButton = (Button) findViewById(R.id.newUserTestButton);
-        Button matchBioTestButton = (Button) findViewById(R.id.bioTestButton);
+
 
         //USB Permissions
         PendingIntent mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
@@ -195,24 +199,6 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                 makeNewUser();
             }
         });
-        assert matchBioTestButton != null;
-        matchBioTestButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showProgressDialog();
-                int matchResult = bioHandler.getAndMatchBioData(13);
-                if (matchResult == -1) {
-                    hideProgressDialog();
-                    makeNewUser();
-                } else {
-                    hideProgressDialog();
-                    Intent selectionIntent = new Intent(MainActivity.this, SelectionActivity.class);
-                    selectionIntent.putExtra("name", dbHandler.getName((long) matchResult, 13));
-                    selectionIntent.putExtra("state", dbHandler.getWhereabouts((long) matchResult, 13));
-                    startActivityForResult(selectionIntent, REQUEST_SELECTION);
-                }
-            }
-        });
 
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -232,8 +218,6 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     }
 
     private void scheduleResetRegistered() {
-
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         //Schedule reset to registered state task
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
@@ -299,7 +283,6 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
         if (!scheduledTasksSet) {
             scheduleResetRegistered();
-            scheduledTasksSet = true;
             sharedPreferences.edit().putBoolean("scheduledTasksSet", true).commit();
         }
 
@@ -421,10 +404,12 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                     } else {
                         Toast.makeText(this, "That didn't work! Try again!", Toast.LENGTH_SHORT).show();
                     }
+                    onDismiss(null);
                     //Display confirmation
                     Toast.makeText(this, "Goodbye " + name + "!", Toast.LENGTH_LONG).show();
                 } else if (resultCode == RESULT_CANCELED) {
                     Toast.makeText(MainActivity.this, "Cancelled", Toast.LENGTH_SHORT).show();
+                    onDismiss(null);
                 }
                 break;
             case REQUEST_FIRST_LAUNCH:
@@ -490,7 +475,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         layout.addView(yearTitle);
 
         final Spinner yearSpinner = new Spinner(this);
-        final ArrayAdapter<String> adap = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, new String[]{"Select your year", "7", "8", "9", "10", "11", "12", "13"});
+        final ArrayAdapter<String> adap = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, new String[]{"Select your year", "7", "8", "9", "10", "11", "12", "13"});
         adap.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         yearSpinner.setAdapter(adap);
         layout.addView(yearSpinner);
@@ -663,7 +648,6 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                 showVisitorSelectDialog(bioData);
             }
         });
-
         builder.create().show();
     }
 
@@ -743,8 +727,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
-        Toast.makeText(MainActivity.this, "Cannot connect to Google...\nApplication will now close", Toast.LENGTH_LONG).show();
-//        finish();
+        Toast.makeText(MainActivity.this, "Cannot connect to Google...\nApplication will not be able to access Google Sheets", Toast.LENGTH_LONG).show();
     }
 
     @Override

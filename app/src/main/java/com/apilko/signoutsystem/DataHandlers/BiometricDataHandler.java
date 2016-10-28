@@ -4,12 +4,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.support.annotation.Keep;
 
-import com.apilko.signoutsystem.Helpers.strongBinaryEncryptor;
-
-import org.jasypt.util.binary.StrongBinaryEncryptor;
-
-import java.nio.ByteBuffer;
-
 import SecuGen.FDxSDKPro.JSGFPLib;
 import SecuGen.FDxSDKPro.SGDeviceInfoParam;
 import SecuGen.FDxSDKPro.SGFDxDeviceName;
@@ -21,17 +15,13 @@ public class BiometricDataHandler {
 
     private static BiometricDataHandler ourInstance;
 
-    private final Context context;
-    //Encryptor singleton ensures same hash, makes decryption possible
-    private final StrongBinaryEncryptor encryptor = strongBinaryEncryptor.getInstance();
     private final JSGFPLib bioLib;
-    private SGDeviceInfoParam deviceParams = new SGDeviceInfoParam();
+    private final SGDeviceInfoParam deviceParams = new SGDeviceInfoParam();
+    private final LocalDatabaseHandler dbHandler;
     private int bioImageHeight;
     private int bioImageWidth;
-    private LocalDatabaseHandler dbHandler;
 
     private BiometricDataHandler(JSGFPLib bioLib, Context context) throws Resources.NotFoundException {
-        this.context = context;
         this.bioLib = bioLib;
         this.dbHandler = LocalDatabaseHandler.getInstance(context);
         initialiseLib();
@@ -44,13 +34,6 @@ public class BiometricDataHandler {
         } else {
             return ourInstance;
         }
-    }
-
-    public static byte[] toByteArray(double value) {
-
-        byte[] bytes = new byte[JSGFPLib.MAX_IMAGE_HEIGHT_ALL_DEVICES * JSGFPLib.MAX_IMAGE_WIDTH_ALL_DEVICES];
-        ByteBuffer.wrap(bytes).putDouble(value);
-        return bytes;
     }
 
     private void initialiseLib() throws Resources.NotFoundException {
@@ -93,13 +76,6 @@ public class BiometricDataHandler {
         int[] maxTemplateSize = new int[1];
         bioLib.GetMaxTemplateSize(maxTemplateSize);
         byte[] minBuffer = new byte[maxTemplateSize[0]];
-        //Set finger info
-//        SGFingerInfo fingerInfo = new SGFingerInfo();
-//        //Hardcode Right thumb for now
-//        fingerInfo.FingerNumber = SGFingerPosition.SG_FINGPOS_RT;
-//        fingerInfo.ImageQuality = getImageQuality(imageBuffer);
-//        fingerInfo.ImpressionType = SGImpressionType.SG_IMPTYPE_LP;
-//        fingerInfo.ViewNumber = 1;
         //Create Minutiae template
         bioLib.CreateTemplate(null, imageBuffer, minBuffer);
         return minBuffer;
@@ -132,23 +108,11 @@ public class BiometricDataHandler {
         return matchBioData(extractBioData(captureImage()), year);
     }
 
-    public int getAndMatchBioDataTest(byte[] imgBuffer, int year) {
-
-        return matchBioData(extractBioData(imgBuffer), year);
-    }
-
     private byte[] captureImage() {
 
         final byte[] imageBuffer = new byte[bioImageHeight * bioImageWidth];
         bioLib.GetImage(imageBuffer);
         return imageBuffer;
 
-    }
-
-    private int getImageQuality(byte[] imageBuffer) {
-
-        int[] quality = new int[2];
-        bioLib.GetImageQuality(bioImageWidth, bioImageHeight, imageBuffer, quality);
-        return quality[0];
     }
 }

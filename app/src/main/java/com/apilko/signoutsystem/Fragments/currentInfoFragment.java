@@ -23,13 +23,11 @@ import java.util.Map;
 public class currentInfoFragment extends Fragment implements WeatherRemoteFetch.WeatherCallback {
 
     private static final String ICON_BASE_URL = "http://openweathermap.org/img/w/";
-    //UI Elements
-    private static TextView currentTemp;
-    private static ImageView weatherIcon;
-
     private static Context context;
-
-    WeatherRemoteFetch weatherFetch;
+    //UI Elements
+    private TextView currentTemp;
+    private ImageView weatherIcon;
+    private WeatherRemoteFetch weatherFetch;
 
     public currentInfoFragment() {
         // Required empty public constructor

@@ -21,7 +21,7 @@ import java.util.concurrent.ExecutionException;
 
 public class notifFragment extends Fragment {
 
-    Long notifLastUpdateTimeMillis;
+    private Long notifLastUpdateTimeMillis;
     private TextSwitcher notifSwitcher;
     private List<String> notifList;
     private int index;
