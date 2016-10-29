@@ -4,8 +4,8 @@ android:
     # Uncomment the lines below if you want to
     # use the latest revision of Android SDK Tools
     - tools
-	- tools
-	- platform-tools
+    - tools
+    - platform-tools
 
     # The BuildTools version used by your project
     - build-tools-23.0.3
@@ -22,5 +22,5 @@ android:
 
 script:
    - ./gradlew build connectedCheck
-	
+
 after_failure: "cat $TRAVIS_BUILD_DIR/app/build/outputs/lint-results-debug.xml"
