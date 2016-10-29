@@ -3,8 +3,9 @@ android:
   components:
     # Uncomment the lines below if you want to
     # use the latest revision of Android SDK Tools
-    - platform-tools
     - tools
+	- tools
+	- platform-tools
 
     # The BuildTools version used by your project
     - build-tools-23.0.3
@@ -18,6 +19,8 @@ android:
     - extra-android-m2repository
     - addon-google_apis-google-19
 
-    # Specify at least one system image,
-    # if you need to run emulator(s) during your tests
-    - sys-img-armeabi-v7a-android-22
+
+script:
+   - ./gradlew build connectedCheck
+	
+after_failure: "cat $TRAVIS_BUILD_DIR/app/build/outputs/lint-results-debug.xml"

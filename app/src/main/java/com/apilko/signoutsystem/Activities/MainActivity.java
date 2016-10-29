@@ -8,7 +8,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.OptionalPendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Scope;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.services.sheets.v4.SheetsScopes;
 
 import android.accounts.AccountManager;
@@ -45,6 +44,7 @@ import android.widget.Toast;
 import com.apilko.signoutsystem.DataHandlers.BiometricDataHandler;
 import com.apilko.signoutsystem.DataHandlers.GoogleSheetsHandler;
 import com.apilko.signoutsystem.DataHandlers.LocalDatabaseHandler;
+import com.apilko.signoutsystem.Helpers.IdleMonitor;
 import com.apilko.signoutsystem.R;
 
 import java.util.Calendar;
@@ -54,7 +54,7 @@ import SecuGen.FDxSDKPro.SGAutoOnEventNotifier;
 import SecuGen.FDxSDKPro.SGFingerPresentEvent;
 
 @Keep
-public class MainActivity extends AppCompatActivity implements SGFingerPresentEvent, GoogleApiClient.OnConnectionFailedListener, DialogInterface.OnDismissListener {
+public class MainActivity extends AppCompatActivity implements SGFingerPresentEvent, GoogleApiClient.OnConnectionFailedListener, DialogInterface.OnDismissListener, IdleMonitor.IdleCallback {
 
     private static final int REQUEST_SELECTION = 530;
     private static final int REQUEST_FIRST_LAUNCH = 531;
@@ -65,6 +65,8 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
     private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
     private static String serverAuthCode;
+    private static IdleMonitor idleMonitor;
+    private static IdleMonitor.IdleCallback idleCallback;
     private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
 
@@ -89,7 +91,6 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     private JSGFPLib bioLib;
     private ProgressDialog mProgressDialog;
     private GoogleApiClient mGoogleApiClient;
-    private GoogleAccountCredential mCredential;
     private BiometricDataHandler bioHandler;
     private SGAutoOnEventNotifier autoOn;
     private GoogleSheetsHandler sheetsHandler;
@@ -157,7 +158,8 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
         sheetsHandler = GoogleSheetsHandler.getInstance(this);
         dbHandler = LocalDatabaseHandler.getInstance(this);
-
+        idleMonitor = IdleMonitor.getInstance();
+        idleMonitor.registerIdleCallback(this);
 
         assert manualSigningButton != null;
         manualSigningButton.setOnClickListener(new View.OnClickListener() {
@@ -180,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         idleActTestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                idleMonitor.nullify();
                 startActivity(new Intent(MainActivity.this, IdleActivity.class));
             }
         });
@@ -188,7 +190,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         flActTestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                idleMonitor.nullify();
                 startActivityForResult(new Intent(MainActivity.this, FirstLaunch.class), REQUEST_FIRST_LAUNCH);
             }
         });
@@ -292,6 +294,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     protected void onDestroy() {
 
         super.onDestroy();
+        idleMonitor.nullify();
         unregisterReceiver(mUsbReceiver);
         bioLib.CloseDevice();
         bioLib.Close();
@@ -350,6 +353,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                 selectionIntent.putExtra("state", dbHandler.getWhereabouts((long) matchResult, year));
                 selectionIntent.putExtra("year", year);
                 hideProgressDialog();
+                idleMonitor.nullify();
                 startActivityForResult(selectionIntent, REQUEST_SELECTION);
             }
         }
@@ -362,6 +366,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         Intent selectionIntent = new Intent(this, SelectionActivity.class);
         selectionIntent.putExtra("name", "Steve");
         selectionIntent.putExtra("state", dbHandler.getWhereabouts("Steve", 13));
+        idleMonitor.nullify();
         startActivityForResult(selectionIntent, REQUEST_SELECTION);
     }
 
@@ -423,7 +428,6 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                         SharedPreferences.Editor editor = settings.edit();
                         editor.putString("accountName", accountName);
                         editor.apply();
-                        mCredential.setSelectedAccountName(accountName);
                     }
 
                     autoOn.start();
@@ -592,6 +596,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                idleMonitor.setTimer();
                 showYearSelectDialog(bioData, null, true);
             }
         });
@@ -699,6 +704,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             selectionIntent.putExtra("state", dbHandler.getWhereabouts((long) matchResult, year));
             selectionIntent.putExtra("year", year);
             hideProgressDialog();
+            idleMonitor.nullify();
             startActivityForResult(selectionIntent, REQUEST_SELECTION);
         }
 
@@ -733,10 +739,16 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     @Override
     public void onDismiss(DialogInterface dialog) {
         try {
-            Thread.sleep(1500);
+            Thread.sleep(2000);
             autoOn.start();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onDeviceStateIdle() {
+        idleMonitor.nullify();
+        startActivity(new Intent(MainActivity.this, IdleActivity.class));
     }
 }

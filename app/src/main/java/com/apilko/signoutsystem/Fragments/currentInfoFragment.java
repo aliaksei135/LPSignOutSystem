@@ -25,8 +25,8 @@ public class currentInfoFragment extends Fragment implements WeatherRemoteFetch.
     private static final String ICON_BASE_URL = "http://openweathermap.org/img/w/";
     private static Context context;
     //UI Elements
-    private TextView currentTemp;
-    private ImageView weatherIcon;
+    private static TextView currentTemp;
+    private static ImageView weatherIcon;
     private WeatherRemoteFetch weatherFetch;
 
     public currentInfoFragment() {

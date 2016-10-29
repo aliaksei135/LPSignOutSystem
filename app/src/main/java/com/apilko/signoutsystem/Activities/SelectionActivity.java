@@ -232,7 +232,9 @@ public class SelectionActivity extends AppCompatActivity implements
                 finish();
                 break;
         }
-        userActionConfirm(result);
+        if (!type.equals("CANCEL")) {
+            userActionConfirm(result);
+        }
     }
 
 }
