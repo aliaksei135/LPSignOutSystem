@@ -1,5 +1,6 @@
 package com.apilko.signoutsystem.Activities;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -65,6 +66,7 @@ public class IdleActivity extends AppCompatActivity implements SGFingerPresentEv
     private final Runnable calendarUpdateThread = new Runnable() {
         @Override
         public void run() {
+
             calendarFrag.populateCalendar(IdleActivity.this);
 
             Log.i(TAG, "Calendar Thread runs update");
@@ -72,6 +74,7 @@ public class IdleActivity extends AppCompatActivity implements SGFingerPresentEv
             calendarUpdateHandler.postDelayed(calendarUpdateThread, 14400000);
         }
     };
+    private ProgressDialog mProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,9 +82,12 @@ public class IdleActivity extends AppCompatActivity implements SGFingerPresentEv
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_idle);
 
-        if (getIntent() != null) {
+        showProgressDialog();
+    }
 
-        }
+    @Override
+    public void onAttachedToWindow() {
+        super.onAttachedToWindow();
 
         notifFrag = (notifFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_notif);
         forecastFrag = new forecastFragment();
@@ -91,17 +97,13 @@ public class IdleActivity extends AppCompatActivity implements SGFingerPresentEv
         notifDisplayHandler = new Handler();
         weatherUpdateHandler = new Handler();
         calendarUpdateHandler = new Handler();
-    }
 
-    @Override
-    public void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        //Handle loading of content in separate threads for smooth UI loading
+        //Handle loading of content
         notifDisplayHandler.postDelayed(notifUpdateThread, 10000);
         weatherUpdateHandler.post(weatherUpdateThread);
         calendarUpdateHandler.post(calendarUpdateThread);
 
-//        autoOn.start();
+        hideProgressDialog();
     }
 
     @Override
@@ -128,5 +130,24 @@ public class IdleActivity extends AppCompatActivity implements SGFingerPresentEv
     public void SGFingerPresentCallback() {
         autoOn.stop();
         startActivity(new Intent(this, MainActivity.class).putExtra("type", "fingerprint"));
+    }
+
+    private void showProgressDialog() {
+
+        if (mProgressDialog == null) {
+            mProgressDialog = new ProgressDialog(this);
+            mProgressDialog.setMessage("Loading");
+            mProgressDialog.setIndeterminate(true);
+            mProgressDialog.setCancelable(false);
+        }
+
+        mProgressDialog.show();
+    }
+
+    private void hideProgressDialog() {
+
+        if (mProgressDialog != null && mProgressDialog.isShowing()) {
+            mProgressDialog.hide();
+        }
     }
 }
