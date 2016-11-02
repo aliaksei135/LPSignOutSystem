@@ -2,6 +2,7 @@ package com.apilko.signoutsystem.Helpers;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.support.annotation.Keep;
 
 import com.github.tibolte.agendacalendarview.models.BaseCalendarEvent;
@@ -16,6 +17,7 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -27,23 +29,23 @@ import biweekly.ICalendar;
 import biweekly.component.VEvent;
 import biweekly.io.text.ICalReader;
 
+import static android.os.Environment.DIRECTORY_DOWNLOADS;
+
 @Keep
 public class CalendarRemoteFetch {
 
     private static final String CALENDAR_URL = "http://www.leightonpark.com/media/calendar/ical/Calendar";
     private static Long calendarLastUpdateTimeMillis;
+    private static Long currentFileHash;
     private static List<CalendarEvent> events;
-    private static long currentFileHash;
     private static CalendarRemoteFetch ourInstance;
-    private Context context;
 
-    private CalendarRemoteFetch(Context context) {
-        this.context = context;
+    private CalendarRemoteFetch() {
     }
 
-    public static CalendarRemoteFetch getInstance(Context context) {
+    public static CalendarRemoteFetch getInstance() {
         if (ourInstance == null) {
-            ourInstance = new CalendarRemoteFetch(context);
+            ourInstance = new CalendarRemoteFetch();
             return ourInstance;
         } else {
             return ourInstance;
@@ -67,25 +69,29 @@ public class CalendarRemoteFetch {
         List<CalendarEvent> result = new ArrayList<>();
         SimpleDateFormat startFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.UK);
         SimpleDateFormat endFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.UK);
-        for (VEvent event : rawCalData) {
-            //This is bound to have something wrong with it
-            Calendar startCal = startFormat.getCalendar();
-            Calendar endCal = endFormat.getCalendar();
+        try {
+            for (VEvent event : rawCalData) {
+                //This is bound to have something wrong with it
+                startFormat.parse(event.getDateStart().getValue().toString());
+                Calendar startCal = startFormat.getCalendar();
+                endFormat.parse(event.getDateEnd().getValue().toString());
+                Calendar endCal = endFormat.getCalendar();
 
-            CalendarEvent calEvent = new BaseCalendarEvent(
-                    event.hashCode(), //Use hash of event as Unique ID
-                    android.graphics.Color.DKGRAY, //Use Cyan as the colour for all events
-                    event.getSummary().getValue(), //Actually the title
-                    " ", //Empty description
-                    " ", //Empty Location
-                    startCal.getTime().getTime(), //Start time/date
-                    endCal.getTime().getTime(), //End time/date
-                    1, //Events are all day
-                    null);
+                CalendarEvent calEvent = new BaseCalendarEvent(
+                        event.hashCode(), //Use hash of event as Unique ID
+                        android.graphics.Color.DKGRAY,
+                        event.getSummary().getValue(), //Actually the title
+                        " ", //Empty description
+                        " ", //Empty Location
+                        startCal.getTime().getTime(), //Start time/date
+                        endCal.getTime().getTime(), //End time/date
+                        1, //Events are all day
+                        null);
 
-            result.add(calEvent);
-
-
+                result.add(calEvent);
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
         return result;
     }
@@ -97,7 +103,6 @@ public class CalendarRemoteFetch {
         try {
             File iCalFile = getiCalFile();
             assert iCalFile != null;
-            currentFileHash = iCalFile.hashCode();
             reader = new ICalReader(iCalFile);
             ICalendar ical;
             while ((ical = reader.readNext()) != null) {
@@ -122,7 +127,6 @@ public class CalendarRemoteFetch {
     }
 
     public boolean isEventsUpToDate(Context context) {
-        this.context = context;
         File compFile = getiCalFile();
         int retryCount = 0;
 
@@ -141,7 +145,7 @@ public class CalendarRemoteFetch {
 
         URL CAL_URL;
 
-        public DownloadCalTask() {
+        DownloadCalTask() {
 
             try {
                 CAL_URL = new URL(CalendarRemoteFetch.CALENDAR_URL);
@@ -163,7 +167,7 @@ public class CalendarRemoteFetch {
         }
 
         private File fetchiCalFile() throws IOException {
-            File resultCalFile = new File(context.getFilesDir(), "calendar");
+            File resultCalFile = new File(Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS).getAbsolutePath(), "LPCalendar.ical");
             resultCalFile.createNewFile();
             resultCalFile.setWritable(true);
             URLConnection connection = CAL_URL.openConnection();
@@ -171,7 +175,7 @@ public class CalendarRemoteFetch {
             InputStream is = connection.getInputStream();
             BufferedInputStream bis = new BufferedInputStream(is);
             OutputStream os = new FileOutputStream(resultCalFile);
-            byte[] data = new byte[8092];
+            byte[] data = new byte[32768]; //32 kilobytes...sorry, I mean Kibibytes -_-
             int count;
             long total = 0;
             while ((count = bis.read(data)) != -1) {

@@ -23,18 +23,16 @@ import java.util.Map;
 public class currentInfoFragment extends Fragment implements WeatherRemoteFetch.WeatherCallback {
 
     private static final String ICON_BASE_URL = "http://openweathermap.org/img/w/";
-    private static Context context;
+    //    private static Context context;
     //UI Elements
     private static TextView currentTemp;
     private static ImageView weatherIcon;
-    private WeatherRemoteFetch weatherFetch;
+    Context ctx;
 
     public currentInfoFragment() {
         // Required empty public constructor
     }
 
-
-    @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
@@ -46,10 +44,8 @@ public class currentInfoFragment extends Fragment implements WeatherRemoteFetch.
 
         super.onViewCreated(view, savedInstanceState);
 
-        weatherFetch = WeatherRemoteFetch.getInstance(getContext());
-
-        currentTemp = (TextView) getView().findViewById(R.id.current_temp);
         weatherIcon = (ImageView) getView().findViewById(R.id.weather_icon);
+        currentTemp = (TextView) getView().findViewById(R.id.current_temp);
         TextClock timeClock = (TextClock) getView().findViewById(R.id.timeTextClock);
         TextClock dateClock = (TextClock) getView().findViewById(R.id.dateTextClock);
 
@@ -58,17 +54,11 @@ public class currentInfoFragment extends Fragment implements WeatherRemoteFetch.
 
     }
 
-    public void updateWeather(Context context) {
-
-        currentInfoFragment.context = context;
-
-        if (weatherFetch == null) {
-            weatherFetch = WeatherRemoteFetch.getInstance(context);
-        }
+    public void updateWeather(WeatherRemoteFetch weatherFetch, Context ctx) {
+        this.ctx = ctx;
         weatherFetch.getCurrentWeather();
         weatherFetch.setWeatherReadyCallback(this);
     }
-
 
     @Override
     public void weatherReadyCallback(Map<String, Object> result) {
@@ -77,7 +67,7 @@ public class currentInfoFragment extends Fragment implements WeatherRemoteFetch.
         temp = String.valueOf(Math.round(Double.parseDouble(temp)));
         currentTemp.setText(temp + "℃");
 
-        Picasso.with(currentInfoFragment.context)
+        Picasso.with(ctx)
                 .load(ICON_BASE_URL + result.get("Icon") + ".png")
                 .resize(90, 90)
                 .into(weatherIcon);

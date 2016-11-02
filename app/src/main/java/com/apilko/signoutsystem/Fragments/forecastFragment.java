@@ -21,30 +21,25 @@ import java.util.Map;
 public class forecastFragment extends Fragment implements WeatherRemoteFetch.WeatherCallback {
 
     private static final String ICON_BASE_URL = "http://openweathermap.org/img/w/";
-    private static Context context;
     //UI elements
-    private ImageView firstIconView;
-    private ImageView secondIconView;
-    private ImageView thirdIconView;
-    private TextView firstTempView;
-    private TextView secondTempView;
-    private TextView thirdTempView;
-    private TextView firstTimeView;
-    private TextView secondTimeView;
-    private TextView thirdTimeView;
-    private WeatherRemoteFetch weatherFetch;
+    private static ImageView firstIconView;
+    private static ImageView secondIconView;
+    private static ImageView thirdIconView;
+    private static TextView firstTempView;
+    private static TextView secondTempView;
+    private static TextView thirdTempView;
+    private static TextView firstTimeView;
+    private static TextView secondTimeView;
+    private static TextView thirdTimeView;
+    Context ctx;
 
     public forecastFragment() {
         // Required empty public constructor
     }
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
-
-        weatherFetch = WeatherRemoteFetch.getInstance(getContext());
     }
 
     @Override
@@ -74,13 +69,8 @@ public class forecastFragment extends Fragment implements WeatherRemoteFetch.Wea
 
     }
 
-    public void updateWeather(Context context) {
-
-        forecastFragment.context = context;
-
-        if (weatherFetch == null) {
-            weatherFetch = WeatherRemoteFetch.getInstance(context);
-        }
+    public void updateWeather(WeatherRemoteFetch weatherFetch, Context ctx) {
+        this.ctx = ctx;
         weatherFetch.getForecastWeather();
         weatherFetch.setForecastCallback(this);
     }
@@ -116,18 +106,33 @@ public class forecastFragment extends Fragment implements WeatherRemoteFetch.Wea
         Date thirdTime = new Date((long) (forecast.get("6").get("Timestamp")) * 1000);
         thirdTimeView.setText(format.format(thirdTime));
 
-        Picasso.with(forecastFragment.context)
+        Picasso.with(ctx)
                 .load(ICON_BASE_URL + forecast.get("0").get("Icon") + ".png")
                 .resize(80, 80)
                 .into(firstIconView);
-        Picasso.with(forecastFragment.context)
+        Picasso.with(ctx)
                 .load(ICON_BASE_URL + forecast.get("3").get("Icon") + ".png")
                 .resize(80, 80)
                 .into(secondIconView);
-        Picasso.with(forecastFragment.context)
+        Picasso.with(ctx)
                 .load(ICON_BASE_URL + forecast.get("3").get("Icon") + ".png")
                 .resize(80, 80)
                 .into(thirdIconView);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        //Destroy view references to prevent memory leak
+        firstIconView = null;
+        secondIconView = null;
+        thirdIconView = null;
+        firstTempView = null;
+        secondTempView = null;
+        thirdTempView = null;
+        firstTimeView = null;
+        secondTimeView = null;
+        thirdTimeView = null;
     }
 
 }

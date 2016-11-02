@@ -1,7 +1,6 @@
 package com.apilko.signoutsystem.Fragments;
 
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -43,17 +42,16 @@ public class calendarFragment extends Fragment implements CalendarPickerControll
         agendaCalendarView = (AgendaCalendarView) getView().findViewById(R.id.agenda_calendar_view);
     }
 
-    public void populateCalendar(Context context) {
+    public void populateCalendar() {
 
         Calendar minDate = Calendar.getInstance();
         Calendar maxDate = Calendar.getInstance();
 
         minDate.add(Calendar.MONTH, 0);
-        minDate.set(Calendar.DAY_OF_MONTH, 1);
 
         maxDate.add(Calendar.MONTH, 2);
 
-        CalendarRemoteFetch calFetch = CalendarRemoteFetch.getInstance(context);
+        CalendarRemoteFetch calFetch = CalendarRemoteFetch.getInstance();
 
         List<CalendarEvent> events = calFetch.getParsedCalData();
 
