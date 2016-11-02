@@ -21,7 +21,7 @@ import SecuGen.FDxSDKPro.SGFingerPresentEvent;
 
 
 @Keep
-public class IdleActivity extends AppCompatActivity implements SGFingerPresentEvent{
+public class IdleActivity extends AppCompatActivity implements SGFingerPresentEvent {
 
     private static final String TAG = "IdleActivity";
 
@@ -83,11 +83,6 @@ public class IdleActivity extends AppCompatActivity implements SGFingerPresentEv
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_idle);
 
-        notifDisplayHandler = new Handler();
-        weatherUpdateHandler = new Handler();
-        calendarUpdateHandler = new Handler();
-
-        wFetch = WeatherRemoteFetch.getInstance(this);
     }
 
     @Override
@@ -99,11 +94,15 @@ public class IdleActivity extends AppCompatActivity implements SGFingerPresentEv
         currentInfoFrag = new currentInfoFragment();
         calendarFrag = new calendarFragment();
 
-        //Handle loading of content
+        notifDisplayHandler = new Handler();
+        weatherUpdateHandler = new Handler();
+        calendarUpdateHandler = new Handler();
+
+        wFetch = WeatherRemoteFetch.getInstance(this);
+
         notifDisplayHandler.postDelayed(notifUpdateThread, 10000);
         weatherUpdateHandler.post(weatherUpdateThread);
         calendarUpdateHandler.post(calendarUpdateThread);
-
     }
 
     @Override

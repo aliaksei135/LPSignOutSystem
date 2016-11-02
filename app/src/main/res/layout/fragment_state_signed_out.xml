@@ -1,8 +1,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:context="com.apilko.signoutsystem.Fragments.stateSignedOutFragment">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.apilko.signoutsystem.Fragments.stateSignedOutFragment">
 
     <TextView
         android:id="@+id/textView"
@@ -14,8 +14,7 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textSize="48sp" />
 
-    <com.sevenheaven.segmentcontrol.SegmentControl
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    <com.sevenheaven.segmentcontrol.SegmentControl xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/house_button2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

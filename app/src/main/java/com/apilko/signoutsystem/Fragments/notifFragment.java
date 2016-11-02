@@ -70,9 +70,10 @@ public class notifFragment extends Fragment {
         //Update Notifs if old
         if (notifList == null ||
                 notifLastUpdateTimeMillis == null
-                || (System.currentTimeMillis() - notifLastUpdateTimeMillis) >= 600000) {
+                || (System.currentTimeMillis() - notifLastUpdateTimeMillis) >= 900000) { //Update if older than 15mins
             Log.d("NotifFragment", "Notifications List is Updated");
             notifList = getNotifList();
+            notifLastUpdateTimeMillis = System.currentTimeMillis();
         }
 
         if (index >= notifList.size()) {

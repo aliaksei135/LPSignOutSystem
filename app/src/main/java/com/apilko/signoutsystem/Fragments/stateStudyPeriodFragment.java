@@ -34,7 +34,6 @@ public class stateStudyPeriodFragment extends Fragment {
     }
 
 
-
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 

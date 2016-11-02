@@ -1,9 +1,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:agendaCalendar="http://schemas.android.com/apk/res-auto"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              tools:context=".Fragments.calendarFragment">
+    xmlns:agendaCalendar="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Fragments.calendarFragment">
 
     <com.github.tibolte.agendacalendarview.AgendaCalendarView
         android:id="@+id/agenda_calendar_view"
@@ -16,6 +16,6 @@
         agendaCalendar:calendarHeaderColor="@color/theme_primary_dark"
         agendaCalendar:calendarPastDayTextColor="@color/theme_light_primary"
         agendaCalendar:fabColor="@color/theme_accent"
-        agendaCalendar:theme="@style/Base.ThemeOverlay.AppCompat.Dark"/>
+        agendaCalendar:theme="@style/Base.ThemeOverlay.AppCompat.Dark" />
 
 </LinearLayout>
