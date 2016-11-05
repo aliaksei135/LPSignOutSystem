@@ -60,7 +60,7 @@
         android:layout_alignEnd="@+id/going_to_green_button1"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="152dp"
-        android:backgroundTint="#b5ff0000"
+        android:background="#b5ff0000"
         android:text="Cancel" />
 
     <Button

@@ -8,7 +8,6 @@ import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.Keep;
-import android.util.Log;
 
 @Keep
 public class LocalDatabaseHandler extends SQLiteOpenHelper {
@@ -41,6 +40,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
     private static final String TABLE_FIELD_VISITOR = "visitorField";
     private static final String TABLE_RECKITT_VISITOR = "visitorReckitt";
     private static final String TABLE_FRYER_VISITOR = "visitorFryer";
+
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "data.db";
     private static LocalDatabaseHandler ourInstance;
@@ -65,11 +65,19 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
     byte[] getBioImage(long id, int year) {
 
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + getYearTable(year) + " ;", null);
-        //Column 7 is the Bio image which we want (cursor is zero indexed)
-        cursor.move((int) id);
-        byte[] bioImg = cursor.getBlob(6);
-        cursor.close();
+//        Cursor cursor = db.rawQuery("SELECT * FROM " + getYearTable(year) + " ;", null);
+//        //Column 7 is the Bio image which we want (cursor is zero indexed)
+//        cursor.move((int) id);
+//        byte[] bioImg = cursor.getBlob(6);
+        byte[] bioImg = null;
+        Cursor c = db.query(true, getYearTable(year), new String[]{COLUMN_BIO_IMAGE}, COLUMN_ID + " = " + id, null, null, null, null, null);
+
+        if (c != null && c.moveToFirst()) {
+            bioImg = c.getBlob(0);
+            c.close();
+        }
+
+//        cursor.close();
         db.close();
         return bioImg;
     }
@@ -110,37 +118,36 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
     public String getWhereabouts(long id, int year) {
 
         SQLiteDatabase db = getReadableDatabase();
-        String whereabouts = DatabaseUtils.stringForQuery(db, "SELECT " + COLUMN_WHEREABOUTS + " FROM " + getYearTable(year) + " WHERE " + COLUMN_ID + " = '" + id + "';", null);
+        Cursor c = db.query(true, getYearTable(year), new String[]{COLUMN_WHEREABOUTS}, COLUMN_ID + " = " + id, null, null, null, null, null);
+        String whereabouts = "";
+        if (c != null && c.moveToFirst()) {
+            whereabouts = c.getString(0);
+            c.close();
+        }
         db.close();
         return whereabouts;
     }
 
-    public String getWhereabouts(String name, int year) {
-
-        SQLiteDatabase db = getReadableDatabase();
-        String whereabouts = DatabaseUtils.stringForQuery(db, "SELECT " + COLUMN_WHEREABOUTS + " FROM " + getYearTable(year) + " WHERE " + COLUMN_NAME + " = '" + name + "';", null);
-        db.close();
-        return whereabouts;
-    }
-
-    public void addNewRecord(String name, String house, int year, int pin, byte[] ID, boolean isNFC) {
+    public void addNewRecord(String name, String house, int year, String pin, byte[] ID, boolean isNFC) {
         //Add new data to buffer
         ContentValues values = new ContentValues();
-        if (isNFC) {
-            values.put(COLUMN_TAG_ID, ID);
-        } else {
-            values.put(COLUMN_BIO_IMAGE, ID);
-        }
+
         values.put(COLUMN_NAME, name);
         values.put(COLUMN_STATE, 1);
         values.put(COLUMN_NATIVE_HOUSE, house);
         values.put(COLUMN_PIN, pin);
         values.put(COLUMN_WHEREABOUTS, "Signed In");
 
+        if (isNFC) {
+            values.put(COLUMN_TAG_ID, ID);
+        } else {
+            values.put(COLUMN_BIO_IMAGE, ID);
+        }
+
         //Push values to db
-        String table = getYearTable(year);
         SQLiteDatabase db = getWritableDatabase();
-        db.insert(table, null, values);
+        db.insert(getYearTable(year), null, values);
+        values.clear();
         db.close();
     }
 
@@ -151,23 +158,21 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
         return findRecord(COLUMN_PIN, pin, year);
     }
 
-    public void updateID(String name, Object newID, boolean isNFC, int year) throws IllegalArgumentException {
+    public void updateID(long id, byte[] newID, boolean isNFC, int year) {
 
-        if (findRecord(name, null, year)) {
-            SQLiteDatabase db = getWritableDatabase();
-            String table = getYearTable(year);
-            if (isNFC) {
-                String query = "UPDATE " + table + " SET " + COLUMN_TAG_ID + newID + " WHERE " + COLUMN_NAME + " = '" + name + "';";
-                db.execSQL(query);
-            } else {
-                String query = "UPDATE " + table + " SET " + COLUMN_BIO_IMAGE + newID + " WHERE " + COLUMN_NAME + " = '" + name + "';";
-                db.execSQL(query);
-            }
-            db.close();
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+
+        if (isNFC) {
+            values.put(COLUMN_TAG_ID, newID);
         } else {
-            Log.e("LclDB", "Can't update non existing ID record");
-            throw new IllegalArgumentException("Can't update non existing ID record");
+            values.put(COLUMN_BIO_IMAGE, newID);
         }
+
+        db.update(getYearTable(year), values, COLUMN_ID + " = " + id, null);
+        values.clear();
+        db.close();
     }
 
     private boolean findRecord(String field, Object key, int year) {
@@ -193,32 +198,20 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
-    public void updateLocation(String name, String location, int year) throws IllegalArgumentException {
-
-        if (findRecord(name, null, year)) {
-            SQLiteDatabase db = getWritableDatabase();
-            String table = getYearTable(year);
-
-            if (location.equals("Study Period") || location.equals("Signed In")) {
-                String query = "UPDATE " + table + " SET " + COLUMN_WHEREABOUTS + " = '" + location + "' ," + COLUMN_STATE + " = '" + 1 + "' WHERE " + COLUMN_NAME + " = '" + name + "';";
-                db.execSQL(query);
-            } else {
-                String query = "UPDATE " + table + " SET " + COLUMN_WHEREABOUTS + " = '" + location + "' ," + COLUMN_STATE + " = '" + 0 + "' WHERE " + COLUMN_NAME + " = '" + name + "';";
-                db.execSQL(query);
-            }
-            db.close();
-
-        } else {
-            Log.e("LclDB", "Can't update non existing Location record");
-            throw new IllegalArgumentException("Can't update non existing Location record!");
-        }
-    }
-
-    public void deleteRecordbyNFC(byte[] tagID, int year) {
+    public void updateLocation(String name, String location, int year) {
 
         SQLiteDatabase db = getWritableDatabase();
         String table = getYearTable(year);
-        db.execSQL("DELETE FROM " + table + " WHERE " + COLUMN_TAG_ID + " = '" + tagID + "';");
+
+        if (location.equals("Study Period") || location.equals("Signed In")) {
+            String query = "UPDATE " + table + " SET " + COLUMN_WHEREABOUTS + " = '" + location + "' ," + COLUMN_STATE + " = '" + 1 + "' WHERE " + COLUMN_NAME + " = '" + name + "';";
+            db.execSQL(query);
+        } else {
+            String query = "UPDATE " + table + " SET " + COLUMN_WHEREABOUTS + " = '" + location + "' ," + COLUMN_STATE + " = '" + 0 + "' WHERE " + COLUMN_NAME + " = '" + name + "';";
+            db.execSQL(query);
+        }
+        db.close();
+
     }
 
     private String getYearTable(int year) {
@@ -291,7 +284,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
                 COLUMN_WHEREABOUTS + " TEXT" + "," +
                 COLUMN_TAG_ID + " BLOB" + "," +
                 COLUMN_BIO_IMAGE + " BLOB" + "," +
-                COLUMN_PIN + " INTEGER" +
+                COLUMN_PIN + " TEXT" +
                 " )";
 
         db.execSQL(query);
@@ -304,7 +297,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
                 COLUMN_WHEREABOUTS + " TEXT" + "," +
                 COLUMN_TAG_ID + " BLOB" + "," +
                 COLUMN_BIO_IMAGE + " BLOB" + "," +
-                COLUMN_PIN + " INTEGER" +
+                COLUMN_PIN + " TEXT" +
                 " )";
 
         db.execSQL(query);
@@ -317,7 +310,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
                 COLUMN_WHEREABOUTS + " TEXT" + "," +
                 COLUMN_TAG_ID + " BLOB" + "," +
                 COLUMN_BIO_IMAGE + " BLOB" + "," +
-                COLUMN_PIN + " INTEGER" +
+                COLUMN_PIN + " TEXT" +
                 " )";
 
         db.execSQL(query);
@@ -330,7 +323,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
                 COLUMN_WHEREABOUTS + " TEXT" + "," +
                 COLUMN_TAG_ID + " BLOB" + "," +
                 COLUMN_BIO_IMAGE + " BLOB" + "," +
-                COLUMN_PIN + " INTEGER" +
+                COLUMN_PIN + " TEXT" +
                 " )";
 
         db.execSQL(query);
@@ -343,7 +336,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
                 COLUMN_WHEREABOUTS + " TEXT" + "," +
                 COLUMN_TAG_ID + " BLOB" + "," +
                 COLUMN_BIO_IMAGE + " BLOB" + "," +
-                COLUMN_PIN + " INTEGER" +
+                COLUMN_PIN + " TEXT" +
                 " )";
 
         db.execSQL(query);
@@ -356,7 +349,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
                 COLUMN_WHEREABOUTS + " TEXT" + "," +
                 COLUMN_TAG_ID + " BLOB" + "," +
                 COLUMN_BIO_IMAGE + " BLOB" + "," +
-                COLUMN_PIN + " INTEGER" +
+                COLUMN_PIN + " TEXT" +
                 " )";
 
         db.execSQL(query);
@@ -369,7 +362,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
                 COLUMN_WHEREABOUTS + " TEXT" + "," +
                 COLUMN_TAG_ID + " BLOB" + "," +
                 COLUMN_BIO_IMAGE + " BLOB" + "," +
-                COLUMN_PIN + " INTEGER" +
+                COLUMN_PIN + " TEXT" +
                 " )";
 
         db.execSQL(query);
@@ -382,7 +375,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
                 COLUMN_WHEREABOUTS + " TEXT" + "," +
                 COLUMN_TAG_ID + " BLOB" + "," +
                 COLUMN_BIO_IMAGE + " BLOB" + "," +
-                COLUMN_PIN + " INTEGER" +
+                COLUMN_PIN + " TEXT" +
                 " )";
 
         db.execSQL(query);
@@ -395,7 +388,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
                 COLUMN_WHEREABOUTS + " TEXT" + "," +
                 COLUMN_TAG_ID + " BLOB" + "," +
                 COLUMN_BIO_IMAGE + " BLOB" + "," +
-                COLUMN_PIN + " INTEGER" +
+                COLUMN_PIN + " TEXT" +
                 " )";
 
         db.execSQL(query);
@@ -408,7 +401,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
                 COLUMN_WHEREABOUTS + " TEXT" + "," +
                 COLUMN_TAG_ID + " BLOB" + "," +
                 COLUMN_BIO_IMAGE + " BLOB" + "," +
-                COLUMN_PIN + " INTEGER" +
+                COLUMN_PIN + " TEXT" +
                 " )";
 
         db.execSQL(query);
@@ -421,7 +414,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
                 COLUMN_WHEREABOUTS + " TEXT" + "," +
                 COLUMN_TAG_ID + " BLOB" + "," +
                 COLUMN_BIO_IMAGE + " BLOB" + "," +
-                COLUMN_PIN + " INTEGER" +
+                COLUMN_PIN + " TEXT" +
                 " )";
 
         db.execSQL(query);

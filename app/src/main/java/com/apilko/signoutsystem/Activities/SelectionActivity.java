@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +30,7 @@ public class SelectionActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        hideSysUI();
         setContentView(R.layout.activity_selection);
         Intent intent = getIntent();
         String state = intent.getStringExtra("state");
@@ -137,9 +139,43 @@ public class SelectionActivity extends AppCompatActivity implements
         }
     }
 
+    private void showSysUI() {
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+    }
+
+    private void hideSysUI() {
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+    }
+
     private void userActionConfirm(final Intent resultIntent) {
 
         String type = resultIntent.getStringExtra("location");
+
+        //Gotta have *some* easter eggs :)
+        switch (type) {
+            case "Visiting Grove":
+                type = "Why would you want to do that? Are you sure you want to visit Grove";
+                break;
+            case "Visiting Field":
+                type = "Last chance to turn back... Are you sure you want to visit Field";
+                break;
+            case "Visiting Reckitt":
+                type = "It's a long trek to a land far away, do you really want to visit Reckitt";
+                break;
+            default:
+                break;
+        }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Confirmation");

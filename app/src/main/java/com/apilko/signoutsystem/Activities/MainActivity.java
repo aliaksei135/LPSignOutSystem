@@ -59,14 +59,11 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     private static final int REQUEST_SELECTION = 530;
     private static final int REQUEST_FIRST_LAUNCH = 531;
 
-    private static final byte[] debugBytes = hexStringToByteArray("098316f697ab78cbf64f");
-
     private static final String TAG = "MainActivity";
 
     private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
     private static String serverAuthCode;
     private static IdleMonitor idleMonitor;
-    private static IdleMonitor.IdleCallback idleCallback;
     private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
 
@@ -98,7 +95,6 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
     //Null Constructor
     public MainActivity() {
-
     }
 
     //TODOLIST
@@ -106,23 +102,15 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     //TODO Convert layout weights to percentages using com.android.support.percent (PercentRelativeLayout)
     //TODO Put weather and calendar fetches on a background IntentService and preload in background OR ContentProvider?
     //TODO More aesthetic loading dialogs?
+    //TODO Fix visitor db configs
 
-    private static byte[] hexStringToByteArray(String s) {
-
-        int len = s.length();
-        byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-                    + Character.digit(s.charAt(i + 1), 16));
-        }
-        return data;
-    }
 
     @SuppressLint("CommitPrefEdits")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        hideSysUI();
         setContentView(R.layout.activity_main);
 
         //Get rid of the unneeded action bar
@@ -130,9 +118,13 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             getActionBar().hide();
         }
 
+        //Get rid of navbar
+        hideSysUI();
+
         Button manualSigningButton = (Button) findViewById(R.id.manualSigningButton);
 
-        Button test1Button = (Button) findViewById(R.id.test1button);
+        //DEBUG BUTTONS
+        Button scannerRestartButton = (Button) findViewById(R.id.srButton);
         Button idleActTestButton = (Button) findViewById(R.id.idleActTestButton);
         Button flActTestButton = (Button) findViewById(R.id.flActTestButton);
         Button newUserTestButton = (Button) findViewById(R.id.newUserTestButton);
@@ -165,17 +157,19 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         manualSigningButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                idleMonitor.nullify();
                 manualIdentify();
             }
         });
 
-        assert test1Button != null;
-        test1Button.setOnClickListener(new View.OnClickListener() {
+        assert scannerRestartButton != null;
+        scannerRestartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                debugMethod();
+                if (autoOn != null) {
+                    autoOn.stop();
+                    autoOn.start();
+                }
             }
         });
         assert idleActTestButton != null;
@@ -198,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         newUserTestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                makeNewUser();
+                makeNewUser(0, null);
             }
         });
 
@@ -280,7 +274,6 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
             autoOn = new SGAutoOnEventNotifier(bioLib, this);
             autoOn.start();
-
         }
 
         if (!scheduledTasksSet) {
@@ -294,6 +287,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     protected void onDestroy() {
 
         super.onDestroy();
+        showSysUI();
         idleMonitor.nullify();
         unregisterReceiver(mUsbReceiver);
         bioLib.CloseDevice();
@@ -315,26 +309,39 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                     Toast.makeText(MainActivity.this, "No PIN entered", Toast.LENGTH_SHORT).show();
                     bldr.show();
                 } else {
-                    showYearSelectDialog(null, pinField.getText().toString(), false);
+                    showYearSelectDialog(null, pinField.getText().toString(), false, false);
                 }
             }
         });
         bldr.setNegativeButton("Cancel", null);
+        bldr.setNeutralButton("Change Fingerprint", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (pinField.getText() == null) {
+                    Toast.makeText(MainActivity.this, "No PIN entered", Toast.LENGTH_SHORT).show();
+                    bldr.show();
+                } else {
+                    showYearSelectDialog(null, pinField.getText().toString(), false, true);
+                }
+            }
+        });
 
         bldr.create().show();
+        hideSysUI();
     }
 
-    private void handlePINID(String text, int year) {
+    private void handlePINID(String text, int year, boolean modifyBio) {
         long pin = Long.parseLong(text);
         showProgressDialog();
         boolean pinExists = dbHandler.checkPINCollision(year, pin);
         if (pinExists) {
-            int matchResult = 0;
+            long matchResult = 0;
             long numRecords = dbHandler.getRecordNum(year);
             if (numRecords <= 0) {
                 matchResult = -1;
             } else {
-                for (int i = 0; i < numRecords; i++) {
+                //TODO Work out when incorrect pin entered
+                for (int i = 1; i <= numRecords; i++) {
                     long dbPin = dbHandler.getPin(i, year);
                     if (dbPin == pin) {
                         matchResult = i;
@@ -343,31 +350,53 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                     matchResult++;
                 }
             }
-            if (matchResult == -1) {
-                hideProgressDialog();
-                makeNewUser();
-            } else {
+            if (!modifyBio) {
+                if (matchResult == -1) {
+                    hideProgressDialog();
+                    makeNewUser(year, null);
+                } else {
 
-                Intent selectionIntent = new Intent(this, SelectionActivity.class);
-                selectionIntent.putExtra("name", dbHandler.getName((long) matchResult, year));
-                selectionIntent.putExtra("state", dbHandler.getWhereabouts((long) matchResult, year));
-                selectionIntent.putExtra("year", year);
-                hideProgressDialog();
-                idleMonitor.nullify();
-                startActivityForResult(selectionIntent, REQUEST_SELECTION);
+                    Intent selectionIntent = new Intent(this, SelectionActivity.class);
+                    selectionIntent.putExtra("name", dbHandler.getName(matchResult, year));
+                    selectionIntent.putExtra("state", dbHandler.getWhereabouts(matchResult, year));
+                    selectionIntent.putExtra("year", year);
+                    hideProgressDialog();
+                    idleMonitor.nullify();
+                    startActivityForResult(selectionIntent, REQUEST_SELECTION);
+                }
+            } else {
+                modifyBioData(matchResult, year);
             }
         }
     }
 
-    private void debugMethod() {
-        //Create db record first
-        dbHandler.addNewRecord("Steve", "School", 9, 7700737, debugBytes, false);
-        //Send off to selection activity
-        Intent selectionIntent = new Intent(this, SelectionActivity.class);
-        selectionIntent.putExtra("name", "Steve");
-        selectionIntent.putExtra("state", dbHandler.getWhereabouts("Steve", 13));
-        idleMonitor.nullify();
-        startActivityForResult(selectionIntent, REQUEST_SELECTION);
+    private void modifyBioData(final long matchResult, final int year) {
+
+        autoOn.stop();
+
+        AlertDialog.Builder bldr = new AlertDialog.Builder(this);
+        bldr.setTitle("Fingerprint Verification");
+        bldr.setMessage("Place the same finger on scanner and press OK simultaneously to enroll");
+        bldr.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //This is overridden after dialog shows
+            }
+        });
+        bldr.setOnDismissListener(this);
+        final AlertDialog dialog = bldr.create();
+        dialog.show();
+        dialog.setOnDismissListener(this);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                byte[] biodata = bioHandler.getProcessedBioData();
+                dbHandler.updateID(matchResult, biodata, false, year);
+                dialog.cancel();
+                Toast.makeText(MainActivity.this, dbHandler.getName(matchResult, year) + ", fingerprint modified", Toast.LENGTH_LONG).show();
+            }
+        });
+        hideProgressDialog();
     }
 
     private void showProgressDialog() {
@@ -389,6 +418,25 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         }
     }
 
+    private void showSysUI() {
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+    }
+
+    private void hideSysUI() {
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+    }
+
     @SuppressLint("CommitPrefEdits")
     @Override
     protected void onActivityResult(
@@ -405,17 +453,17 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
                     if (sheetsHandler.makeNewLogEntry(info, serverAuthCode)) {
                         dbHandler.updateLocation(name, location, year);
-                        Toast.makeText(this, "All done!", Toast.LENGTH_SHORT).show();
+                        onDismiss(null);
+                        Toast.makeText(this, "Goodbye " + name + "!", Toast.LENGTH_LONG).show();
                     } else {
                         Toast.makeText(this, "That didn't work! Try again!", Toast.LENGTH_SHORT).show();
                     }
-                    onDismiss(null);
-                    //Display confirmation
-                    Toast.makeText(this, "Goodbye " + name + "!", Toast.LENGTH_LONG).show();
+
                 } else if (resultCode == RESULT_CANCELED) {
                     Toast.makeText(MainActivity.this, "Cancelled", Toast.LENGTH_SHORT).show();
                     onDismiss(null);
                 }
+                hideSysUI();
                 break;
             case REQUEST_FIRST_LAUNCH:
                 if (resultCode == RESULT_OK && data != null) {
@@ -430,8 +478,6 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                         editor.apply();
                     }
 
-                    autoOn.start();
-
                 } else {
                     if (data != null) {
                         Toast.makeText(MainActivity.this, data.getStringExtra("result"), Toast.LENGTH_SHORT).show();
@@ -439,11 +485,12 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                         Toast.makeText(MainActivity.this, "That didn't work", Toast.LENGTH_SHORT).show();
                     }
                 }
+                hideSysUI();
                 break;
         }
     }
 
-    private void makeNewUser() {
+    private void makeNewUser(int year, final byte[] bioData) {
 
         Toast.makeText(this, "New User", Toast.LENGTH_LONG).show();
 
@@ -473,10 +520,11 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         houseSpinner.setAdapter(adapter);
         layout.addView(houseSpinner);
 
-        final TextView yearTitle = new TextView(this);
-        houseTitle.setText("Year");
-        houseTitle.setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Medium);
-        layout.addView(yearTitle);
+        //TODO Make this title appear above the correct field
+//        final TextView yearTitle = new TextView(this);
+//        houseTitle.setText("Year");
+//        houseTitle.setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Medium);
+//        layout.addView(yearTitle);
 
         final Spinner yearSpinner = new Spinner(this);
         final ArrayAdapter<String> adap = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, new String[]{"Select your year", "7", "8", "9", "10", "11", "12", "13"});
@@ -512,6 +560,34 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             }
         });
 
+        switch (year) {
+            case 7:
+                //Zeroth position is placeholder text
+                yearSpinner.setSelection(1);
+                break;
+            case 8:
+                yearSpinner.setSelection(2);
+                break;
+            case 9:
+                yearSpinner.setSelection(3);
+                break;
+            case 10:
+                yearSpinner.setSelection(4);
+                break;
+            case 11:
+                yearSpinner.setSelection(5);
+                break;
+            case 12:
+                yearSpinner.setSelection(6);
+                break;
+            case 13:
+                yearSpinner.setSelection(7);
+                break;
+            default:
+                yearSpinner.setSelection(0);
+                break;
+        }
+
         builder.setView(layout);
         builder.setCancelable(false);
 
@@ -536,12 +612,18 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
                             if (!(pinField.getText().toString().length() <= 4)) {
 
-                                pushNewUser(nameInput.getText().toString(),
-                                        houseSpinner.getSelectedItem().toString(),
-                                        Integer.parseInt(yearSpinner.getSelectedItem().toString()),
-                                        Integer.parseInt(pinConfirmField.getText().toString()));
+                                if (!(pinField.getText().toString().charAt(0) == '0')) {
 
-                                dialog.cancel();
+                                    pushNewUser(nameInput.getText().toString(),
+                                            houseSpinner.getSelectedItem().toString(),
+                                            Integer.parseInt(yearSpinner.getSelectedItem().toString()),
+                                            pinConfirmField.getText().toString(), bioData);
+
+                                    dialog.cancel();
+
+                                } else {
+                                    Toast.makeText(MainActivity.this, "First Digit cannot be zero", Toast.LENGTH_SHORT).show();
+                                }
                             } else {
                                 Toast.makeText(MainActivity.this, "PIN must be at least 5 digits long", Toast.LENGTH_SHORT).show();
                             }
@@ -597,12 +679,12 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             @Override
             public void run() {
                 idleMonitor.setTimer();
-                showYearSelectDialog(bioData, null, true);
+                showYearSelectDialog(bioData, null, true, false);
             }
         });
     }
 
-    private void showYearSelectDialog(final byte[] bioData, final String pin, final boolean isBio) {
+    private void showYearSelectDialog(final byte[] bioData, final String pin, final boolean isBio, final boolean modifyBio) {
         final int[] year = new int[1];
 
         hideProgressDialog();
@@ -642,7 +724,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                 if (isBio) {
                     handleBioID(year[0], bioData);
                 } else {
-                    handlePINID(pin, year[0]);
+                    handlePINID(pin, year[0], modifyBio);
                 }
             }
         });
@@ -693,15 +775,15 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
     private void handleBioID(int year, byte[] bioData) {
         showProgressDialog();
-        int matchResult = bioHandler.matchBioData(bioData, year);
+        long matchResult = bioHandler.matchBioData(bioData, year);
         if (matchResult == -1) {
             hideProgressDialog();
-            makeNewUser();
+            makeNewUser(year, bioData);
         } else {
 
             Intent selectionIntent = new Intent(this, SelectionActivity.class);
-            selectionIntent.putExtra("name", dbHandler.getName((long) matchResult, year));
-            selectionIntent.putExtra("state", dbHandler.getWhereabouts((long) matchResult, year));
+            selectionIntent.putExtra("name", dbHandler.getName(matchResult, year));
+            selectionIntent.putExtra("state", dbHandler.getWhereabouts(matchResult, year));
             selectionIntent.putExtra("year", year);
             hideProgressDialog();
             idleMonitor.nullify();
@@ -710,24 +792,35 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
     }
 
-    private void pushNewUser(final String name, final String house, final int year, final int pin) {
+    private void pushNewUser(final String name, final String house, final int year, final String pin, final byte[] biodata1) {
 
-        Toast.makeText(this, "New User Pushed", Toast.LENGTH_LONG).show();
+//        Toast.makeText(this, "New User Pushed", Toast.LENGTH_LONG).show();
 
         AlertDialog.Builder bldr = new AlertDialog.Builder(this);
         bldr.setTitle("New User Enrollment");
-        bldr.setMessage("Place same finger on scanner and press OK to enroll");
+        bldr.setMessage("Place the same finger on scanner and press OK simultaneously to enroll");
         bldr.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                byte[] bioData = bioHandler.getProcessedBioData();
-                dbHandler.addNewRecord(name, house, year, pin, bioData, false);
-                Toast.makeText(MainActivity.this, name + ", you are now enrolled", Toast.LENGTH_LONG).show();
+                //This is overridden after dialog shows
             }
         });
         bldr.setOnDismissListener(this);
-        bldr.show();
-
+        final AlertDialog dialog = bldr.create();
+        dialog.show();
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                byte[] bioData2 = bioHandler.getProcessedBioData();
+                if (bioHandler.matchBioDataSets(biodata1, bioData2)) {
+                    dbHandler.addNewRecord(name, house, year, pin, biodata1, false);
+                    dialog.cancel();
+                    Toast.makeText(MainActivity.this, name + ", you are now enrolled", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "Scans don't match, try again!", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
     }
 
     @Override
@@ -739,8 +832,10 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     @Override
     public void onDismiss(DialogInterface dialog) {
         try {
-            Thread.sleep(2000);
+            Thread.sleep(2500);
+            idleMonitor.setTimer();
             autoOn.start();
+            hideSysUI();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

@@ -13,12 +13,12 @@
         android:text="Start Idle Activity" />
 
     <Button
-        android:id="@+id/test1button"
+        android:id="@+id/srButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/idleActTestButton"
         android:layout_alignParentEnd="true"
-        android:text="Test 1" />
+        android:text="Scanner Restart" />
 
     <Button
         android:id="@+id/flActTestButton"

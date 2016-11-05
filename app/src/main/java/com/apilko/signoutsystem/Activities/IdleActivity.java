@@ -7,6 +7,7 @@ import android.support.annotation.Keep;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
 
 import com.apilko.signoutsystem.Fragments.calendarFragment;
 import com.apilko.signoutsystem.Fragments.currentInfoFragment;
@@ -42,7 +43,7 @@ public class IdleActivity extends AppCompatActivity implements SGFingerPresentEv
             //Display the notifications
             //Index is handled internally by the fragment
             notifFrag.displayNotifsView();
-            Log.i(TAG, "Notification Thread runs update");
+            Log.d(TAG, "Notification Thread runs update");
             //Display each notif for 10 seconds
             notifDisplayHandler.postDelayed(notifUpdateThread, 10000);
         }
@@ -58,7 +59,7 @@ public class IdleActivity extends AppCompatActivity implements SGFingerPresentEv
             currentInfoFrag.updateWeather(wFetch, IdleActivity.this);
             forecastFrag.updateWeather(wFetch, IdleActivity.this);
 
-            Log.i(TAG, "Weather Thread runs updates");
+            Log.d(TAG, "Weather Thread runs updates");
 
             //Refreshes weather data every 20 minutes
             weatherUpdateHandler.postDelayed(weatherUpdateThread, 1200000);
@@ -71,7 +72,7 @@ public class IdleActivity extends AppCompatActivity implements SGFingerPresentEv
 
             calendarFrag.populateCalendar();
 
-            Log.i(TAG, "Calendar Thread runs update");
+            Log.d(TAG, "Calendar Thread runs update");
             //Run next update in 4 Hours
             calendarUpdateHandler.postDelayed(calendarUpdateThread, 14400000);
         }
@@ -81,8 +82,8 @@ public class IdleActivity extends AppCompatActivity implements SGFingerPresentEv
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        hideSysUI();
         setContentView(R.layout.activity_idle);
-
     }
 
     @Override
@@ -101,16 +102,37 @@ public class IdleActivity extends AppCompatActivity implements SGFingerPresentEv
         wFetch = WeatherRemoteFetch.getInstance(this);
 
         notifDisplayHandler.postDelayed(notifUpdateThread, 10000);
-        weatherUpdateHandler.post(weatherUpdateThread);
-        calendarUpdateHandler.post(calendarUpdateThread);
+        weatherUpdateHandler.postDelayed(weatherUpdateThread, 500);
+        calendarUpdateHandler.postDelayed(calendarUpdateThread, 1000);
+    }
+
+    private void showSysUI() {
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+    }
+
+    private void hideSysUI() {
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        notifDisplayHandler.removeCallbacks(notifUpdateThread);
-        weatherUpdateHandler.removeCallbacks(weatherUpdateThread);
-        calendarUpdateHandler.removeCallbacks(calendarUpdateThread);
+
+        notifDisplayHandler.removeCallbacksAndMessages(null);
+        weatherUpdateHandler.removeCallbacksAndMessages(null);
+        calendarUpdateHandler.removeCallbacksAndMessages(null);
+
         finish();
     }
 

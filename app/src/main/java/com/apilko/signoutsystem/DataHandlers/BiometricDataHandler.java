@@ -3,6 +3,7 @@ package com.apilko.signoutsystem.DataHandlers;
 import android.content.Context;
 import android.content.res.Resources;
 import android.support.annotation.Keep;
+import android.util.Log;
 
 import SecuGen.FDxSDKPro.JSGFPLib;
 import SecuGen.FDxSDKPro.SGDeviceInfoParam;
@@ -88,24 +89,38 @@ public class BiometricDataHandler {
             return -1;
         }
         //Iterate through local db to find fingerprint
-        byte[] storedData;
+        byte[] storedData = null;
         boolean[] match = new boolean[1];
         int i;
-        for (i = 1; i < recordNum; i++) {
+        boolean found = false;
+        for (i = 1; i <= recordNum; i++) {
             match[0] = false;
             storedData = dbHandler.getBioImage(i, year);
             bioLib.MatchTemplate(storedData, toVerifyData, SGFDxSecurityLevel.SL_NORMAL, match);
             if (match[0]) {
+                found = true;
                 break;
             }
         }
-        //Return for new user or unable to find entry
-        return match[0] ? i : -1;
+
+        int[] score = new int[1];
+        bioLib.GetMatchingScore(storedData, toVerifyData, score);
+        Log.d("BioHandler", "Verification matching score: " + score[0]);
+
+        if (found) {
+            return i;
+        } else {
+            return -1;
+        }
     }
 
-    public int getAndMatchBioData(int year) {
-
-        return matchBioData(extractBioData(captureImage()), year);
+    public boolean matchBioDataSets(byte[] set1, byte[] set2) {
+        boolean[] result = new boolean[1];
+        bioLib.MatchTemplate(set1, set2, SGFDxSecurityLevel.SL_NORMAL, result);
+        int[] score = new int[1];
+        bioLib.GetMatchingScore(set1, set2, score);
+        Log.d("BioHandler", "Modification matching score: " + score[0]);
+        return result[0];
     }
 
     private byte[] captureImage() {
