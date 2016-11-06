@@ -484,6 +484,8 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         final AlertDialog dialog = builder.create();
         dialog.show();
 
+        autoOn.stop();
+
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -539,6 +541,39 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         });
     }
 
+    private void pushNewUser(final String name, final String house, final int year, final String pin, final byte[] biodata1) {
+
+//        Toast.makeText(this, "New User Pushed", Toast.LENGTH_LONG).show();
+
+        autoOn.stop();
+
+        AlertDialog.Builder bldr = new AlertDialog.Builder(this);
+        bldr.setTitle("New User Enrollment");
+        bldr.setMessage("Place the same finger on scanner and press OK simultaneously to enroll");
+        bldr.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //This is overridden after dialog shows
+            }
+        });
+        bldr.setOnDismissListener(this);
+        final AlertDialog dialog = bldr.create();
+        dialog.show();
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                byte[] bioData2 = bioHandler.getProcessedBioData();
+                if (bioHandler.matchBioDataSets(biodata1, bioData2)) {
+                    dbHandler.addNewRecord(name, house, year, pin, biodata1, false);
+                    dialog.cancel();
+                    Toast.makeText(MainActivity.this, name + ", you are now enrolled", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "Scans don't match, try again!", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+    }
+
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -581,7 +616,12 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Choose your Year");
-        builder.setOnDismissListener(this);
+        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                autoOn.start();
+            }
+        });
         builder.setItems(R.array.year_groups, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -793,36 +833,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         hideProgressDialog();
     }
 
-    private void pushNewUser(final String name, final String house, final int year, final String pin, final byte[] biodata1) {
 
-//        Toast.makeText(this, "New User Pushed", Toast.LENGTH_LONG).show();
-
-        AlertDialog.Builder bldr = new AlertDialog.Builder(this);
-        bldr.setTitle("New User Enrollment");
-        bldr.setMessage("Place the same finger on scanner and press OK simultaneously to enroll");
-        bldr.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                //This is overridden after dialog shows
-            }
-        });
-        bldr.setOnDismissListener(this);
-        final AlertDialog dialog = bldr.create();
-        dialog.show();
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                byte[] bioData2 = bioHandler.getProcessedBioData();
-                if (bioHandler.matchBioDataSets(biodata1, bioData2)) {
-                    dbHandler.addNewRecord(name, house, year, pin, biodata1, false);
-                    dialog.cancel();
-                    Toast.makeText(MainActivity.this, name + ", you are now enrolled", Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(MainActivity.this, "Scans don't match, try again!", Toast.LENGTH_LONG).show();
-                }
-            }
-        });
-    }
 
     private void showProgressDialog() {
 
