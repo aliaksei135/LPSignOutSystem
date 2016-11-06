@@ -126,14 +126,12 @@ public class IdleActivity extends AppCompatActivity implements SGFingerPresentEv
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onStop() {
+        super.onStop();
 
         notifDisplayHandler.removeCallbacksAndMessages(null);
         weatherUpdateHandler.removeCallbacksAndMessages(null);
         calendarUpdateHandler.removeCallbacksAndMessages(null);
-
-        finish();
     }
 
     @Override
