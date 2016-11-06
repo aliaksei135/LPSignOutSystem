@@ -3,7 +3,7 @@
 
     <!--Google Sheets data-->
     <string name="SPREADSHEET_ID">1Vz7udNDrsOny0N6JPaRKU6-i_8bLNDMLOYp0i4ZLaBI</string>
-    <string name="server_client_id">853270323565-nageoii3e2joqn2sl79cbgkqiammg7b4.apps.googleusercontent.com</string>
+    <string name="server_client_id">853270323565-d1ob4s1ior54im1ecnsrifn7sqcphmti.apps.googleusercontent.com</string>
 
     <!-- OLD DEBUG DATA
         <string name="SCHOOL_URL">https://docs.google.com/forms/d/1ES5ruUgUlJ-rKecIvf2rpdfVxz0rRq94ndLByNE_o60/formResponse</string>
