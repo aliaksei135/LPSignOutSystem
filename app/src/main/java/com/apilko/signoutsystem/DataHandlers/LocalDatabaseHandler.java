@@ -35,7 +35,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
     //Fryer only SQL tables
     private static final String TABLE_Y8 = "year8";
     private static final String TABLE_Y7 = "year7";
-    //Grove visitor tables
+    //Visitor tables
     private static final String TABLE_GROVE_VISITOR = "visitorGrove";
     private static final String TABLE_FIELD_VISITOR = "visitorField";
     private static final String TABLE_RECKITT_VISITOR = "visitorReckitt";

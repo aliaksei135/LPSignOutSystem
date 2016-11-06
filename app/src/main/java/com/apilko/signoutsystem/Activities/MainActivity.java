@@ -61,6 +61,8 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
     private static final String TAG = "MainActivity";
 
+    private static final String NATIVE_HOUSE = "School";
+
     private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
     private static String serverAuthCode;
     private static IdleMonitor idleMonitor;
@@ -284,10 +286,15 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        hideSysUI();
+    }
+
+    @Override
     protected void onDestroy() {
 
         super.onDestroy();
-        showSysUI();
         idleMonitor.nullify();
         unregisterReceiver(mUsbReceiver);
         bioLib.CloseDevice();
@@ -340,7 +347,6 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             if (numRecords <= 0) {
                 matchResult = -1;
             } else {
-                //TODO Work out when incorrect pin entered
                 for (int i = 1; i <= numRecords; i++) {
                     long dbPin = dbHandler.getPin(i, year);
                     if (dbPin == pin) {
@@ -367,6 +373,9 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             } else {
                 modifyBioData(matchResult, year);
             }
+        } else {
+            Toast.makeText(this, "PIN incorrect/not found", Toast.LENGTH_SHORT).show();
+            hideProgressDialog();
         }
     }
 
@@ -503,6 +512,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         final TextView nameTitle = new TextView(this);
         nameTitle.setText("Full Name");
         nameTitle.setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Medium);
+        nameTitle.setPadding(20, 1, 20, 1);
         layout.addView(nameTitle);
 
         final EditText nameInput = new EditText(this);
@@ -512,6 +522,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         final TextView houseTitle = new TextView(this);
         houseTitle.setText("House");
         houseTitle.setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Medium);
+        houseTitle.setPadding(20, 15, 20, 1);
         layout.addView(houseTitle);
 
         final Spinner houseSpinner = new Spinner(this);
@@ -520,11 +531,11 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         houseSpinner.setAdapter(adapter);
         layout.addView(houseSpinner);
 
-        //TODO Make this title appear above the correct field
-//        final TextView yearTitle = new TextView(this);
-//        houseTitle.setText("Year");
-//        houseTitle.setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Medium);
-//        layout.addView(yearTitle);
+        final TextView yearTitle = new TextView(this);
+        yearTitle.setText("Year");
+        yearTitle.setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Medium);
+        yearTitle.setPadding(20, 15, 20, 1);
+        layout.addView(yearTitle);
 
         final Spinner yearSpinner = new Spinner(this);
         final ArrayAdapter<String> adap = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, new String[]{"Select your year", "7", "8", "9", "10", "11", "12", "13"});
@@ -535,6 +546,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         final TextView pinTitle = new TextView(this);
         pinTitle.setText("Enter a PIN as a backup");
         pinTitle.setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Medium);
+        pinTitle.setPadding(20, 15, 20, 1);
         layout.addView(pinTitle);
 
         final EditText pinField = new EditText(this);
@@ -736,6 +748,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             }
         });
         builder.create().show();
+        hideSysUI();
     }
 
     private void showVisitorSelectDialog(final byte[] bioData) {
@@ -832,10 +845,10 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     @Override
     public void onDismiss(DialogInterface dialog) {
         try {
-            Thread.sleep(2500);
-            idleMonitor.setTimer();
-            autoOn.start();
             hideSysUI();
+            idleMonitor.setTimer();
+            Thread.sleep(2500);
+            autoOn.start();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

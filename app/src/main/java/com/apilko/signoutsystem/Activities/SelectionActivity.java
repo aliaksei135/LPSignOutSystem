@@ -1,5 +1,6 @@
 package com.apilko.signoutsystem.Activities;
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -24,8 +25,8 @@ public class SelectionActivity extends AppCompatActivity implements
         stateStudyPeriodFragment.OnFragmentInteractionListener,
         stateVisitHouseFragment.OnFragmentInteractionListener {
 
+    ProgressDialog mProgressDialog;
     private String name;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -190,6 +191,7 @@ public class SelectionActivity extends AppCompatActivity implements
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                showProgressDialog();
                 sendResultIntent(resultIntent);
             }
         });
@@ -203,6 +205,25 @@ public class SelectionActivity extends AppCompatActivity implements
     private void sendResultIntent(Intent result) {
         setResult(RESULT_OK, result);
         finish();
+    }
+
+    private void showProgressDialog() {
+
+        if (mProgressDialog == null) {
+            mProgressDialog = new ProgressDialog(this);
+            mProgressDialog.setMessage("Loading");
+            mProgressDialog.setIndeterminate(true);
+            mProgressDialog.setCancelable(false);
+        }
+
+        mProgressDialog.show();
+    }
+
+    private void hideProgressDialog() {
+
+        if (mProgressDialog != null && mProgressDialog.isShowing()) {
+            mProgressDialog.hide();
+        }
     }
 
     @Override
