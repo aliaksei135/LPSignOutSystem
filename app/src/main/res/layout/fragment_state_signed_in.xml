@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.apilko.signoutsystem.Fragments.stateSignedInFragment">
+    tools:context="com.aliakseipilko.signoutsystem.Fragments.stateSignedInFragment">
 
     <TextView
         android:id="@+id/textView"

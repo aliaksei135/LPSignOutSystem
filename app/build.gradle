@@ -6,7 +6,7 @@ android {
     buildToolsVersion "23.0.3"
 
     defaultConfig {
-        applicationId "com.apilko.signoutsystem"
+        applicationId "com.aliakseipilko.signoutsystem"
         minSdkVersion 19
         targetSdkVersion 23
         versionCode 1
@@ -76,5 +76,4 @@ dependencies {
     compile 'com.survivingwithandroid:weatherlib_okhttpclient:1.6.0'
 
     compile files('libs/FDxSDKProAndroid.jar')
-    compile files('libs/jasypt-1.9.2.jar')
 }

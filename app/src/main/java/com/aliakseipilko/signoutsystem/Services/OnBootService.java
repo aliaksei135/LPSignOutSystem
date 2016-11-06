@@ -1,4 +1,4 @@
-package com.apilko.signoutsystem.Services;
+package com.aliakseipilko.signoutsystem.Services;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

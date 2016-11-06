@@ -1,4 +1,4 @@
-package com.apilko.signoutsystem.Activities;
+package com.aliakseipilko.signoutsystem.Activities;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -11,12 +11,12 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.apilko.signoutsystem.Fragments.stateAtGreenFragment;
-import com.apilko.signoutsystem.Fragments.stateSignedInFragment;
-import com.apilko.signoutsystem.Fragments.stateSignedOutFragment;
-import com.apilko.signoutsystem.Fragments.stateStudyPeriodFragment;
-import com.apilko.signoutsystem.Fragments.stateVisitHouseFragment;
-import com.apilko.signoutsystem.R;
+import com.aliakseipilko.signoutsystem.Fragments.stateAtGreenFragment;
+import com.aliakseipilko.signoutsystem.Fragments.stateSignedInFragment;
+import com.aliakseipilko.signoutsystem.Fragments.stateSignedOutFragment;
+import com.aliakseipilko.signoutsystem.Fragments.stateStudyPeriodFragment;
+import com.aliakseipilko.signoutsystem.Fragments.stateVisitHouseFragment;
+import com.aliakseipilko.signoutsystem.R;
 
 public class SelectionActivity extends AppCompatActivity implements
         stateSignedInFragment.OnFragmentInteractionListener,

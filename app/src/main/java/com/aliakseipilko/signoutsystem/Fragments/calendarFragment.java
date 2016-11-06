@@ -1,4 +1,4 @@
-package com.apilko.signoutsystem.Fragments;
+package com.aliakseipilko.signoutsystem.Fragments;
 
 
 import android.os.Bundle;
@@ -8,8 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.apilko.signoutsystem.Helpers.CalendarRemoteFetch;
-import com.apilko.signoutsystem.R;
+import com.aliakseipilko.signoutsystem.Helpers.CalendarRemoteFetch;
+import com.aliakseipilko.signoutsystem.R;
 import com.github.tibolte.agendacalendarview.AgendaCalendarView;
 import com.github.tibolte.agendacalendarview.CalendarPickerController;
 import com.github.tibolte.agendacalendarview.models.CalendarEvent;

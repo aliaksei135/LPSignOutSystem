@@ -1,4 +1,4 @@
-package com.apilko.signoutsystem.Fragments;
+package com.aliakseipilko.signoutsystem.Fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -12,9 +12,9 @@ import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
-import com.apilko.signoutsystem.Activities.MainActivity;
-import com.apilko.signoutsystem.DataHandlers.GoogleSheetsHandler;
-import com.apilko.signoutsystem.R;
+import com.aliakseipilko.signoutsystem.Activities.MainActivity;
+import com.aliakseipilko.signoutsystem.DataHandlers.GoogleSheetsHandler;
+import com.aliakseipilko.signoutsystem.R;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;

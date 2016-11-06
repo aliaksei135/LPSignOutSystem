@@ -1,7 +1,6 @@
-package com.apilko.signoutsystem.Fragments;
+package com.aliakseipilko.signoutsystem.Fragments;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -9,28 +8,36 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
 
-import com.apilko.signoutsystem.R;
+import com.aliakseipilko.signoutsystem.R;
 import com.sevenheaven.segmentcontrol.SegmentControl;
 
 /**
  * A simple {@link Fragment} subclass. Activities that contain this fragment must implement the
- * {@link stateSignedInFragment.OnFragmentInteractionListener} interface to handle interaction
- * events. Use the {@link stateSignedInFragment#newInstance} factory method to create an instance of
+ * {@link stateAtGreenFragment.OnFragmentInteractionListener} interface to handle interaction
+ * events. Use the {@link stateAtGreenFragment#newInstance} factory method to create an instance of
  * this fragment.
  */
-public class stateSignedInFragment extends Fragment {
+public class stateAtGreenFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    public stateSignedInFragment() {
+    public stateAtGreenFragment() {
         // Required empty public constructor
     }
 
-    public static stateSignedInFragment newInstance() {
 
-        return new stateSignedInFragment();
+    public static stateAtGreenFragment newInstance() {
+
+        return new stateAtGreenFragment();
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_state_at_green, container, false);
     }
 
     @Override
@@ -38,7 +45,7 @@ public class stateSignedInFragment extends Fragment {
 
         super.onViewCreated(view, savedInstanceState);
 
-        SegmentControl houseButton = (SegmentControl) getView().findViewById(R.id.house_button1);
+        SegmentControl houseButton = (SegmentControl) getView().findViewById(R.id.house_button3);
         houseButton.setOnSegmentControlClickListener(new SegmentControl.OnSegmentControlClickListener() {
             @Override
             public void onSegmentControlClick(int index) {
@@ -57,56 +64,34 @@ public class stateSignedInFragment extends Fragment {
                 }
             }
         });
-        Button studyPeriodButton = (Button) getView().findViewById(R.id.study_period_button1);
+        Button studyPeriodButton = (Button) getView().findViewById(R.id.study_period_button3);
         studyPeriodButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onButtonPressed("STUDY_PERIOD");
             }
         });
-        Button atGreenButton = (Button) getView().findViewById(R.id.going_to_green_button1);
-
-        Button signOutButton = (Button) getView().findViewById(R.id.going_home_button1);
+        Button signOutButton = (Button) getView().findViewById(R.id.going_home_button3);
         signOutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onButtonPressed("SIGN_OUT");
             }
         });
-        Button cancelButton = (Button) getView().findViewById(R.id.cancel_button1);
+        Button signInButton = (Button) getView().findViewById(R.id.sign_in_button3);
+        signInButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onButtonPressed("SIGN_IN");
+            }
+        });
+        Button cancelButton = (Button) getView().findViewById(R.id.cancel_button3);
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onButtonPressed("CANCEL");
             }
         });
-
-        int year = getArguments().getInt("year");
-
-        if (year > 11) {
-            atGreenButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onButtonPressed("GREEN");
-                }
-            });
-        } else {
-            atGreenButton.setBackgroundColor(Color.RED);
-            atGreenButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Toast.makeText(getContext(), "Not Allowed!", Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_state_signed_in, container, false);
     }
 
     private void onButtonPressed(String type) {
@@ -138,7 +123,7 @@ public class stateSignedInFragment extends Fragment {
     /**
      * This interface must be implemented by activities that contain this fragment to allow an
      * interaction in this fragment to be communicated to the activity and potentially other
-     * fragments contained in that activity. <p> See the Android Training lesson <a href=
+     * fragments contained in that activity. <p/> See the Android Training lesson <a href=
      * "http://developer.android.com/training/basics/fragments/communicating.html" >Communicating
      * with Other Fragments</a> for more information.
      */

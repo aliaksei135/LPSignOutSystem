@@ -1,4 +1,4 @@
-package com.apilko.signoutsystem.DataHandlers;
+package com.aliakseipilko.signoutsystem.DataHandlers;
 
 import android.content.Context;
 import android.content.res.Resources;

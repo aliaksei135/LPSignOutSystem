@@ -1,4 +1,4 @@
-package com.apilko.signoutsystem.Fragments;
+package com.aliakseipilko.signoutsystem.Fragments;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -10,8 +10,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.apilko.signoutsystem.Helpers.WeatherRemoteFetch;
-import com.apilko.signoutsystem.R;
+import com.aliakseipilko.signoutsystem.Helpers.WeatherRemoteFetch;
+import com.aliakseipilko.signoutsystem.R;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;

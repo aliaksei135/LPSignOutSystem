@@ -1,4 +1,4 @@
-package com.apilko.signoutsystem.DataHandlers;
+package com.aliakseipilko.signoutsystem.DataHandlers;
 
 import com.google.api.client.auth.oauth2.TokenResponseException;
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -16,7 +16,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.Keep;
 
-import com.apilko.signoutsystem.R;
+import com.aliakseipilko.signoutsystem.R;
 
 import java.io.BufferedReader;
 import java.io.IOException;

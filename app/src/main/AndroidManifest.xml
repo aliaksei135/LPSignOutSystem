@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.apilko.signoutsystem">
+    package="com.aliakseipilko.signoutsystem">
 
     <uses-feature android:name="android.hardware.usb.host" />
 
@@ -19,7 +19,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".Activities.MainActivity"
+            android:name="com.aliakseipilko.signoutsystem.Activities.MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name"
             android:screenOrientation="sensorLandscape"
@@ -41,7 +41,7 @@
 
         </activity>
         <activity
-            android:name=".Activities.SelectionActivity"
+            android:name="com.aliakseipilko.signoutsystem.Activities.SelectionActivity"
             android:label="Selection"
             android:screenOrientation="sensorLandscape"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
@@ -51,17 +51,17 @@
             android:value="@integer/google_play_services_version" />
 
         <activity
-            android:name=".Activities.IdleActivity"
+            android:name="com.aliakseipilko.signoutsystem.Activities.IdleActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:parentActivityName=".Activities.MainActivity"
+            android:parentActivityName="com.aliakseipilko.signoutsystem.Activities.MainActivity"
             android:screenOrientation="sensorLandscape"
             android:theme="@style/Theme.AppCompat.NoActionBar">
         </activity>
         <activity
-            android:name=".Activities.FirstLaunch"
+            android:name="com.aliakseipilko.signoutsystem.Activities.FirstLaunch"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
 
-        <receiver android:name=".Services.OnBootService">
+        <receiver android:name="com.aliakseipilko.signoutsystem.Services.OnBootService">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>

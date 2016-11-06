@@ -1,4 +1,4 @@
-package com.apilko.signoutsystem.Activities;
+package com.aliakseipilko.signoutsystem.Activities;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -41,11 +41,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.apilko.signoutsystem.DataHandlers.BiometricDataHandler;
-import com.apilko.signoutsystem.DataHandlers.GoogleSheetsHandler;
-import com.apilko.signoutsystem.DataHandlers.LocalDatabaseHandler;
-import com.apilko.signoutsystem.Helpers.IdleMonitor;
-import com.apilko.signoutsystem.R;
+import com.aliakseipilko.signoutsystem.DataHandlers.BiometricDataHandler;
+import com.aliakseipilko.signoutsystem.DataHandlers.GoogleSheetsHandler;
+import com.aliakseipilko.signoutsystem.DataHandlers.LocalDatabaseHandler;
+import com.aliakseipilko.signoutsystem.Helpers.IdleMonitor;
+import com.aliakseipilko.signoutsystem.R;
 
 import java.util.Calendar;
 

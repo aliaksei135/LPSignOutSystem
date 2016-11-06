@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/fragment_notif"
-        android:name="com.apilko.signoutsystem.Fragments.notifFragment"
+        android:name="com.aliakseipilko.signoutsystem.Fragments.notifFragment"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:layout_gravity="top"
@@ -32,7 +32,7 @@
 
             <fragment
                 android:id="@+id/currentInfoFragment"
-                android:name="com.apilko.signoutsystem.Fragments.currentInfoFragment"
+                android:name="com.aliakseipilko.signoutsystem.Fragments.currentInfoFragment"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
@@ -40,7 +40,7 @@
 
             <fragment
                 android:id="@+id/forecastFragment"
-                android:name="com.apilko.signoutsystem.Fragments.forecastFragment"
+                android:name="com.aliakseipilko.signoutsystem.Fragments.forecastFragment"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
@@ -50,7 +50,7 @@
 
         <fragment
             android:id="@+id/calendarFragment"
-            android:name="com.apilko.signoutsystem.Fragments.calendarFragment"
+            android:name="com.aliakseipilko.signoutsystem.Fragments.calendarFragment"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"

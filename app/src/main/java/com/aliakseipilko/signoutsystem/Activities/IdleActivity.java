@@ -1,4 +1,4 @@
-package com.apilko.signoutsystem.Activities;
+package com.aliakseipilko.signoutsystem.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,12 +9,12 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.apilko.signoutsystem.Fragments.calendarFragment;
-import com.apilko.signoutsystem.Fragments.currentInfoFragment;
-import com.apilko.signoutsystem.Fragments.forecastFragment;
-import com.apilko.signoutsystem.Fragments.notifFragment;
-import com.apilko.signoutsystem.Helpers.WeatherRemoteFetch;
-import com.apilko.signoutsystem.R;
+import com.aliakseipilko.signoutsystem.Fragments.calendarFragment;
+import com.aliakseipilko.signoutsystem.Fragments.currentInfoFragment;
+import com.aliakseipilko.signoutsystem.Fragments.forecastFragment;
+import com.aliakseipilko.signoutsystem.Fragments.notifFragment;
+import com.aliakseipilko.signoutsystem.Helpers.WeatherRemoteFetch;
+import com.aliakseipilko.signoutsystem.R;
 
 
 @Keep
