@@ -56,9 +56,6 @@
             android:parentActivityName=".Activities.MainActivity"
             android:screenOrientation="sensorLandscape"
             android:theme="@style/Theme.AppCompat.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".Activities.MainActivity" />
         </activity>
         <activity
             android:name=".Activities.FirstLaunch"

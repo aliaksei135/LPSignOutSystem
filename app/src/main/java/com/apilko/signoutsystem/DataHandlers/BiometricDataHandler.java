@@ -29,12 +29,8 @@ public class BiometricDataHandler {
     }
 
     public static BiometricDataHandler getInstance(JSGFPLib bioLib, Context context) {
-        if (ourInstance == null) {
-            ourInstance = new BiometricDataHandler(bioLib, context);
-            return ourInstance;
-        } else {
-            return ourInstance;
-        }
+        ourInstance = new BiometricDataHandler(bioLib, context);
+        return ourInstance;
     }
 
     private void initialiseLib() throws Resources.NotFoundException {
@@ -74,9 +70,7 @@ public class BiometricDataHandler {
 
     private byte[] extractBioData(byte[] imageBuffer) {
 
-        int[] maxTemplateSize = new int[1];
-        bioLib.GetMaxTemplateSize(maxTemplateSize);
-        byte[] minBuffer = new byte[maxTemplateSize[0]];
+        byte[] minBuffer = new byte[400];
         //Create Minutiae template
         bioLib.CreateTemplate(null, imageBuffer, minBuffer);
         return minBuffer;
@@ -103,9 +97,9 @@ public class BiometricDataHandler {
             }
         }
 
-        int[] score = new int[1];
-        bioLib.GetMatchingScore(storedData, toVerifyData, score);
-        Log.d("BioHandler", "Verification matching score: " + score[0]);
+//        int[] score = new int[1];
+//        bioLib.GetMatchingScore(storedData, toVerifyData, score);
+//        Log.d("BioHandler", "Verification matching score: " + score[0]);
 
         if (found) {
             return i;
@@ -119,14 +113,17 @@ public class BiometricDataHandler {
         bioLib.MatchTemplate(set1, set2, SGFDxSecurityLevel.SL_NORMAL, result);
         int[] score = new int[1];
         bioLib.GetMatchingScore(set1, set2, score);
-        Log.d("BioHandler", "Modification matching score: " + score[0]);
+//        Log.d("BioHandler", "Modification matching score: " + score[0]);
         return result[0];
     }
 
     private byte[] captureImage() {
 
         final byte[] imageBuffer = new byte[bioImageHeight * bioImageWidth];
-        bioLib.GetImage(imageBuffer);
+        long error = bioLib.GetImage(imageBuffer);
+        Log.d("BioHandler", "Capture image result: " + error);
+        //Error 57 = SGFDX_ERROR_WRONG_IMAGE, [DEVICE] Driver file load failed.
+        //SGFDX_ERROR_WRONG_IMAGE = Capture image is not a real fingerprint image
         return imageBuffer;
 
     }

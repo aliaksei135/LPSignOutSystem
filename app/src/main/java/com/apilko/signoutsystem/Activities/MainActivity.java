@@ -51,6 +51,7 @@ import java.util.Calendar;
 
 import SecuGen.FDxSDKPro.JSGFPLib;
 import SecuGen.FDxSDKPro.SGAutoOnEventNotifier;
+import SecuGen.FDxSDKPro.SGFDxErrorCode;
 import SecuGen.FDxSDKPro.SGFingerPresentEvent;
 
 @Keep
@@ -123,6 +124,18 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         //Get rid of navbar
         hideSysUI();
 
+
+
+        sheetsHandler = GoogleSheetsHandler.getInstance(this);
+        dbHandler = LocalDatabaseHandler.getInstance(this);
+        idleMonitor = IdleMonitor.getInstance();
+        idleMonitor.registerIdleCallback(this);
+
+        initBio();
+        autoOn = new SGAutoOnEventNotifier(bioLib, this);
+        autoOn.start();
+
+        /* Buttons */
         Button manualSigningButton = (Button) findViewById(R.id.manualSigningButton);
 
         //DEBUG BUTTONS
@@ -130,30 +143,6 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         Button idleActTestButton = (Button) findViewById(R.id.idleActTestButton);
         Button flActTestButton = (Button) findViewById(R.id.flActTestButton);
         Button newUserTestButton = (Button) findViewById(R.id.newUserTestButton);
-
-
-        //USB Permissions
-        PendingIntent mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
-        IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
-        registerReceiver(mUsbReceiver, filter);
-
-        bioLib = new JSGFPLib((UsbManager) getSystemService(Context.USB_SERVICE));
-        bioLib.AutoOnEnabled();
-        bioLib.OpenDevice(0);
-        try {
-            bioHandler = BiometricDataHandler.getInstance(bioLib, this);
-        } catch (Resources.NotFoundException e) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setCancelable(false);
-            builder.setTitle("Device not connected");
-            builder.setMessage("Restart app with device connected");
-            builder.show();
-        }
-
-        sheetsHandler = GoogleSheetsHandler.getInstance(this);
-        dbHandler = LocalDatabaseHandler.getInstance(this);
-        idleMonitor = IdleMonitor.getInstance();
-        idleMonitor.registerIdleCallback(this);
 
         assert manualSigningButton != null;
         manualSigningButton.setOnClickListener(new View.OnClickListener() {
@@ -168,10 +157,9 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         scannerRestartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (autoOn != null) {
-                    autoOn.stop();
-                    autoOn.start();
-                }
+                initBio();
+                autoOn = new SGAutoOnEventNotifier(bioLib, null);
+                autoOn.start();
             }
         });
         assert idleActTestButton != null;
@@ -194,6 +182,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         newUserTestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                idleMonitor.nullify();
                 makeNewUser(0, null);
             }
         });
@@ -273,22 +262,35 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                     }
                 });
             }
-
-            autoOn = new SGAutoOnEventNotifier(bioLib, this);
-            autoOn.start();
         }
 
         if (!scheduledTasksSet) {
             scheduleResetRegistered();
             sharedPreferences.edit().putBoolean("scheduledTasksSet", true).commit();
         }
-
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        idleMonitor.setTimer();
         hideSysUI();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+
+        if (bioLib == null) {
+            initBio();
+        } else if (!(bioLib.ReadSerialNumber(new byte[20]) == SGFDxErrorCode.SGFDX_ERROR_NONE)) {
+            initBio();
+        }
+
+        if (autoOn == null) {
+            autoOn = new SGAutoOnEventNotifier(bioLib, this);
+        }
+        autoOn.start();
     }
 
     @Override
@@ -296,154 +298,30 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
         super.onDestroy();
         idleMonitor.nullify();
-        unregisterReceiver(mUsbReceiver);
-        bioLib.CloseDevice();
-        bioLib.Close();
+//        unregisterReceiver(mUsbReceiver);
+//        autoOn.stop();
+//        bioLib.CloseDevice();
+//        bioLib.Close();
     }
 
+    private void initBio() {
+        //USB Permissions
+        PendingIntent mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
+        IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
+        registerReceiver(mUsbReceiver, filter);
 
-    private void manualIdentify() {
-        final AlertDialog.Builder bldr = new AlertDialog.Builder(this);
-        bldr.setTitle("Manual Identification");
-        final EditText pinField = new EditText(this);
-        pinField.setHint("Enter your PIN");
-        pinField.setInputType(InputType.TYPE_CLASS_NUMBER);
-        bldr.setView(pinField);
-        bldr.setPositiveButton("Enter", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (pinField.getText() == null) {
-                    Toast.makeText(MainActivity.this, "No PIN entered", Toast.LENGTH_SHORT).show();
-                    bldr.show();
-                } else {
-                    showYearSelectDialog(null, pinField.getText().toString(), false, false);
-                }
-            }
-        });
-        bldr.setNegativeButton("Cancel", null);
-        bldr.setNeutralButton("Change Fingerprint", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (pinField.getText() == null) {
-                    Toast.makeText(MainActivity.this, "No PIN entered", Toast.LENGTH_SHORT).show();
-                    bldr.show();
-                } else {
-                    showYearSelectDialog(null, pinField.getText().toString(), false, true);
-                }
-            }
-        });
-
-        bldr.create().show();
-        hideSysUI();
-    }
-
-    private void handlePINID(String text, int year, boolean modifyBio) {
-        long pin = Long.parseLong(text);
-        showProgressDialog();
-        boolean pinExists = dbHandler.checkPINCollision(year, pin);
-        if (pinExists) {
-            long matchResult = 0;
-            long numRecords = dbHandler.getRecordNum(year);
-            if (numRecords <= 0) {
-                matchResult = -1;
-            } else {
-                for (int i = 1; i <= numRecords; i++) {
-                    long dbPin = dbHandler.getPin(i, year);
-                    if (dbPin == pin) {
-                        matchResult = i;
-                        break;
-                    }
-                    matchResult++;
-                }
-            }
-            if (!modifyBio) {
-                if (matchResult == -1) {
-                    hideProgressDialog();
-                    makeNewUser(year, null);
-                } else {
-
-                    Intent selectionIntent = new Intent(this, SelectionActivity.class);
-                    selectionIntent.putExtra("name", dbHandler.getName(matchResult, year));
-                    selectionIntent.putExtra("state", dbHandler.getWhereabouts(matchResult, year));
-                    selectionIntent.putExtra("year", year);
-                    hideProgressDialog();
-                    idleMonitor.nullify();
-                    startActivityForResult(selectionIntent, REQUEST_SELECTION);
-                }
-            } else {
-                modifyBioData(matchResult, year);
-            }
-        } else {
-            Toast.makeText(this, "PIN incorrect/not found", Toast.LENGTH_SHORT).show();
-            hideProgressDialog();
+        bioLib = new JSGFPLib((UsbManager) getSystemService(Context.USB_SERVICE));
+        bioLib.AutoOnEnabled();
+        bioLib.OpenDevice(0);
+        try {
+            bioHandler = BiometricDataHandler.getInstance(bioLib, this);
+        } catch (Resources.NotFoundException e) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setCancelable(false);
+            builder.setTitle("Device not connected");
+            builder.setMessage("Restart app with device connected");
+            builder.show();
         }
-    }
-
-    private void modifyBioData(final long matchResult, final int year) {
-
-        autoOn.stop();
-
-        AlertDialog.Builder bldr = new AlertDialog.Builder(this);
-        bldr.setTitle("Fingerprint Verification");
-        bldr.setMessage("Place the same finger on scanner and press OK simultaneously to enroll");
-        bldr.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                //This is overridden after dialog shows
-            }
-        });
-        bldr.setOnDismissListener(this);
-        final AlertDialog dialog = bldr.create();
-        dialog.show();
-        dialog.setOnDismissListener(this);
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                byte[] biodata = bioHandler.getProcessedBioData();
-                dbHandler.updateID(matchResult, biodata, false, year);
-                dialog.cancel();
-                Toast.makeText(MainActivity.this, dbHandler.getName(matchResult, year) + ", fingerprint modified", Toast.LENGTH_LONG).show();
-            }
-        });
-        hideProgressDialog();
-    }
-
-    private void showProgressDialog() {
-
-        if (mProgressDialog == null) {
-            mProgressDialog = new ProgressDialog(this);
-            mProgressDialog.setMessage("Loading");
-            mProgressDialog.setIndeterminate(true);
-            mProgressDialog.setCancelable(false);
-        }
-
-        mProgressDialog.show();
-    }
-
-    private void hideProgressDialog() {
-
-        if (mProgressDialog != null && mProgressDialog.isShowing()) {
-            mProgressDialog.hide();
-        }
-    }
-
-    private void showSysUI() {
-        View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-    }
-
-    private void hideSysUI() {
-        View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
     }
 
     @SuppressLint("CommitPrefEdits")
@@ -703,6 +581,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Choose your Year");
+        builder.setOnDismissListener(this);
         builder.setItems(R.array.year_groups, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -756,6 +635,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Select Your House");
+        builder.setOnDismissListener(this);
         builder.setItems(R.array.houses, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -788,6 +668,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
     private void handleBioID(int year, byte[] bioData) {
         showProgressDialog();
+        autoOn.stop();
         long matchResult = bioHandler.matchBioData(bioData, year);
         if (matchResult == -1) {
             hideProgressDialog();
@@ -803,6 +684,113 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             startActivityForResult(selectionIntent, REQUEST_SELECTION);
         }
 
+    }
+
+    private void manualIdentify() {
+        final AlertDialog.Builder bldr = new AlertDialog.Builder(this);
+        bldr.setTitle("Manual Identification");
+        final EditText pinField = new EditText(this);
+        pinField.setHint("Enter your PIN");
+        pinField.setInputType(InputType.TYPE_CLASS_NUMBER);
+        bldr.setView(pinField);
+        bldr.setPositiveButton("Enter", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (pinField.getText() == null) {
+                    Toast.makeText(MainActivity.this, "No PIN entered", Toast.LENGTH_SHORT).show();
+                    bldr.show();
+                } else {
+                    showYearSelectDialog(null, pinField.getText().toString(), false, false);
+                }
+            }
+        });
+        bldr.setNegativeButton("Cancel", null);
+        bldr.setNeutralButton("Change Fingerprint", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (pinField.getText() == null) {
+                    Toast.makeText(MainActivity.this, "No PIN entered", Toast.LENGTH_SHORT).show();
+                    bldr.show();
+                } else {
+                    showYearSelectDialog(null, pinField.getText().toString(), false, true);
+                }
+            }
+        });
+
+        bldr.create().show();
+        hideSysUI();
+    }
+
+    private void handlePINID(String text, int year, boolean modifyBio) {
+        long pin = Long.parseLong(text);
+        showProgressDialog();
+        autoOn.stop();
+        boolean pinExists = dbHandler.checkPINCollision(year, pin);
+        if (pinExists) {
+            long matchResult = 0;
+            long numRecords = dbHandler.getRecordNum(year);
+            if (numRecords <= 0) {
+                matchResult = -1;
+            } else {
+                for (int i = 1; i <= numRecords; i++) {
+                    long dbPin = dbHandler.getPin(i, year);
+                    if (dbPin == pin) {
+                        matchResult = i;
+                        break;
+                    }
+                    matchResult++;
+                }
+            }
+            if (!modifyBio) {
+                if (matchResult == -1) {
+                    hideProgressDialog();
+                    makeNewUser(year, null);
+                } else {
+
+                    Intent selectionIntent = new Intent(this, SelectionActivity.class);
+                    selectionIntent.putExtra("name", dbHandler.getName(matchResult, year));
+                    selectionIntent.putExtra("state", dbHandler.getWhereabouts(matchResult, year));
+                    selectionIntent.putExtra("year", year);
+                    hideProgressDialog();
+                    idleMonitor.nullify();
+                    startActivityForResult(selectionIntent, REQUEST_SELECTION);
+                }
+            } else {
+                modifyBioData(matchResult, year);
+            }
+        } else {
+            Toast.makeText(this, "PIN incorrect/not found", Toast.LENGTH_SHORT).show();
+            hideProgressDialog();
+        }
+    }
+
+    private void modifyBioData(final long matchResult, final int year) {
+
+        autoOn.stop();
+
+        AlertDialog.Builder bldr = new AlertDialog.Builder(this);
+        bldr.setTitle("Fingerprint Verification");
+        bldr.setMessage("Place the same finger on scanner and press OK simultaneously to enroll");
+        bldr.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //This is overridden after dialog shows
+            }
+        });
+        bldr.setOnDismissListener(this);
+        final AlertDialog dialog = bldr.create();
+        dialog.show();
+        dialog.setOnDismissListener(this);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                byte[] biodata = bioHandler.getProcessedBioData();
+                dbHandler.updateID(matchResult, biodata, false, year);
+                dialog.cancel();
+                Toast.makeText(MainActivity.this, dbHandler.getName(matchResult, year) + ", fingerprint modified", Toast.LENGTH_LONG).show();
+            }
+        });
+        hideProgressDialog();
     }
 
     private void pushNewUser(final String name, final String house, final int year, final String pin, final byte[] biodata1) {
@@ -834,6 +822,46 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                 }
             }
         });
+    }
+
+    private void showProgressDialog() {
+
+        if (mProgressDialog == null) {
+            mProgressDialog = new ProgressDialog(this);
+            mProgressDialog.setMessage("Loading");
+            mProgressDialog.setIndeterminate(true);
+            mProgressDialog.setCancelable(false);
+        }
+
+        mProgressDialog.show();
+        hideSysUI();
+    }
+
+    private void hideProgressDialog() {
+
+        if (mProgressDialog != null && mProgressDialog.isShowing()) {
+            mProgressDialog.hide();
+        }
+        hideSysUI();
+    }
+
+    private void showSysUI() {
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+    }
+
+    private void hideSysUI() {
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
     }
 
     @Override

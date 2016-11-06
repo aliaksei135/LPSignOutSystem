@@ -16,18 +16,14 @@ import com.apilko.signoutsystem.Fragments.notifFragment;
 import com.apilko.signoutsystem.Helpers.WeatherRemoteFetch;
 import com.apilko.signoutsystem.R;
 
-import SecuGen.FDxSDKPro.JSGFPLib;
-import SecuGen.FDxSDKPro.SGAutoOnEventNotifier;
-import SecuGen.FDxSDKPro.SGFingerPresentEvent;
-
 
 @Keep
-public class IdleActivity extends AppCompatActivity implements SGFingerPresentEvent {
+public class IdleActivity extends AppCompatActivity /*implements SGFingerPresentEvent*/ {
 
     private static final String TAG = "IdleActivity";
 
-    private SGAutoOnEventNotifier autoOn;
-    private JSGFPLib bioLib;
+//    private SGAutoOnEventNotifier autoOn;
+//    private JSGFPLib bioLib;
 
     private Handler notifDisplayHandler;
     private Handler weatherUpdateHandler;
@@ -102,8 +98,10 @@ public class IdleActivity extends AppCompatActivity implements SGFingerPresentEv
         wFetch = WeatherRemoteFetch.getInstance(this);
 
         notifDisplayHandler.postDelayed(notifUpdateThread, 10000);
-        weatherUpdateHandler.postDelayed(weatherUpdateThread, 500);
-        calendarUpdateHandler.postDelayed(calendarUpdateThread, 1000);
+        weatherUpdateHandler.postDelayed(weatherUpdateThread, 1);
+        calendarUpdateHandler.postDelayed(calendarUpdateThread, 500);
+
+        hideSysUI();
     }
 
     private void showSysUI() {
@@ -140,14 +138,14 @@ public class IdleActivity extends AppCompatActivity implements SGFingerPresentEv
         //When user touches the Idle Activity (except for the calendar fragment)
         //it switches back to MainActivity awaiting further user input
         //eg manual signing
-        startActivity(new Intent(this, MainActivity.class).putExtra("type", "touch"));
+        startActivity(new Intent(this, MainActivity.class)/*.putExtra("type", "touch")*/);
 
         return super.onTouchEvent(event);
     }
 
-    @Override
-    public void SGFingerPresentCallback() {
-        autoOn.stop();
-        startActivity(new Intent(this, MainActivity.class).putExtra("type", "fingerprint"));
-    }
+//    @Override
+//    public void SGFingerPresentCallback() {
+//        autoOn.stop();
+//        startActivity(new Intent(this, MainActivity.class).putExtra("type", "fingerprint"));
+//    }
 }
