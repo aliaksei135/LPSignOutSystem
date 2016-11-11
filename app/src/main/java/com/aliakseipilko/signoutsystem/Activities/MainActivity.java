@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.MainActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 11/11/16 20:11
+ * Last modified 11/11/16 21:27
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -343,12 +343,13 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                     String name = data.getStringExtra("name");
                     String location = data.getStringExtra("location");
                     String type = data.getStringExtra("type");
+                    long id = data.getLongExtra("id", -1);
                     String[] info = {name, location, type};
                     //Defaults to year 13, however this shouldn't happen as year is already validated before selection activity
                     int year = data.getIntExtra("year", 13);
 
                     if (sheetsHandler.makeNewLogEntry(info, serverAuthCode)) {
-                        dbHandler.updateLocation(name, location, year);
+                        dbHandler.updateLocation(id, location, year);
                         onDismiss(null);
                         Toast.makeText(this, "Goodbye " + name + "!", Toast.LENGTH_LONG).show();
                     } else {
@@ -679,7 +680,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         builder.setNeutralButton("House Visitor", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                showVisitorSelectDialog(bioData);
+                showVisitorSelectDialog(bioData, pin, isBio, modifyBio);
             }
         });
 
@@ -689,7 +690,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         hideSysUI();
     }
 
-    private void showVisitorSelectDialog(final byte[] bioData) {
+    private void showVisitorSelectDialog(final byte[] bioData, final String pin, final boolean isBio, final boolean modifyBio) {
         final int[] year = new int[1];
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -719,7 +720,11 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                         year[0] = 13;
                         break;
                 }
-                handleBioID(year[0], bioData);
+                if (isBio) {
+                    handleBioID(year[0], bioData);
+                } else {
+                    handlePINID(pin, year[0], modifyBio);
+                }
             }
         });
 
@@ -798,6 +803,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                     selectionIntent.putExtra("name", dbHandler.getName(matchResult, year));
                     selectionIntent.putExtra("state", dbHandler.getWhereabouts(matchResult, year));
                     selectionIntent.putExtra("year", year);
+                    selectionIntent.putExtra("id", matchResult);
                     hideProgressDialog();
                     idleMonitor.nullify();
                     startActivityForResult(selectionIntent, REQUEST_SELECTION);
@@ -824,6 +830,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             selectionIntent.putExtra("name", dbHandler.getName(matchResult, year));
             selectionIntent.putExtra("state", dbHandler.getWhereabouts(matchResult, year));
             selectionIntent.putExtra("year", year);
+            selectionIntent.putExtra("id", matchResult);
             hideProgressDialog();
             idleMonitor.nullify();
             startActivityForResult(selectionIntent, REQUEST_SELECTION);

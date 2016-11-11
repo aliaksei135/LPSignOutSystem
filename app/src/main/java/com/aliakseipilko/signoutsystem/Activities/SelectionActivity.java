@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.SelectionActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 11/11/16 20:11
+ * Last modified 11/11/16 21:27
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -33,6 +33,7 @@ public class SelectionActivity extends AppCompatActivity implements
         stateVisitHouseFragment.OnFragmentInteractionListener {
 
     ProgressDialog mProgressDialog;
+    long id;
     private String name;
 
     @Override
@@ -44,6 +45,7 @@ public class SelectionActivity extends AppCompatActivity implements
         String state = intent.getStringExtra("state");
         name = intent.getStringExtra("name");
         int year = intent.getIntExtra("year", 13);
+        id = intent.getLongExtra("id", -1);
 
         TextView currentStateTextView = (TextView) findViewById(R.id.currentStateTextView);
         if (currentStateTextView != null) {
@@ -237,6 +239,7 @@ public class SelectionActivity extends AppCompatActivity implements
     //Fragment Listener interface implementation
     public void onFragmentInteraction(String type) {
         Intent result = new Intent();
+        result.putExtra("id", id);
         switch (type) {
             case "CANCEL":
                 setResult(RESULT_CANCELED);

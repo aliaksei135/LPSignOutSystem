@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.DataHandlers.LocalDatabaseHandler was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 11/11/16 20:11
+ * Last modified 11/11/16 21:27
  */
 
 package com.aliakseipilko.signoutsystem.DataHandlers;
@@ -15,6 +15,7 @@ import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.Keep;
+import android.support.annotation.NonNull;
 
 @Keep
 public class LocalDatabaseHandler extends SQLiteOpenHelper {
@@ -182,41 +183,44 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
         db.close();
     }
 
-    private boolean findRecord(String field, Object key, int year) {
+    private boolean findRecord(@NonNull String field, @NonNull Object key, int year) {
 
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor;
-        String table = getYearTable(year);
-        if (key == null) {
-            String query = "SELECT * FROM " + table + " WHERE " + COLUMN_NAME + " = '" + field + "';";
-            cursor = db.rawQuery(query, null);
-        } else {
-            String query = "SELECT * FROM " + table + " WHERE " + field + " = '" + key + "';";
-            cursor = db.rawQuery(query, null);
-        }
-        if (cursor.getCount() <= 0) {
-            cursor.close();
+//        Cursor c;
+//        if (key == null) {
+//            String query = "SELECT * FROM " + table + " WHERE " + COLUMN_NAME + " = '" + field + "';";
+//            c = db.rawQuery(query, null);
+//        } else {
+//            String query = "SELECT * FROM " + table + " WHERE " + field + " = '" + key + "';";
+//            c = db.rawQuery(query, null);
+        Cursor c = db.query(true, getYearTable(year), new String[]{COLUMN_ID}, field + " = " + key, null, null, null, null, null);
+//        }
+        if (c.getCount() <= 0) {
+            c.close();
             db.close();
             return false;
         } else {
-            cursor.close();
+            c.close();
             db.close();
             return true;
         }
     }
 
-    public void updateLocation(String name, String location, int year) {
+    public void updateLocation(long id, String location, int year) {
 
         SQLiteDatabase db = getWritableDatabase();
-        String table = getYearTable(year);
-
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_WHEREABOUTS, location);
         if (location.equals("Study Period") || location.equals("Signed In")) {
-            String query = "UPDATE " + table + " SET " + COLUMN_WHEREABOUTS + " = '" + location + "' ," + COLUMN_STATE + " = '" + 1 + "' WHERE " + COLUMN_NAME + " = '" + name + "';";
-            db.execSQL(query);
+//            String query = "UPDATE " + table + " SET " + COLUMN_WHEREABOUTS + " = '" + location + "' ," + COLUMN_STATE + " = '" + 1 + "' WHERE " + COLUMN_NAME + " = '" + name + "';";
+//            db.execSQL(query);
+            cv.put(COLUMN_STATE, 1);
         } else {
-            String query = "UPDATE " + table + " SET " + COLUMN_WHEREABOUTS + " = '" + location + "' ," + COLUMN_STATE + " = '" + 0 + "' WHERE " + COLUMN_NAME + " = '" + name + "';";
-            db.execSQL(query);
+//            String query = "UPDATE " + table + " SET " + COLUMN_WHEREABOUTS + " = '" + location + "' ," + COLUMN_STATE + " = '" + 0 + "' WHERE " + COLUMN_NAME + " = '" + name + "';";
+//            db.execSQL(query);
+            cv.put(COLUMN_STATE, 0);
         }
+        db.update(getYearTable(year), cv, COLUMN_ID + " = " + id, null);
         db.close();
 
     }
