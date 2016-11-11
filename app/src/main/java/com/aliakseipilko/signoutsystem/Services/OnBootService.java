@@ -1,3 +1,10 @@
+/*
+ * com.aliakseipilko.signoutsystem.Services.OnBootService was created by Aliaksei Pilko as part of SignOutSystem
+ * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
+ *
+ * Last modified 11/11/16 20:11
+ */
+
 package com.aliakseipilko.signoutsystem.Services;
 
 import android.content.BroadcastReceiver;

@@ -1,3 +1,10 @@
+/*
+ * C:/Users/Aliaksei/AndroidStudioProjects/SignOutSystem/app/build.gradle was created by Aliaksei Pilko as part of SignOutSystem
+ * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
+ *
+ * Last modified 11/11/16 20:11
+ */
+
 apply plugin: 'com.android.application'
 apply plugin: 'com.getkeepsafe.dexcount'
 

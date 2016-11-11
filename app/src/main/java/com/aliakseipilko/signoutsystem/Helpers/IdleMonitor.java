@@ -1,3 +1,10 @@
+/*
+ * com.aliakseipilko.signoutsystem.Helpers.IdleMonitor was created by Aliaksei Pilko as part of SignOutSystem
+ * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
+ *
+ * Last modified 11/11/16 20:11
+ */
+
 package com.aliakseipilko.signoutsystem.Helpers;
 
 import java.util.Timer;

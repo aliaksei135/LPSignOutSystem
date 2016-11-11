@@ -1,4 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ C:/Users/Aliaksei/AndroidStudioProjects/SignOutSystem/app/src/main/res/values/colors.xml was created by Aliaksei Pilko as part of SignOutSystem
+  ~ Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
+  ~
+  ~ Last modified 11/11/16 20:12
+  -->
+
 <resources>
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>

@@ -1,3 +1,10 @@
+<!--
+  ~ C:/Users/Aliaksei/AndroidStudioProjects/SignOutSystem/app/src/main/res/layout/fragment_calendar.xml was created by Aliaksei Pilko as part of SignOutSystem
+  ~ Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
+  ~
+  ~ Last modified 11/11/16 20:11
+  -->
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:agendaCalendar="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
