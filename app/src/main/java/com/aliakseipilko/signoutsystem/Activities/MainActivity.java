@@ -124,18 +124,18 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         //Get rid of navbar
         hideSysUI();
 
-
-
+        //Initialise helpers and handlers
         sheetsHandler = GoogleSheetsHandler.getInstance(this);
         dbHandler = LocalDatabaseHandler.getInstance(this);
         idleMonitor = IdleMonitor.getInstance();
         idleMonitor.registerIdleCallback(this);
 
+        //Initialise biometrics
         initBio();
         autoOn = new SGAutoOnEventNotifier(bioLib, this);
         autoOn.start();
 
-        /* Buttons */
+        //UI
         Button manualSigningButton = (Button) findViewById(R.id.manualSigningButton);
 
         //DEBUG BUTTONS
@@ -188,6 +188,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         });
 
 
+        //Initialise google apis
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestScopes(new Scope(SheetsScopes.SPREADSHEETS))
                 .requestServerAuthCode(getResources().getString(R.string.server_client_id))
@@ -336,6 +337,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                     String location = data.getStringExtra("location");
                     String type = data.getStringExtra("type");
                     String[] info = {name, location, type};
+                    //Defaults to year 13, however this shouldn't happen as year is already validated before selection activity
                     int year = data.getIntExtra("year", 13);
 
                     if (sheetsHandler.makeNewLogEntry(info, serverAuthCode)) {
@@ -377,6 +379,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         }
     }
 
+    //First data input stage of user enrollment
     private void makeNewUser(int year, final byte[] bioData) {
 
         Toast.makeText(this, "New User", Toast.LENGTH_LONG).show();
@@ -486,6 +489,10 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
         autoOn.stop();
 
+        //Set larger text on buttons
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Large);
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Large);
+
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -541,6 +548,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         });
     }
 
+    //Second verification stage of user enrollment
     private void pushNewUser(final String name, final String house, final int year, final String pin, final byte[] biodata1) {
 
 //        Toast.makeText(this, "New User Pushed", Toast.LENGTH_LONG).show();
@@ -572,6 +580,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                 }
             }
         });
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Large);
     }
 
     @Override
@@ -666,7 +675,10 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                 showVisitorSelectDialog(bioData);
             }
         });
-        builder.create().show();
+
+        AlertDialog dialog = builder.show();
+
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Large);
         hideSysUI();
     }
 
@@ -703,27 +715,10 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                 handleBioID(year[0], bioData);
             }
         });
-        builder.create().show();
-    }
 
-    private void handleBioID(int year, byte[] bioData) {
-        showProgressDialog();
-        autoOn.stop();
-        long matchResult = bioHandler.matchBioData(bioData, year);
-        if (matchResult == -1) {
-            hideProgressDialog();
-            makeNewUser(year, bioData);
-        } else {
+        AlertDialog dialog = builder.show();
 
-            Intent selectionIntent = new Intent(this, SelectionActivity.class);
-            selectionIntent.putExtra("name", dbHandler.getName(matchResult, year));
-            selectionIntent.putExtra("state", dbHandler.getWhereabouts(matchResult, year));
-            selectionIntent.putExtra("year", year);
-            hideProgressDialog();
-            idleMonitor.nullify();
-            startActivityForResult(selectionIntent, REQUEST_SELECTION);
-        }
-
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Large);
     }
 
     private void manualIdentify() {
@@ -757,7 +752,12 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             }
         });
 
-        bldr.create().show();
+        AlertDialog dialog = bldr.show();
+
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Large);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Large);
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Large);
+
         hideSysUI();
     }
 
@@ -804,6 +804,26 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         }
     }
 
+    private void handleBioID(int year, byte[] bioData) {
+        showProgressDialog();
+        autoOn.stop();
+        long matchResult = bioHandler.matchBioData(bioData, year);
+        if (matchResult == -1) {
+            hideProgressDialog();
+            makeNewUser(year, bioData);
+        } else {
+
+            Intent selectionIntent = new Intent(this, SelectionActivity.class);
+            selectionIntent.putExtra("name", dbHandler.getName(matchResult, year));
+            selectionIntent.putExtra("state", dbHandler.getWhereabouts(matchResult, year));
+            selectionIntent.putExtra("year", year);
+            hideProgressDialog();
+            idleMonitor.nullify();
+            startActivityForResult(selectionIntent, REQUEST_SELECTION);
+        }
+
+    }
+
     private void modifyBioData(final long matchResult, final int year) {
 
         autoOn.stop();
@@ -821,6 +841,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         final AlertDialog dialog = bldr.create();
         dialog.show();
         dialog.setOnDismissListener(this);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Large);
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -832,8 +853,6 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         });
         hideProgressDialog();
     }
-
-
 
     private void showProgressDialog() {
 
@@ -886,7 +905,8 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         try {
             hideSysUI();
             idleMonitor.setTimer();
-            Thread.sleep(2500);
+            //Wait for 3 seconds after dialog dismiss to prevent duplicate finger scans
+            Thread.sleep(3000);
             autoOn.start();
         } catch (InterruptedException e) {
             e.printStackTrace();
