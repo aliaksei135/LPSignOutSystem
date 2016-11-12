@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.DataHandlers.GoogleSheetsHandler was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 11/11/16 20:11
+ * Last modified 12/11/16 18:54
  */
 
 package com.aliakseipilko.signoutsystem.DataHandlers;
@@ -20,6 +20,8 @@ import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.ValueRange;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.support.annotation.Keep;
 
@@ -32,7 +34,9 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 @Keep
@@ -44,9 +48,15 @@ public class GoogleSheetsHandler {
     private final String SPREADSHEET_ID;
     private final Context context;
     private GoogleCredential credential;
+    private ConnectivityManager cm;
+    private SharedPreferences sp;
+    private int cachedRequestCount = 0;
 
     private GoogleSheetsHandler(Context context) {
         this.context = context;
+
+        cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        sp = context.getSharedPreferences("CachedGSheetsRequests", Context.MODE_PRIVATE);
 
         SPREADSHEET_ID = context.getString(R.string.SPREADSHEET_ID);
     }
@@ -68,16 +78,39 @@ public class GoogleSheetsHandler {
 
     public boolean makeNewLogEntry(String[] singleRowData, String authCode) {
 
-        boolean result = false;
-        GoogleSheetsHandler.authCode = authCode;
-        try {
-            result = new MakeUpdateTask().execute(singleRowData).get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+        if (cm.getActiveNetworkInfo().isConnected() && authCode != null) {
+            boolean result = false;
+            GoogleSheetsHandler.authCode = authCode;
+            try {
+                result = new MakeUpdateTask().execute(singleRowData).get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+            return result;
+        } else {
+            sp.edit().putStringSet(Integer.toString(cachedRequestCount), new HashSet<>(Arrays.asList(singleRowData))).apply();
+            cachedRequestCount++;
+            return true;
         }
-        return result;
     }
 
+    public void dispatchCachedRequests() {
+        if (cachedRequestCount < 1) {
+            return;
+        }
+
+        for (int i = 0; i <= cachedRequestCount; i++) {
+            Set<String> s = sp.getStringSet(Integer.toString(i), null);
+            if (s != null) {
+                String[] sa = new String[5];
+                s.toArray(sa);
+                if (sa.length < 2) {
+                    new MakeUpdateTask().execute(sa);
+                }
+            }
+        }
+        cachedRequestCount = 0;
+    }
 
     private Sheets getSheetsService() {
 

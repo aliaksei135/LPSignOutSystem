@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.MainActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 12/11/16 15:11
+ * Last modified 12/11/16 19:08
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -31,6 +31,7 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Keep;
@@ -96,12 +97,21 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         }
     };
     protected byte[] verifyData;
+    ConnectivityManager cm;
     private JSGFPLib bioLib;
     private ProgressDialog mProgressDialog;
     private GoogleApiClient mGoogleApiClient;
     private BiometricDataHandler bioHandler;
     private SGAutoOnEventNotifier autoOn;
     private GoogleSheetsHandler sheetsHandler;
+    private BroadcastReceiver networkStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (cm.getActiveNetworkInfo().isConnected()) {
+                sheetsHandler.dispatchCachedRequests();
+            }
+        }
+    };
     private LocalDatabaseHandler dbHandler;
 
     //Null Constructor
@@ -137,6 +147,8 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         dbHandler = LocalDatabaseHandler.getInstance(this);
         idleMonitor = IdleMonitor.getInstance();
         idleMonitor.registerIdleCallback(this);
+        cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        registerReceiver(networkStateReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
         //Initialise biometrics
         initBio();
@@ -308,6 +320,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
         super.onDestroy();
         idleMonitor.nullify();
+        unregisterReceiver(networkStateReceiver);
 //        unregisterReceiver(mUsbReceiver);
 //        autoOn.stop();
 //        bioLib.CloseDevice();
@@ -931,7 +944,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
-        Toast.makeText(MainActivity.this, "Cannot connect to Google...\nApplication will not be able to access Google Sheets", Toast.LENGTH_LONG).show();
+        Toast.makeText(MainActivity.this, "Cannot connect to Google Sheets...\nRequests will be cached", Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -958,4 +971,5 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         idleMonitor.nullify();
         startActivity(new Intent(MainActivity.this, IdleActivity.class));
     }
+
 }
