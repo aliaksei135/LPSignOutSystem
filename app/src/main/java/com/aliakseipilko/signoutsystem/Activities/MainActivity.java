@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.MainActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 12/11/16 12:49
+ * Last modified 12/11/16 15:11
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -70,8 +70,8 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     private static final String TAG = "MainActivity";
 
     private static final String NATIVE_HOUSE = "School";
-
     private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
+    private static boolean isVerificationScan = false;
     private static String serverAuthCode;
     private static IdleMonitor idleMonitor;
     private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
@@ -95,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             }
         }
     };
+    protected byte[] verifyData;
     private JSGFPLib bioLib;
     private ProgressDialog mProgressDialog;
     private GoogleApiClient mGoogleApiClient;
@@ -164,6 +165,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         scannerRestartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                unregisterReceiver(mUsbReceiver);
                 initBio();
                 autoOn = new SGAutoOnEventNotifier(bioLib, null);
                 autoOn.start();
@@ -565,11 +567,9 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
 //        Toast.makeText(this, "New User Pushed", Toast.LENGTH_LONG).show();
 
-        autoOn.stop();
-
         AlertDialog.Builder bldr = new AlertDialog.Builder(this);
         bldr.setTitle("New User Enrollment");
-        bldr.setMessage("Place the same finger on scanner and press OK simultaneously to enroll");
+        bldr.setMessage("Scan the same finger then press OK to enroll");
         bldr.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -577,22 +577,26 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             }
         });
         bldr.setOnDismissListener(this);
-        final AlertDialog dialog = bldr.create();
-        dialog.show();
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+        final AlertDialog verifyDialog = bldr.create();
+        verifyDialog.show();
+        verifyDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                byte[] bioData2 = bioHandler.getProcessedBioData();
-                if (bioHandler.matchBioDataSets(biodata1, bioData2)) {
+                if (bioHandler.matchBioDataSets(biodata1, verifyData)) {
                     dbHandler.addNewRecord(name, house, year, pin, biodata1, false);
-                    dialog.cancel();
                     Toast.makeText(MainActivity.this, name + ", you are now enrolled", Toast.LENGTH_LONG).show();
+                    verifyDialog.cancel();
                 } else {
                     Toast.makeText(MainActivity.this, "Scans don't match, try again!", Toast.LENGTH_LONG).show();
+                    isVerificationScan = true;
+                    autoOn.start();
                 }
             }
         });
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Large);
+        verifyDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Large);
+
+        isVerificationScan = true;
+        autoOn.start();
     }
 
     @Override
@@ -620,14 +624,20 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     public void SGFingerPresentCallback() {
 
         autoOn.stop();
-        final byte[] bioData = bioHandler.getProcessedBioData();
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                idleMonitor.setTimer();
-                showYearSelectDialog(bioData, null, true, false);
-            }
-        });
+
+        if (isVerificationScan) {
+            verifyData = bioHandler.getProcessedBioData();
+            isVerificationScan = false;
+        } else {
+            final byte[] bioData = bioHandler.getProcessedBioData();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    idleMonitor.setTimer();
+                    showYearSelectDialog(bioData, null, true, false);
+                }
+            });
+        }
     }
 
     private void showYearSelectDialog(final byte[] bioData, final String pin, final boolean isBio, final boolean modifyBio) {
@@ -926,15 +936,21 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
     @Override
     public void onDismiss(DialogInterface dialog) {
-        try {
-            hideSysUI();
-            idleMonitor.setTimer();
-            //Wait for 3 seconds after dialog dismiss to prevent duplicate finger scans
-            Thread.sleep(3000);
-            autoOn.start();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        hideSysUI();
+        idleMonitor.setTimer();
+        //Wait for 3 seconds after dialog dismiss to prevent duplicate finger scans
+        Runnable startAutoOn = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                autoOn.start();
+            }
+        };
+        startAutoOn.run();
     }
 
     @Override
