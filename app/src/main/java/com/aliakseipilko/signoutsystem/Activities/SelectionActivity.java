@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.SelectionActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 12/11/16 15:12
+ * Last modified 12/11/16 19:21
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,6 +24,7 @@ import com.aliakseipilko.signoutsystem.Fragments.stateSignedInFragment;
 import com.aliakseipilko.signoutsystem.Fragments.stateSignedOutFragment;
 import com.aliakseipilko.signoutsystem.Fragments.stateStudyPeriodFragment;
 import com.aliakseipilko.signoutsystem.Fragments.stateVisitHouseFragment;
+import com.aliakseipilko.signoutsystem.Helpers.IdleMonitor;
 import com.aliakseipilko.signoutsystem.R;
 
 public class SelectionActivity extends AppCompatActivity implements
@@ -30,7 +32,8 @@ public class SelectionActivity extends AppCompatActivity implements
         stateSignedOutFragment.OnFragmentInteractionListener,
         stateAtGreenFragment.OnFragmentInteractionListener,
         stateStudyPeriodFragment.OnFragmentInteractionListener,
-        stateVisitHouseFragment.OnFragmentInteractionListener {
+        stateVisitHouseFragment.OnFragmentInteractionListener,
+        IdleMonitor.IdleCallback {
 
     ProgressDialog mProgressDialog;
     long id;
@@ -40,6 +43,8 @@ public class SelectionActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         hideSysUI();
+        IdleMonitor.getInstance().registerIdleCallback(this);
+        IdleMonitor.getInstance().setShortTimer();
         setContentView(R.layout.activity_selection);
         Intent intent = getIntent();
         String state = intent.getStringExtra("state");
@@ -242,6 +247,7 @@ public class SelectionActivity extends AppCompatActivity implements
     @Override
     //Fragment Listener interface implementation
     public void onFragmentInteraction(String type) {
+        IdleMonitor.getInstance().setShortTimer();
         Intent result = new Intent();
         result.putExtra("id", id);
         switch (type) {
@@ -308,4 +314,16 @@ public class SelectionActivity extends AppCompatActivity implements
         }
     }
 
+    @Override
+    public void onDeviceStateIdle() {
+        Toast.makeText(this, "Timed out", Toast.LENGTH_SHORT).show();
+        setResult(RESULT_CANCELED);
+        finish();
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        IdleMonitor.getInstance().setShortTimer();
+        return super.onTouchEvent(event);
+    }
 }
