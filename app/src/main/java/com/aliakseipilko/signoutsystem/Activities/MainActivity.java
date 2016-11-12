@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.MainActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 11/11/16 21:27
+ * Last modified 12/11/16 12:49
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -190,7 +190,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             @Override
             public void onClick(View v) {
                 idleMonitor.nullify();
-                makeNewUser(0, null);
+                makeNewUser(0, 1, null);
             }
         });
 
@@ -388,7 +388,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     }
 
     //First data input stage of user enrollment
-    private void makeNewUser(int year, final byte[] bioData) {
+    private void makeNewUser(int year, int house, final byte[] bioData) {
 
         Toast.makeText(this, "New User", Toast.LENGTH_LONG).show();
 
@@ -461,6 +461,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             }
         });
 
+        //Autofill year from previous data
         switch (year) {
             case 7:
                 //Zeroth position is placeholder text
@@ -488,6 +489,9 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                 yearSpinner.setSelection(0);
                 break;
         }
+
+        //Autofill house from previous context
+        houseSpinner.setSelection(house);
 
         builder.setView(layout);
         builder.setCancelable(false);
@@ -670,9 +674,9 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                 }
 
                 if (isBio) {
-                    handleBioID(year[0], bioData);
+                    handleBioID(year[0], 1, bioData);
                 } else {
-                    handlePINID(pin, year[0], modifyBio);
+                    handlePINID(pin, year[0], 1, modifyBio);
                 }
             }
         });
@@ -692,6 +696,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
     private void showVisitorSelectDialog(final byte[] bioData, final String pin, final boolean isBio, final boolean modifyBio) {
         final int[] year = new int[1];
+        final int[] house = new int[1];
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Select Your House");
@@ -702,28 +707,33 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                 switch (which) {
                     case 0:
                         //Grove visitor
-                        year[0] = 1;
+                        year[0] = LocalDatabaseHandler.GROVE_VISITOR;
+                        house[0] = 2;
                         break;
                     case 1:
                         //Fryer Visitor
-                        year[0] = 5;
+                        year[0] = LocalDatabaseHandler.FRYER_VISITOR;
+                        house[0] = 5;
                         break;
                     case 2:
                         //Reckitt visitor
-                        year[0] = 3;
+                        year[0] = LocalDatabaseHandler.RECKITT_VISITOR;
+                        house[0] = 4;
                         break;
                     case 3:
                         //Field visitor
-                        year[0] = 2;
+                        year[0] = LocalDatabaseHandler.FIELD_VISITOR;
+                        house[0] = 3;
                         break;
                     default:
                         year[0] = 13;
+                        house[0] = 1;
                         break;
                 }
                 if (isBio) {
-                    handleBioID(year[0], bioData);
+                    handleBioID(year[0], house[0], bioData);
                 } else {
-                    handlePINID(pin, year[0], modifyBio);
+                    handlePINID(pin, year[0], house[0], modifyBio);
                 }
             }
         });
@@ -773,7 +783,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         hideSysUI();
     }
 
-    private void handlePINID(String text, int year, boolean modifyBio) {
+    private void handlePINID(String text, int year, int house, boolean modifyBio) {
         long pin = Long.parseLong(text);
         showProgressDialog();
         autoOn.stop();
@@ -796,7 +806,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             if (!modifyBio) {
                 if (matchResult == -1) {
                     hideProgressDialog();
-                    makeNewUser(year, null);
+                    makeNewUser(year, house, null);
                 } else {
 
                     Intent selectionIntent = new Intent(this, SelectionActivity.class);
@@ -817,13 +827,13 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         }
     }
 
-    private void handleBioID(int year, byte[] bioData) {
+    private void handleBioID(int year, int house, byte[] bioData) {
         showProgressDialog();
         autoOn.stop();
         long matchResult = bioHandler.matchBioData(bioData, year);
         if (matchResult == -1) {
             hideProgressDialog();
-            makeNewUser(year, bioData);
+            makeNewUser(year, house, bioData);
         } else {
 
             Intent selectionIntent = new Intent(this, SelectionActivity.class);

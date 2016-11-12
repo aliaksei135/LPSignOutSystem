@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.DataHandlers.LocalDatabaseHandler was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 11/11/16 21:27
+ * Last modified 12/11/16 12:49
  */
 
 package com.aliakseipilko.signoutsystem.DataHandlers;
@@ -21,10 +21,10 @@ import android.support.annotation.NonNull;
 public class LocalDatabaseHandler extends SQLiteOpenHelper {
 
     public static final int SCHOOL_VISITOR = 4;
-    private static final int GROVE_VISITOR = 1;
-    private static final int FIELD_VISITOR = 2;
-    private static final int RECKITT_VISITOR = 3;
-    private static final int FRYER_VISITOR = 5;
+    public static final int GROVE_VISITOR = 1;
+    public static final int FIELD_VISITOR = 2;
+    public static final int RECKITT_VISITOR = 3;
+    public static final int FRYER_VISITOR = 5;
     //Same columns for all tables
     private static final String COLUMN_ID = "id"; //Integer, A unique identifier for each person **PRIMARY KEY**
     private static final String COLUMN_NAME = "name"; //String, Persons full name
@@ -32,7 +32,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
     private static final String COLUMN_STATE = "state"; //Integer (Boolean), 1 (True)=In House, else 0 (false) = Out of House
     private static final String COLUMN_WHEREABOUTS = "whereabouts"; //String, shows the persons whereabouts
     private static final String COLUMN_TAG_ID = "tag_id"; //BLOB (Byte[]), the ID of the persons NFC Tag
-    private static final String COLUMN_BIO_IMAGE = "bio_image"; //BLOB (Byte[]) , the image of the persons fingerprint /////// Could be useful: http://stackoverflow.com/questions/7331310/how-to-store-image-as-blob-in-sqlite-how-to-retrieve-it
+    private static final String COLUMN_BIO_IMAGE = "bio_image"; //BLOB (Byte[]) , the image of the persons fingerprint
     private static final String COLUMN_PIN = "pin"; //Integer, A unique PIN for manual identification
     //SQL table for each year
     private static final String TABLE_Y13 = "year13";
@@ -256,29 +256,54 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
     }
 
     public void resetAllToRegistered() {
-        String query;
+//        String query;
         SQLiteDatabase db = getWritableDatabase();
 
-        query = "UPDATE " + TABLE_Y7 + " SET " + COLUMN_WHEREABOUTS + " = " + "Registered";
-        db.execSQL(query);
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_WHEREABOUTS, "Registered");
 
-        query = "UPDATE " + TABLE_Y8 + " SET " + COLUMN_WHEREABOUTS + " = " + "Registered";
-        db.execSQL(query);
+        db.update(TABLE_Y7, cv, null, null);
+//        query = "UPDATE " + TABLE_Y7 + " SET " + COLUMN_WHEREABOUTS + " = " + "Registered";
+//        db.execSQL(query);
 
-        query = "UPDATE " + TABLE_Y9 + " SET " + COLUMN_WHEREABOUTS + " = " + "Registered";
-        db.execSQL(query);
+        db.update(TABLE_Y8, cv, null, null);
+//        query = "UPDATE " + TABLE_Y8 + " SET " + COLUMN_WHEREABOUTS + " = " + "Registered";
+//        db.execSQL(query);
 
-        query = "UPDATE " + TABLE_Y10 + " SET " + COLUMN_WHEREABOUTS + " = " + "Registered";
-        db.execSQL(query);
+        db.update(TABLE_Y9, cv, null, null);
+//        query = "UPDATE " + TABLE_Y9 + " SET " + COLUMN_WHEREABOUTS + " = " + "Registered";
+//        db.execSQL(query);
 
-        query = "UPDATE " + TABLE_Y11 + " SET " + COLUMN_WHEREABOUTS + " = " + "Registered";
-        db.execSQL(query);
+        db.update(TABLE_Y10, cv, null, null);
+//        query = "UPDATE " + TABLE_Y10 + " SET " + COLUMN_WHEREABOUTS + " = " + "Registered";
+//        db.execSQL(query);
 
-        query = "UPDATE " + TABLE_Y12 + " SET " + COLUMN_WHEREABOUTS + " = " + "Registered";
-        db.execSQL(query);
+        db.update(TABLE_Y11, cv, null, null);
+//        query = "UPDATE " + TABLE_Y11 + " SET " + COLUMN_WHEREABOUTS + " = " + "Registered";
+//        db.execSQL(query);
 
-        query = "UPDATE " + TABLE_Y13 + " SET " + COLUMN_WHEREABOUTS + " = " + "Registered";
-        db.execSQL(query);
+        db.update(TABLE_Y12, cv, null, null);
+//        query = "UPDATE " + TABLE_Y12 + " SET " + COLUMN_WHEREABOUTS + " = " + "Registered";
+//        db.execSQL(query);
+
+        db.update(TABLE_Y13, cv, null, null);
+//        query = "UPDATE " + TABLE_Y13 + " SET " + COLUMN_WHEREABOUTS + " = " + "Registered";
+//        db.execSQL(query);
+    }
+
+    public void resetAllToSignedOut() {
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_WHEREABOUTS, "Signed Out");
+
+        db.update(TABLE_Y7, cv, null, null);
+        db.update(TABLE_Y8, cv, null, null);
+        db.update(TABLE_Y9, cv, null, null);
+        db.update(TABLE_Y10, cv, null, null);
+        db.update(TABLE_Y11, cv, null, null);
+        db.update(TABLE_Y12, cv, null, null);
+        db.update(TABLE_Y13, cv, null, null);
     }
 
     @Override
