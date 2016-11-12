@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.SelectionActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 11/11/16 21:27
+ * Last modified 12/11/16 15:12
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -208,7 +208,11 @@ public class SelectionActivity extends AppCompatActivity implements
         //No need for OCL as result defaults to false
         builder.setNegativeButton("No", null);
 
-        builder.create().show();
+        AlertDialog dialog = builder.show();
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Large);
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Large);
+
     }
 
     private void sendResultIntent(Intent result) {
