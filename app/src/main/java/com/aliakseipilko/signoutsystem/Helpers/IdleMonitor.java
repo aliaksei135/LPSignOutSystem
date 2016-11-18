@@ -2,22 +2,20 @@
  * com.aliakseipilko.signoutsystem.Helpers.IdleMonitor was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 12/11/16 19:21
+ * Last modified 18/11/16 21:07
  */
 
 package com.aliakseipilko.signoutsystem.Helpers;
 
-import java.util.Timer;
-import java.util.TimerTask;
+import android.os.Handler;
 
 public class IdleMonitor {
 
     private static IdleMonitor ourInstance;
 
     private static IdleCallback callback;
-    private Timer timer;
-
-    private TimerTask task;
+    private Handler timer;
+    private Runnable task;
 
     private IdleMonitor() {
         //Nothing needed here
@@ -38,21 +36,21 @@ public class IdleMonitor {
     public void setTimer() {
         nullify();
         setTask();
-        timer = new Timer("Idle Monitor");
+        timer = new Handler();
         //After 5 mins inactivity
-        timer.schedule(task, 300000);
+        timer.postDelayed(task, 300000);
     }
 
     public void setShortTimer() {
         nullify();
         setTask();
-        timer = new Timer("Short Idle Monitor");
+        timer = new Handler();
         //After 45 secs inactivity
-        timer.schedule(task, 45000);
+        timer.postDelayed(task, 45000);
     }
 
     private void setTask() {
-        task = new TimerTask() {
+        task = new Runnable() {
             @Override
             public void run() {
                 setDeviceStateIdle();
@@ -62,12 +60,11 @@ public class IdleMonitor {
 
     public void nullify() {
         if (task != null) {
-            task.cancel();
             task = null;
         }
         if (timer != null) {
-            timer.cancel();
-            timer.purge();
+            //Remove all callbacks and messages
+            timer.removeCallbacksAndMessages(null);
             timer = null;
         }
     }
