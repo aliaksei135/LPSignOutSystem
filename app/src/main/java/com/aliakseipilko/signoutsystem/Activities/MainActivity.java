@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.MainActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 12/11/16 15:11
+ * Last modified 19/11/16 10:29
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -111,9 +111,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     //TODOLIST
     //TODO Work out Access and Refresh token flow, specifically how to obtain refresh token from current flow
     //TODO Convert layout weights to percentages using com.android.support.percent (PercentRelativeLayout)
-    //TODO Put weather and calendar fetches on a background IntentService and preload in background OR ContentProvider?
     //TODO More aesthetic loading dialogs?
-    //TODO Fix visitor db configs
 
 
     @SuppressLint("CommitPrefEdits")
@@ -137,6 +135,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         dbHandler = LocalDatabaseHandler.getInstance(this);
         idleMonitor = IdleMonitor.getInstance();
         idleMonitor.registerIdleCallback(this);
+        idleMonitor.setTimer();
 
         //Initialise biometrics
         initBio();

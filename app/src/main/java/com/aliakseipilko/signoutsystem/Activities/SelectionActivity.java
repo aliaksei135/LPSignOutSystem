@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.SelectionActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 12/11/16 19:21
+ * Last modified 19/11/16 10:22
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -34,6 +35,8 @@ public class SelectionActivity extends AppCompatActivity implements
         stateStudyPeriodFragment.OnFragmentInteractionListener,
         stateVisitHouseFragment.OnFragmentInteractionListener,
         IdleMonitor.IdleCallback {
+
+    private static final String TAG = "SelectionActivity";
 
     ProgressDialog mProgressDialog;
     long id;
@@ -154,6 +157,12 @@ public class SelectionActivity extends AppCompatActivity implements
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        hideProgressDialog();
+    }
+
     private void showSysUI() {
         View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(
@@ -221,6 +230,7 @@ public class SelectionActivity extends AppCompatActivity implements
     }
 
     private void sendResultIntent(Intent result) {
+        Log.d(TAG, "Selection Result Intent:" + result.getExtras().toString());
         setResult(RESULT_OK, result);
         finish();
     }
@@ -316,7 +326,7 @@ public class SelectionActivity extends AppCompatActivity implements
 
     @Override
     public void onDeviceStateIdle() {
-        Toast.makeText(this, "Timed out", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Too slow!\nTimed out", Toast.LENGTH_SHORT).show();
         setResult(RESULT_CANCELED);
         finish();
     }
