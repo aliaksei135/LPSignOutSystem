@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.DataHandlers.GoogleSheetsHandler was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 11/11/16 20:11
+ * Last modified 20/11/16 12:53
  */
 
 package com.aliakseipilko.signoutsystem.DataHandlers;
@@ -22,6 +22,7 @@ import com.google.api.services.sheets.v4.model.ValueRange;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.Keep;
+import android.util.Log;
 
 import com.aliakseipilko.signoutsystem.R;
 
@@ -156,7 +157,7 @@ public class GoogleSheetsHandler {
             String accessToken = tokenResponse.getAccessToken();
 
             GoogleCredential credential = new GoogleCredential().setAccessToken(accessToken);
-            System.out.println(credential.toString());
+            Log.d("SheetsHandler", "Credential: " + credential.toString());
             return credential;
         }
     }

@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.MainActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 19/11/16 10:29
+ * Last modified 20/11/16 12:45
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -200,6 +200,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestScopes(new Scope(SheetsScopes.SPREADSHEETS))
                 .requestServerAuthCode(getResources().getString(R.string.server_client_id))
+
                 .build();
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
