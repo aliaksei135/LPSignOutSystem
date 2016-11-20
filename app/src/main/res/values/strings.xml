@@ -2,7 +2,7 @@
   ~ C:/Users/Aliaksei/AndroidStudioProjects/SignOutSystem/app/src/main/res/values/strings.xml was created by Aliaksei Pilko as part of SignOutSystem
   ~ Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
   ~
-  ~ Last modified 11/11/16 20:11
+  ~ Last modified 20/11/16 14:43
   -->
 
 <resources>
@@ -45,5 +45,10 @@
     </string-array>
 
     <string name="_3_hour_forecast">9 Hour Forecast</string>
+
+    <string name="fingerprint_description">Confirm fingerprint to continue</string>
+    <string name="fingerprint_hint">Touch sensor</string>
+    <string name="fingerprint_not_recognized">Fingerprints don\'t match. Try again</string>
+    <string name="fingerprint_success">Fingerprints match! Press OK to finish</string>
 
 </resources>

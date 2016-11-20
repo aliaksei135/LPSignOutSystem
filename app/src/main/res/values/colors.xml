@@ -1,8 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<!--
   ~ C:/Users/Aliaksei/AndroidStudioProjects/SignOutSystem/app/src/main/res/values/colors.xml was created by Aliaksei Pilko as part of SignOutSystem
   ~ Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
   ~
-  ~ Last modified 11/11/16 20:12
+  ~ Last modified 20/11/16 17:22
   -->
 
 <resources>
@@ -11,4 +14,9 @@
     <color name="colorAccent">#FF4081</color>
 
     <color name="black_overlay">#66000000</color>
+
+    <color name="warning_color">#f4511e</color>
+    <color name="hint_color">#b0ffffff</color>
+    <color name="success_color">#009688</color>
+    <color name="neutral_color">#1e88e5</color>
 </resources>

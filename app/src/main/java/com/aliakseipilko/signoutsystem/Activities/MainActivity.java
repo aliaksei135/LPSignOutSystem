@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.MainActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 20/11/16 12:45
+ * Last modified 20/11/16 17:42
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -40,10 +40,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,6 +54,7 @@ import android.widget.Toast;
 import com.aliakseipilko.signoutsystem.DataHandlers.BiometricDataHandler;
 import com.aliakseipilko.signoutsystem.DataHandlers.GoogleSheetsHandler;
 import com.aliakseipilko.signoutsystem.DataHandlers.LocalDatabaseHandler;
+import com.aliakseipilko.signoutsystem.Helpers.FingerprintUiHelper;
 import com.aliakseipilko.signoutsystem.Helpers.IdleMonitor;
 import com.aliakseipilko.signoutsystem.R;
 
@@ -71,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
     private static final String NATIVE_HOUSE = "School";
     private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
+
     private static boolean isVerificationScan = false;
     private static String serverAuthCode;
     private static IdleMonitor idleMonitor;
@@ -95,7 +100,9 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             }
         }
     };
-    protected byte[] verifyData;
+    private byte[] currentNewUserBiodata;
+    private FingerprintUiHelper uiHelper;
+    private Button confirmationButton;
     private JSGFPLib bioLib;
     private ProgressDialog mProgressDialog;
     private GoogleApiClient mGoogleApiClient;
@@ -109,7 +116,6 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     }
 
     //TODOLIST
-    //TODO Work out Access and Refresh token flow, specifically how to obtain refresh token from current flow
     //TODO Convert layout weights to percentages using com.android.support.percent (PercentRelativeLayout)
     //TODO More aesthetic loading dialogs?
 
@@ -200,7 +206,6 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestScopes(new Scope(SheetsScopes.SPREADSHEETS))
                 .requestServerAuthCode(getResources().getString(R.string.server_client_id))
-
                 .build();
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -214,7 +219,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         return serverAuthCode;
     }
 
-    private void scheduleResetRegistered() {
+    private void scheduleResetSignedIn() {
 
         //Schedule reset to registered state task
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
@@ -275,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         }
 
         if (!scheduledTasksSet) {
-            scheduleResetRegistered();
+            scheduleResetSignedIn();
             sharedPreferences.edit().putBoolean("scheduledTasksSet", true).commit();
         }
     }
@@ -394,6 +399,8 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
         Toast.makeText(this, "New User", Toast.LENGTH_LONG).show();
 
+        currentNewUserBiodata = bioData;
+
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Enter Name and House");
 
@@ -503,9 +510,17 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
         autoOn.stop();
 
-        //Set larger text on buttons
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Large);
-        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Large);
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setPadding(8, 8, 8, 8);
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextAppearance(this, android.R.style.TextAppearance_Holo_Large);
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.warning_color));
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setPadding(8, 8, 8, 8);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextAppearance(this, android.R.style.TextAppearance_Holo_Large);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.success_color));
+
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setPadding(8, 8, 8, 8);
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextAppearance(this, android.R.style.TextAppearance_Holo_Large);
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(getResources().getColor(R.color.neutral_color));
 
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -530,7 +545,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                                     pushNewUser(nameInput.getText().toString(),
                                             houseSpinner.getSelectedItem().toString(),
                                             Integer.parseInt(yearSpinner.getSelectedItem().toString()),
-                                            pinConfirmField.getText().toString(), bioData);
+                                            pinConfirmField.getText().toString());
 
                                     dialog.cancel();
 
@@ -563,40 +578,69 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     }
 
     //Second verification stage of user enrollment
-    private void pushNewUser(final String name, final String house, final int year, final String pin, final byte[] biodata1) {
+    @SuppressWarnings("ResourceType")
+    private void pushNewUser(final String name, final String house, final int year, final String pin) {
 
 //        Toast.makeText(this, "New User Pushed", Toast.LENGTH_LONG).show();
 
         AlertDialog.Builder bldr = new AlertDialog.Builder(this);
-        bldr.setTitle("New User Enrollment");
-        bldr.setMessage("Scan the same finger then press OK to enroll");
+        bldr.setTitle("Confirmation");
+        RelativeLayout layout = new RelativeLayout(this);
+
+        ImageView icon = new ImageView(this);
+        icon.setId(2);
+        icon.setMinimumWidth(80);
+        icon.setMinimumHeight(80);
+        icon.setPadding(24, 28, 16, 16);
+        RelativeLayout.LayoutParams lp2 = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp2.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+        lp2.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+        layout.addView(icon, lp2);
+
+        TextView status = new TextView(this);
+        status.setId(3);
+        status.setPadding(16, 40, 24, 16);
+        status.setText(getResources().getString(R.string.fingerprint_hint));
+        status.setTextSize(24f);
+        status.setTextColor(getResources().getColor(R.color.hint_color));
+        RelativeLayout.LayoutParams lp3 = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp3.addRule(RelativeLayout.RIGHT_OF, icon.getId());
+        layout.addView(status, lp3);
+
+        bldr.setView(layout);
+
         bldr.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //This is overridden after dialog shows
+                dbHandler.addNewRecord(name, house, year, pin, currentNewUserBiodata, false);
+                currentNewUserBiodata = null;
             }
         });
         bldr.setOnDismissListener(this);
         final AlertDialog verifyDialog = bldr.create();
         verifyDialog.show();
-        verifyDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (bioHandler.matchBioDataSets(biodata1, verifyData)) {
-                    dbHandler.addNewRecord(name, house, year, pin, biodata1, false);
-                    Toast.makeText(MainActivity.this, name + ", you are now enrolled", Toast.LENGTH_LONG).show();
-                    verifyDialog.cancel();
-                } else {
-                    Toast.makeText(MainActivity.this, "Scans don't match, try again!", Toast.LENGTH_LONG).show();
-                    isVerificationScan = true;
-                    autoOn.start();
-                }
-            }
-        });
-        verifyDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Large);
+
+        uiHelper = new FingerprintUiHelper(icon, status);
+
+        confirmationButton = verifyDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        confirmationButton.setPadding(8, 8, 8, 8);
+        confirmationButton.setHeight(36);
+        confirmationButton.setTextAppearance(this, android.R.style.TextAppearance_Holo_Large);
+        confirmationButton.setVisibility(View.GONE);
 
         isVerificationScan = true;
         autoOn.start();
+    }
+
+    private void verifyNewUserScans(byte[] verifyData) {
+        if (bioHandler.matchBioDataSets(currentNewUserBiodata, verifyData)) {
+            uiHelper.showSuccess();
+            confirmationButton.setVisibility(View.VISIBLE);
+        } else {
+            uiHelper.showError();
+            isVerificationScan = true;
+            autoOn.start();
+        }
     }
 
     @Override
@@ -626,8 +670,14 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         autoOn.stop();
 
         if (isVerificationScan) {
-            verifyData = bioHandler.getProcessedBioData();
+            final byte[] verifyData = bioHandler.getProcessedBioData();
             isVerificationScan = false;
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    verifyNewUserScans(verifyData);
+                }
+            });
         } else {
             final byte[] bioData = bioHandler.getProcessedBioData();
             runOnUiThread(new Runnable() {
@@ -695,12 +745,15 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 showVisitorSelectDialog(bioData, pin, isBio, modifyBio);
+                dialog.cancel();
             }
         });
 
         AlertDialog dialog = builder.show();
 
-        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Large);
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setPadding(150, 8, 8, 8);
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextAppearance(this, android.R.style.TextAppearance_Holo_Large);
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(getResources().getColor(R.color.neutral_color));
         hideSysUI();
     }
 
@@ -748,9 +801,19 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             }
         });
 
+        builder.setNeutralButton("House Native", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                showYearSelectDialog(bioData, pin, isBio, modifyBio);
+                dialog.cancel();
+            }
+        });
+
         AlertDialog dialog = builder.show();
 
-        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Large);
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setPadding(150, 8, 8, 8);
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextAppearance(this, android.R.style.TextAppearance_Holo_Large);
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(getResources().getColor(R.color.neutral_color));
     }
 
     private void manualIdentify() {
@@ -785,10 +848,19 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         });
 
         AlertDialog dialog = bldr.show();
+        dialog.setOnDismissListener(this);
 
-        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Large);
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Large);
-        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Large);
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setPadding(8, 8, 8, 8);
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextAppearance(this, android.R.style.TextAppearance_Holo_Large);
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.warning_color));
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setPadding(8, 8, 8, 8);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextAppearance(this, android.R.style.TextAppearance_Holo_Large);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.success_color));
+
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setPadding(8, 8, 8, 8);
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextAppearance(this, android.R.style.TextAppearance_Holo_Large);
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(getResources().getColor(R.color.neutral_color));
 
         hideSysUI();
     }

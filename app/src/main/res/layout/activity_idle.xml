@@ -2,10 +2,10 @@
   ~ C:/Users/Aliaksei/AndroidStudioProjects/SignOutSystem/app/src/main/res/layout/activity_idle.xml was created by Aliaksei Pilko as part of SignOutSystem
   ~ Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
   ~
-  ~ Last modified 11/11/16 20:11
+  ~ Last modified 20/11/16 14:35
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -65,4 +65,4 @@
 
     </LinearLayout>
 
-</RelativeLayout>
+</android.support.percent.PercentRelativeLayout>
