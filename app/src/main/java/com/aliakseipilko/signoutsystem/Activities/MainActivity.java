@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.MainActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 20/11/16 17:42
+ * Last modified 27/11/16 13:29
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -35,6 +35,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Keep;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
@@ -358,20 +359,28 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                     if (sheetsHandler.makeNewLogEntry(info, serverAuthCode)) {
                         dbHandler.updateLocation(id, location, year);
                         onDismiss(null);
-                        Toast.makeText(this, "Goodbye " + name + "!", Toast.LENGTH_LONG).show();
+//                        Toast.makeText(this, "Goodbye " + name + "!", Toast.LENGTH_LONG).show();
+                        Snackbar sb = Snackbar.make(findViewById(android.R.id.content), "Goodbye " + name + "!", Snackbar.LENGTH_LONG);
+                        sb.getView().setBackgroundColor(getResources().getColor(R.color.success_color));
+                        sb.show();
                     } else {
-                        Toast.makeText(this, "That didn't work! Try again!", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(this, "That didn't work! Try again!", Toast.LENGTH_SHORT).show();
+                        Snackbar sb = Snackbar.make(findViewById(android.R.id.content), "That didn't work!", Snackbar.LENGTH_LONG);
+                        sb.getView().setBackgroundColor(getResources().getColor(R.color.warning_color));
+                        sb.show();
                     }
 
                 } else if (resultCode == RESULT_CANCELED) {
-                    Toast.makeText(MainActivity.this, "Cancelled", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(MainActivity.this, "Cancelled", Toast.LENGTH_SHORT).show();
+                    Snackbar sb = Snackbar.make(findViewById(android.R.id.content), "Cancelled!", Snackbar.LENGTH_LONG);
+                    sb.getView().setBackgroundColor(getResources().getColor(R.color.warning_color));
+                    sb.show();
                     onDismiss(null);
                 }
                 hideSysUI();
                 break;
             case REQUEST_FIRST_LAUNCH:
                 if (resultCode == RESULT_OK && data != null) {
-                    Toast.makeText(MainActivity.this, data.getStringExtra("result"), Toast.LENGTH_SHORT).show();
                     String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
                     MainActivity.serverAuthCode = data.getStringExtra("authCode");
 
@@ -550,20 +559,24 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                                     dialog.cancel();
 
                                 } else {
-                                    Toast.makeText(MainActivity.this, "First Digit cannot be zero", Toast.LENGTH_SHORT).show();
+//                                    Toast.makeText(MainActivity.this, "First Digit cannot be zero", Toast.LENGTH_SHORT).show();
+                                    pinField.setError("First Digit cannot be zero");
                                 }
                             } else {
-                                Toast.makeText(MainActivity.this, "PIN must be at least 5 digits long", Toast.LENGTH_SHORT).show();
+//                                Toast.makeText(MainActivity.this, "PIN must be at least 5 digits long", Toast.LENGTH_SHORT).show();
+                                pinField.setError("PIN must be at least 5 digits long");
                             }
-
                         } else {
-                            Toast.makeText(MainActivity.this, "PIN Collision!\nPlease enter a new PIN", Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(MainActivity.this, "PIN Collision!\nPlease enter a new PIN", Toast.LENGTH_SHORT).show();
+                            pinField.setError("Choose another PIN");
                         }
                     } else {
-                        Toast.makeText(MainActivity.this, "PINs don't match", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(MainActivity.this, "PINs don't match", Toast.LENGTH_SHORT).show();
+                        pinConfirmField.setError("PINs don't match!");
                     }
                 } else {
-                    Toast.makeText(MainActivity.this, "Enter ALL the information", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(MainActivity.this, "Enter ALL the information", Toast.LENGTH_SHORT).show();
+                    nameInput.setError("Enter ALL the required information");
                 }
             }
         });
@@ -827,8 +840,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (pinField.getText() == null) {
-                    Toast.makeText(MainActivity.this, "No PIN entered", Toast.LENGTH_SHORT).show();
-                    bldr.show();
+                    pinField.setError("Enter a PIN");
                 } else {
                     showYearSelectDialog(null, pinField.getText().toString(), false, false);
                 }
@@ -839,8 +851,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (pinField.getText() == null) {
-                    Toast.makeText(MainActivity.this, "No PIN entered", Toast.LENGTH_SHORT).show();
-                    bldr.show();
+                    pinField.setError("Enter a PIN");
                 } else {
                     showYearSelectDialog(null, pinField.getText().toString(), false, true);
                 }
@@ -904,7 +915,10 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                 modifyBioData(matchResult, year);
             }
         } else {
-            Toast.makeText(this, "PIN incorrect/not found", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, "PIN incorrect/not found", Toast.LENGTH_SHORT).show();
+            Snackbar sb = Snackbar.make(findViewById(android.R.id.content), "PIN incorrect/not found", Snackbar.LENGTH_LONG);
+            sb.getView().setBackgroundColor(getResources().getColor(R.color.warning_color));
+            sb.show();
             hideProgressDialog();
         }
     }
@@ -954,7 +968,10 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                 byte[] biodata = bioHandler.getProcessedBioData();
                 dbHandler.updateID(matchResult, biodata, false, year);
                 dialog.cancel();
-                Toast.makeText(MainActivity.this, dbHandler.getName(matchResult, year) + ", fingerprint modified", Toast.LENGTH_LONG).show();
+//                Toast.makeText(MainActivity.this, dbHandler.getName(matchResult, year) + ", fingerprint modified", Toast.LENGTH_LONG).show();
+                Snackbar sb = Snackbar.make(findViewById(android.R.id.content), dbHandler.getName(matchResult, year) + ", fingerprint modified", Snackbar.LENGTH_LONG);
+                sb.getView().setBackgroundColor(getResources().getColor(R.color.success_color));
+                sb.show();
             }
         });
         hideProgressDialog();
