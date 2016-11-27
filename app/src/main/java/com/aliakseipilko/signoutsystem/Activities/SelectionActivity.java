@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.SelectionActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 27/11/16 13:32
+ * Last modified 27/11/16 13:45
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -157,12 +157,6 @@ public class SelectionActivity extends AppCompatActivity implements
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        hideProgressDialog();
-    }
-
     private void showSysUI() {
         View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(
@@ -216,6 +210,7 @@ public class SelectionActivity extends AppCompatActivity implements
             public void onClick(DialogInterface dialog, int which) {
                 showProgressDialog();
                 sendResultIntent(resultIntent);
+                dialog.cancel();
             }
         });
 
@@ -237,6 +232,7 @@ public class SelectionActivity extends AppCompatActivity implements
     private void sendResultIntent(Intent result) {
         Log.d(TAG, "Selection Result Intent:" + result.getExtras().toString());
         setResult(RESULT_OK, result);
+        overridePendingTransition(0, 0);
         finish();
     }
 
