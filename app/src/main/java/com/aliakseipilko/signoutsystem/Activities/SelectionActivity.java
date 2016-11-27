@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.SelectionActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 19/11/16 10:22
+ * Last modified 27/11/16 13:32
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -189,13 +189,13 @@ public class SelectionActivity extends AppCompatActivity implements
         //Gotta have *some* easter eggs :)
         switch (type) {
             case "Visiting Grove":
-                type = "Why would you want to do that? Are you sure you want to visit Grove";
+                type = getString(R.string.grove_visit);
                 break;
             case "Visiting Field":
-                type = "Last chance to turn back... Are you sure you want to visit Field";
+                type = getString(R.string.field_visit);
                 break;
             case "Visiting Reckitt":
-                type = "It's a long trek to a land far away, do you really want to visit Reckitt";
+                type = getString(R.string.reckitt_visit);
                 break;
             default:
                 break;
@@ -224,8 +224,13 @@ public class SelectionActivity extends AppCompatActivity implements
 
         AlertDialog dialog = builder.show();
 
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Large);
-        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Large);
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setPadding(8, 8, 8, 8);
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextAppearance(this, android.R.style.TextAppearance_Holo_Large);
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.warning_color));
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setPadding(8, 8, 8, 8);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextAppearance(this, android.R.style.TextAppearance_Holo_Large);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.success_color));
 
     }
 
@@ -314,7 +319,6 @@ public class SelectionActivity extends AppCompatActivity implements
                 result.putExtra("type", "Fingerprint");
                 break;
             default:
-                Toast.makeText(this, "That didn't work!", Toast.LENGTH_SHORT).show();
                 setResult(RESULT_CANCELED);
                 finish();
                 break;
