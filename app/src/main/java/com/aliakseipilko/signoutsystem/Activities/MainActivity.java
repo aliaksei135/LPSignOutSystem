@@ -31,6 +31,7 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Keep;
@@ -104,12 +105,21 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     private byte[] currentNewUserBiodata;
     private FingerprintUiHelper uiHelper;
     private Button confirmationButton;
+    ConnectivityManager cm;
     private JSGFPLib bioLib;
     private ProgressDialog mProgressDialog;
     private GoogleApiClient mGoogleApiClient;
     private BiometricDataHandler bioHandler;
     private SGAutoOnEventNotifier autoOn;
     private GoogleSheetsHandler sheetsHandler;
+    private BroadcastReceiver networkStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (cm.getActiveNetworkInfo().isConnected()) {
+                sheetsHandler.dispatchCachedRequests();
+            }
+        }
+    };
     private LocalDatabaseHandler dbHandler;
 
     //Null Constructor
@@ -142,6 +152,8 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         dbHandler = LocalDatabaseHandler.getInstance(this);
         idleMonitor = IdleMonitor.getInstance();
         idleMonitor.registerIdleCallback(this);
+        cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        registerReceiver(networkStateReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         idleMonitor.setTimer();
 
         //Initialise biometrics
@@ -314,6 +326,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
         super.onDestroy();
         idleMonitor.nullify();
+        unregisterReceiver(networkStateReceiver);
 //        unregisterReceiver(mUsbReceiver);
 //        autoOn.stop();
 //        bioLib.CloseDevice();
