@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Fragments.currentInfoFragment was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 11/11/16 20:11
+ * Last modified 27/11/16 14:24
  */
 
 package com.aliakseipilko.signoutsystem.Fragments;
@@ -57,7 +57,7 @@ public class currentInfoFragment extends Fragment implements WeatherRemoteFetch.
         TextClock dateClock = (TextClock) getView().findViewById(R.id.dateTextClock);
 
         timeClock.setFormat24Hour("HH:mm:ss");
-        dateClock.setFormat24Hour("EEEE dd\nMMMM yyyy");
+        dateClock.setFormat24Hour("EEEE dd\nMMMM");
 
     }
 

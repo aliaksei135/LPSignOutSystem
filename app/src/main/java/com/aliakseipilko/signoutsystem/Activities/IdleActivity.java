@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.IdleActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 11/11/16 20:11
+ * Last modified 27/11/16 14:27
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.aliakseipilko.signoutsystem.DataHandlers.BiometricDataHandler;
 import com.aliakseipilko.signoutsystem.Fragments.calendarFragment;
 import com.aliakseipilko.signoutsystem.Fragments.currentInfoFragment;
 import com.aliakseipilko.signoutsystem.Fragments.forecastFragment;
@@ -23,14 +24,18 @@ import com.aliakseipilko.signoutsystem.Fragments.notifFragment;
 import com.aliakseipilko.signoutsystem.Helpers.WeatherRemoteFetch;
 import com.aliakseipilko.signoutsystem.R;
 
+import SecuGen.FDxSDKPro.JSGFPLib;
+import SecuGen.FDxSDKPro.SGAutoOnEventNotifier;
+import SecuGen.FDxSDKPro.SGFingerPresentEvent;
+
 
 @Keep
-public class IdleActivity extends AppCompatActivity /*implements SGFingerPresentEvent*/ {
+public class IdleActivity extends AppCompatActivity implements SGFingerPresentEvent {
 
     private static final String TAG = "IdleActivity";
 
-//    private SGAutoOnEventNotifier autoOn;
-//    private JSGFPLib bioLib;
+    private SGAutoOnEventNotifier autoOn;
+    private JSGFPLib bioLib;
 
     private Handler notifDisplayHandler;
     private Handler weatherUpdateHandler;
@@ -87,6 +92,9 @@ public class IdleActivity extends AppCompatActivity /*implements SGFingerPresent
         super.onCreate(savedInstanceState);
         hideSysUI();
         setContentView(R.layout.activity_idle);
+
+        autoOn = new SGAutoOnEventNotifier(BiometricDataHandler.bioLib, null);
+        autoOn.start();
     }
 
     @Override
@@ -150,9 +158,10 @@ public class IdleActivity extends AppCompatActivity /*implements SGFingerPresent
         return super.onTouchEvent(event);
     }
 
-//    @Override
-//    public void SGFingerPresentCallback() {
-//        autoOn.stop();
-//        startActivity(new Intent(this, MainActivity.class).putExtra("type", "fingerprint"));
-//    }
+    @Override
+    public void SGFingerPresentCallback() {
+        autoOn.stop();
+        startActivity(new Intent(this, MainActivity.class).putExtra("type", "fingerprint"));
+        finish();
+    }
 }

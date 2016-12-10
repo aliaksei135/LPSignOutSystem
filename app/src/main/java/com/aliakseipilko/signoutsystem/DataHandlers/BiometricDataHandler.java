@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.DataHandlers.BiometricDataHandler was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 11/11/16 20:11
+ * Last modified 10/12/16 19:51
  */
 
 package com.aliakseipilko.signoutsystem.DataHandlers;
@@ -21,16 +21,16 @@ import SecuGen.FDxSDKPro.SGFDxSecurityLevel;
 @Keep
 public class BiometricDataHandler {
 
+    public static JSGFPLib bioLib;
     private static BiometricDataHandler ourInstance;
-
-    private final JSGFPLib bioLib;
     private final SGDeviceInfoParam deviceParams = new SGDeviceInfoParam();
     private final LocalDatabaseHandler dbHandler;
     private int bioImageHeight;
     private int bioImageWidth;
 
-    private BiometricDataHandler(JSGFPLib bioLib, Context context) throws Resources.NotFoundException {
-        this.bioLib = bioLib;
+    private BiometricDataHandler(JSGFPLib bioLib, Context context) {
+
+        BiometricDataHandler.bioLib = bioLib;
         this.dbHandler = LocalDatabaseHandler.getInstance(context);
         initialiseLib();
     }
