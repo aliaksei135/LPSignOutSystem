@@ -2,10 +2,17 @@
  * com.aliakseipilko.signoutsystem.Fragments.notifFragment was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 11/11/16 20:11
+ * Last modified 19/12/16 18:16
  */
 
 package com.aliakseipilko.signoutsystem.Fragments;
+
+import com.google.api.client.auth.oauth2.StoredCredential;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.store.DataStore;
+import com.google.api.client.util.store.MemoryDataStoreFactory;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -19,10 +26,10 @@ import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
-import com.aliakseipilko.signoutsystem.Activities.MainActivity;
 import com.aliakseipilko.signoutsystem.DataHandlers.GoogleSheetsHandler;
 import com.aliakseipilko.signoutsystem.R;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -33,6 +40,7 @@ public class notifFragment extends Fragment {
     private List<String> notifList;
     private int index;
     private GoogleSheetsHandler sheetsHandler;
+    private StoredCredential storedCredential;
 
     public notifFragment() {
         // Required empty public constructor
@@ -44,6 +52,13 @@ public class notifFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         sheetsHandler = GoogleSheetsHandler.getInstance(getContext());
+        try {
+            DataStore<StoredCredential> credentialDataStore = MemoryDataStoreFactory.getDefaultInstance().getDataStore("credentialDataStore");
+            storedCredential = credentialDataStore.get("default");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_notif, container, false);
@@ -94,7 +109,14 @@ public class notifFragment extends Fragment {
     private List<String> getNotifList() {
 
         try {
-            return sheetsHandler.getLatestNotifs(new MainActivity().getServerAuthCode());
+            GoogleCredential credential = new GoogleCredential.Builder()
+                    .setTransport(AndroidHttp.newCompatibleTransport())
+                    .setJsonFactory(JacksonFactory.getDefaultInstance())
+                    .build();
+            credential.setAccessToken(storedCredential.getAccessToken());
+            credential.setRefreshToken(storedCredential.getRefreshToken());
+            credential.setExpirationTimeMilliseconds(storedCredential.getExpirationTimeMilliseconds());
+            return sheetsHandler.getLatestNotifs(credential);
         } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();
             return null;
