@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.MainActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 19/12/16 18:16
+ * Last modified 22/12/16 15:50
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -288,6 +288,12 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             credentialDataStore = MemoryDataStoreFactory.getDefaultInstance().getDataStore("credentialDataStore");
             if (storedCredential == null) {
                 storedCredential = credentialDataStore.get("default");
+                if (storedCredential == null) {
+                    doGoogleSignIn();
+                    if (serverAuthCode != null) {
+                        getCredential(null);
+                    }
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -297,11 +303,11 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     @Override
     protected void onResume() {
         super.onResume();
+        hideSysUI();
         if (serverAuthCode == null) {
             doGoogleSignIn();
         }
         idleMonitor.setTimer();
-        hideSysUI();
     }
 
     @Override
@@ -358,37 +364,37 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
         switch (requestCode) {
             case REQUEST_SELECTION:
+                hideSysUI();
                 if (resultCode == RESULT_OK && data != null && data.getExtras() != null) {
-                    String name = data.getStringExtra("name");
-                    String location = data.getStringExtra("location");
-                    String type = data.getStringExtra("type");
-                    long id = data.getLongExtra("id", -1);
-                    String[] info = {name, location, type};
-                    //Defaults to year 13, however this shouldn't happen as year is already validated before selection activity
-                    int year = data.getIntExtra("year", 13);
 
-                    if (sheetsHandler.makeNewLogEntry(info, getCredential(null))) {
-                        dbHandler.updateLocation(id, location, year);
-                        onDismiss(null);
-//                        Toast.makeText(this, "Goodbye " + name + "!", Toast.LENGTH_LONG).show();
-                        Snackbar sb = Snackbar.make(findViewById(android.R.id.content), "Goodbye " + name + "!", Snackbar.LENGTH_LONG);
-                        sb.getView().setBackgroundColor(getResources().getColor(R.color.success_color));
-                        sb.show();
-                    } else {
-//                        Toast.makeText(this, "That didn't work! Try again!", Toast.LENGTH_SHORT).show();
-                        Snackbar sb = Snackbar.make(findViewById(android.R.id.content), "That didn't work!", Snackbar.LENGTH_LONG);
-                        sb.getView().setBackgroundColor(getResources().getColor(R.color.warning_color));
-                        sb.show();
-                    }
+                    new MakeLogEntryTask().execute(data.getExtras());
+
+//                    String name = data.getStringExtra("name");
+//                    String location = data.getStringExtra("location");
+//                    String type = data.getStringExtra("type");
+//                    long id = data.getLongExtra("id", -1);
+//                    String[] info = {name, location, type};
+//                    //Defaults to year 13, however this shouldn't happen as year is already validated before selection activity
+//                    int year = data.getIntExtra("year", 13);
+
+//                    if (sheetsHandler.makeNewLogEntry(info, getCredential(null))) {
+//                        dbHandler.updateLocation(id, location, year);
+//                        onDismiss(null);
+//                        Snackbar sb = Snackbar.make(findViewById(android.R.id.content), "Goodbye " + name + "!", Snackbar.LENGTH_LONG);
+//                        sb.getView().setBackgroundColor(getResources().getColor(R.color.success_color));
+//                        sb.show();
+//                    } else {
+//                        Snackbar sb = Snackbar.make(findViewById(android.R.id.content), "That didn't work!", Snackbar.LENGTH_LONG);
+//                        sb.getView().setBackgroundColor(getResources().getColor(R.color.warning_color));
+//                        sb.show();
+//                    }
 
                 } else if (resultCode == RESULT_CANCELED) {
-//                    Toast.makeText(MainActivity.this, "Cancelled", Toast.LENGTH_SHORT).show();
                     Snackbar sb = Snackbar.make(findViewById(android.R.id.content), "Cancelled!", Snackbar.LENGTH_LONG);
                     sb.getView().setBackgroundColor(getResources().getColor(R.color.warning_color));
                     sb.show();
                     onDismiss(null);
                 }
-                hideSysUI();
                 break;
             case REQUEST_FIRST_LAUNCH:
                 if (resultCode == RESULT_OK && data != null) {
@@ -411,6 +417,20 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                 }
                 hideSysUI();
                 break;
+        }
+    }
+
+    public void showLogResult(boolean result, long id, String name, String location, int year) {
+        if (result) {
+            dbHandler.updateLocation(id, location, year);
+            onDismiss(null);
+            Snackbar sb = Snackbar.make(findViewById(android.R.id.content), "Goodbye " + name + "!", Snackbar.LENGTH_LONG);
+            sb.getView().setBackgroundColor(getResources().getColor(R.color.success_color));
+            sb.show();
+        } else {
+            Snackbar sb = Snackbar.make(findViewById(android.R.id.content), "That didn't work!", Snackbar.LENGTH_LONG);
+            sb.getView().setBackgroundColor(getResources().getColor(R.color.warning_color));
+            sb.show();
         }
     }
 
@@ -1073,7 +1093,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             // If the user has not previously signed in on this device or the sign-in has expired,
             // this asynchronous branch will attempt to sign in the user silently.  Cross-device
             // single sign-on will occur in this branch.
-            showProgressDialog();
+//            showProgressDialog();
             opr.setResultCallback(new ResultCallback<GoogleSignInResult>() {
                 @Override
                 public void onResult(@NonNull GoogleSignInResult googleSignInResult) {
@@ -1174,7 +1194,6 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         }
     }
 
-
     public void saveCredential(GoogleCredential credential) throws IOException {
 
         StoredCredential storedCredential = new StoredCredential();
@@ -1205,7 +1224,6 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             InputStream is = getResources().openRawResource(R.raw.client_secret);
             GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JacksonFactory.getDefaultInstance(), new BufferedReader(new InputStreamReader(is)));
 
-            //TODO try out AuthorizationCodeFlow as well
             HttpTransport transport = AndroidHttp.newCompatibleTransport();
             GoogleTokenResponse tokenResponse = new GoogleAuthorizationCodeTokenRequest(
                     transport,
@@ -1231,6 +1249,48 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             credential.setExpiresInSeconds(expiresInSeconds);
             Log.d("SheetsHandler", "Credential: " + credential.toString());
             return credential;
+        }
+    }
+
+    private class MakeLogEntryTask extends AsyncTask<Bundle, Integer, Void> {
+
+        boolean result;
+        int year;
+        long id;
+        String name, location, type;
+        String[] info = new String[3];
+        GoogleCredential credential;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            credential = getCredential(null);
+        }
+
+        @Override
+        protected Void doInBackground(Bundle... params) {
+            Bundle extras = params[0];
+            name = extras.getString("name");
+            location = extras.getString("location");
+            type = extras.getString("type");
+            year = extras.getInt("year");
+            id = extras.getLong("id");
+            info[0] = name;
+            info[1] = location;
+            info[2] = type;
+            result = sheetsHandler.makeNewLogEntrySync(info, credential);
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            showLogResult(result, id, name, location, year);
         }
     }
 }

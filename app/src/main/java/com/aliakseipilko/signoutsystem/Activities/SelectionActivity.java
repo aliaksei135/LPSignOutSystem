@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.SelectionActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 27/11/16 13:45
+ * Last modified 22/12/16 15:09
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -232,7 +232,8 @@ public class SelectionActivity extends AppCompatActivity implements
     private void sendResultIntent(Intent result) {
         Log.d(TAG, "Selection Result Intent:" + result.getExtras().toString());
         setResult(RESULT_OK, result);
-        overridePendingTransition(0, 0);
+//        overridePendingTransition(0, 0);
+        hideProgressDialog();
         finish();
     }
 
@@ -254,6 +255,7 @@ public class SelectionActivity extends AppCompatActivity implements
             mProgressDialog.hide();
         }
     }
+
 
     @Override
     //Fragment Listener interface implementation

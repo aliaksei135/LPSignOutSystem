@@ -2,13 +2,14 @@
  * com.aliakseipilko.signoutsystem.DataHandlers.GoogleSheetsHandler was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 19/12/16 17:09
+ * Last modified 22/12/16 15:35
  */
 
 package com.aliakseipilko.signoutsystem.DataHandlers;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.ValueRange;
@@ -65,7 +66,7 @@ public class GoogleSheetsHandler {
         return new GetNotifsTask().execute().get();
     }
 
-    public boolean makeNewLogEntry(String[] singleRowData, GoogleCredential credential) {
+    public boolean makeNewLogEntryAsync(String[] singleRowData, GoogleCredential credential) {
 
         this.credential = credential;
 
@@ -77,6 +78,33 @@ public class GoogleSheetsHandler {
                 e.printStackTrace();
             }
             return result;
+        } else {
+            sp.edit().putStringSet(Integer.toString(cachedRequestCount), new HashSet<>(Arrays.asList(singleRowData))).apply();
+            cachedRequestCount++;
+            return true;
+        }
+    }
+
+    public boolean makeNewLogEntrySync(String[] singleRowData, GoogleCredential credential) {
+
+        this.credential = credential;
+
+        if (cm.getActiveNetworkInfo().isConnected() && credential != null) {
+            Sheets mService = getSheetsService();
+
+            ValueRange range = new ValueRange();
+            List<List<Object>> valuesList = new ArrayList<>();
+            valuesList.add(Arrays.<Object>asList(singleRowData));
+            range.setValues(valuesList);
+
+            try {
+                mService.spreadsheets().values().append(SPREADSHEET_ID, "Log!A1:D", range).setValueInputOption("RAW").execute();
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+
         } else {
             sp.edit().putStringSet(Integer.toString(cachedRequestCount), new HashSet<>(Arrays.asList(singleRowData))).apply();
             cachedRequestCount++;
@@ -104,7 +132,8 @@ public class GoogleSheetsHandler {
 
     private Sheets getSheetsService() {
 
-        return new Sheets.Builder(AndroidHttp.newCompatibleTransport(), JacksonFactory.getDefaultInstance(), credential)
+        HttpTransport transport = AndroidHttp.newCompatibleTransport();
+        return new Sheets.Builder(transport, JacksonFactory.getDefaultInstance(), credential)
                 .setApplicationName("Sign Out System")
                 .build();
     }
