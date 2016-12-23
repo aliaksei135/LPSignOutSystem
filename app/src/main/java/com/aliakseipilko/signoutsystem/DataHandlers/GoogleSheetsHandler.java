@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.DataHandlers.GoogleSheetsHandler was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 22/12/16 15:35
+ * Last modified 23/12/16 13:31
  */
 
 package com.aliakseipilko.signoutsystem.DataHandlers;
@@ -35,9 +35,9 @@ public class GoogleSheetsHandler {
 
     private static GoogleSheetsHandler ourInstance;
     private final String SPREADSHEET_ID;
+    private final ConnectivityManager cm;
+    private final SharedPreferences sp;
     private GoogleCredential credential;
-    private ConnectivityManager cm;
-    private SharedPreferences sp;
     private int cachedRequestCount = 0;
 
     private GoogleSheetsHandler(Context context) {

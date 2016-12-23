@@ -2,7 +2,7 @@
   ~ C:/Users/Aliaksei/AndroidStudioProjects/SignOutSystem/app/src/main/AndroidManifest.xml was created by Aliaksei Pilko as part of SignOutSystem
   ~ Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
   ~
-  ~ Last modified 11/11/16 20:12
+  ~ Last modified 23/12/16 13:12
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
@@ -61,8 +61,7 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:parentActivityName="com.aliakseipilko.signoutsystem.Activities.MainActivity"
             android:screenOrientation="sensorLandscape"
-            android:theme="@style/Theme.AppCompat.NoActionBar">
-        </activity>
+            android:theme="@style/Theme.AppCompat.NoActionBar"></activity>
         <activity
             android:name="com.aliakseipilko.signoutsystem.Activities.FirstLaunch"
             android:theme="@style/Theme.AppCompat.NoActionBar" />

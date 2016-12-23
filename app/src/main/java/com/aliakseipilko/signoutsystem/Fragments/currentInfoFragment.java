@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Fragments.currentInfoFragment was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 27/11/16 14:24
+ * Last modified 23/12/16 13:12
  */
 
 package com.aliakseipilko.signoutsystem.Fragments;
@@ -34,7 +34,7 @@ public class currentInfoFragment extends Fragment implements WeatherRemoteFetch.
     //UI Elements
     private static TextView currentTemp;
     private static ImageView weatherIcon;
-    Context ctx;
+    private Context ctx;
 
     public currentInfoFragment() {
         // Required empty public constructor

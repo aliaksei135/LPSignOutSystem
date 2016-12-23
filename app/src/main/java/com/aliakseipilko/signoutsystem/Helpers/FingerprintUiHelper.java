@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Helpers.FingerprintUiHelper was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 20/11/16 17:42
+ * Last modified 23/12/16 13:12
  */
 
 package com.aliakseipilko.signoutsystem.Helpers;
@@ -16,7 +16,7 @@ public class FingerprintUiHelper {
 
     private final ImageView mIcon;
     private final TextView mErrorTextView;
-    private Runnable mResetErrorTextRunnable = new Runnable() {
+    private final Runnable mResetErrorTextRunnable = new Runnable() {
         @Override
         public void run() {
             mErrorTextView.setTextColor(

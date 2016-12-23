@@ -45,4 +45,3 @@
 -keep interface android.support.v4.app.** { *; }
 
 -libraryjars /libs/FDxSDKProAndroid.jar
--libraryjars /libs/jasypt-1.9.2.jar

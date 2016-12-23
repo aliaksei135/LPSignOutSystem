@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Fragments.forecastFragment was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 11/11/16 20:11
+ * Last modified 23/12/16 13:12
  */
 
 package com.aliakseipilko.signoutsystem.Fragments;
@@ -38,15 +38,10 @@ public class forecastFragment extends Fragment implements WeatherRemoteFetch.Wea
     private static TextView firstTimeView;
     private static TextView secondTimeView;
     private static TextView thirdTimeView;
-    Context ctx;
+    private Context ctx;
 
     public forecastFragment() {
         // Required empty public constructor
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 
     @Override

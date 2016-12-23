@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.DataHandlers.BiometricDataHandler was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 10/12/16 19:51
+ * Last modified 23/12/16 13:12
  */
 
 package com.aliakseipilko.signoutsystem.DataHandlers;

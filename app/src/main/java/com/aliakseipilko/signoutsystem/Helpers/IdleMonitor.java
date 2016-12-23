@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Helpers.IdleMonitor was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 19/11/16 10:41
+ * Last modified 23/12/16 13:12
  */
 
 package com.aliakseipilko.signoutsystem.Helpers;

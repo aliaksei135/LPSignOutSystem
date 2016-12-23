@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.IdleActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 27/11/16 14:27
+ * Last modified 23/12/16 13:12
  */
 
 package com.aliakseipilko.signoutsystem.Activities;

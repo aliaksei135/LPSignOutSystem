@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.MainActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
  *
- * Last modified 22/12/16 15:50
+ * Last modified 23/12/16 14:10
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     private static final String NATIVE_HOUSE = "School";
     private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
     private static final List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS);
-    static String serverAuthCode = null;
+    private static String serverAuthCode = null;
     private static boolean isVerificationScan = false;
     private static IdleMonitor idleMonitor;
     private static StoredCredential storedCredential;
@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             }
         }
     };
-    ConnectivityManager cm;
+    private ConnectivityManager cm;
     private byte[] currentNewUserBiodata;
     private FingerprintUiHelper uiHelper;
     private Button confirmationButton;
@@ -131,8 +131,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     private BiometricDataHandler bioHandler;
     private SGAutoOnEventNotifier autoOn;
     private GoogleSheetsHandler sheetsHandler;
-    private DataStore<StoredCredential> credentialDataStore;
-    private BroadcastReceiver networkStateReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver networkStateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (cm.getActiveNetworkInfo().isConnected()) {
@@ -140,6 +139,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             }
         }
     };
+    private DataStore<StoredCredential> credentialDataStore;
     private LocalDatabaseHandler dbHandler;
 
     //Null Constructor
@@ -420,16 +420,26 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         }
     }
 
-    public void showLogResult(boolean result, long id, String name, String location, int year) {
+    private void showLogResult(boolean result, long id, String name, String location, int year) {
         if (result) {
             dbHandler.updateLocation(id, location, year);
             onDismiss(null);
             Snackbar sb = Snackbar.make(findViewById(android.R.id.content), "Goodbye " + name + "!", Snackbar.LENGTH_LONG);
-            sb.getView().setBackgroundColor(getResources().getColor(R.color.success_color));
+            View sbv = sb.getView();
+            TextView sbtv = (TextView) sbv.findViewById(android.support.design.R.id.snackbar_text);
+            sbtv.setTextSize(25f);
+            sbv.setBackgroundColor(getResources().getColor(R.color.success_color));
+            sbv.setMinimumHeight(125);
+            sbv.setMinimumWidth(700);
             sb.show();
         } else {
             Snackbar sb = Snackbar.make(findViewById(android.R.id.content), "That didn't work!", Snackbar.LENGTH_LONG);
-            sb.getView().setBackgroundColor(getResources().getColor(R.color.warning_color));
+            View sbv = sb.getView();
+            TextView sbtv = (TextView) sbv.findViewById(android.support.design.R.id.snackbar_text);
+            sbtv.setTextSize(25f);
+            sbv.setBackgroundColor(getResources().getColor(R.color.warning_color));
+            sbv.setMinimumHeight(125);
+            sbv.setMinimumWidth(700);
             sb.show();
         }
     }
@@ -788,8 +798,8 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         builder.setNeutralButton("House Visitor", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                showVisitorSelectDialog(bioData, pin, isBio, modifyBio);
                 dialog.cancel();
+                showVisitorSelectDialog(bioData, pin, isBio, modifyBio);
             }
         });
 
@@ -848,8 +858,8 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         builder.setNeutralButton("House Native", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                showYearSelectDialog(bioData, pin, isBio, modifyBio);
                 dialog.cancel();
+                showYearSelectDialog(bioData, pin, isBio, modifyBio);
             }
         });
 
@@ -1051,7 +1061,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
-        Toast.makeText(MainActivity.this, "Cannot connect to Google...\nApplication will not be able to access Google Sheets", Toast.LENGTH_LONG).show();
+        Toast.makeText(MainActivity.this, "Cannot connect to Google...\nApplication will run in offline mode", Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -1079,7 +1089,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         startActivity(new Intent(MainActivity.this, IdleActivity.class));
     }
 
-    public String doGoogleSignIn() {
+    private String doGoogleSignIn() {
         final String[] serverAuthCode = new String[1];
         OptionalPendingResult<GoogleSignInResult> opr = Auth.GoogleSignInApi.silentSignIn(mGoogleApiClient);
         if (opr.isDone()) {
@@ -1194,7 +1204,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         }
     }
 
-    public void saveCredential(GoogleCredential credential) throws IOException {
+    private void saveCredential(GoogleCredential credential) throws IOException {
 
         StoredCredential storedCredential = new StoredCredential();
         storedCredential.setAccessToken(credential.getAccessToken());
@@ -1254,11 +1264,11 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
     private class MakeLogEntryTask extends AsyncTask<Bundle, Integer, Void> {
 
+        final String[] info = new String[3];
         boolean result;
         int year;
         long id;
         String name, location, type;
-        String[] info = new String[3];
         GoogleCredential credential;
 
         @Override
@@ -1280,11 +1290,6 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             info[2] = type;
             result = sheetsHandler.makeNewLogEntrySync(info, credential);
             return null;
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-            super.onProgressUpdate(values);
         }
 
         @Override
