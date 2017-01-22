@@ -1,8 +1,8 @@
 /*
  * com.aliakseipilko.signoutsystem.Activities.SelectionActivity was created by Aliaksei Pilko as part of SignOutSystem
- * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
+ * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 23/12/16 14:12
+ * Last modified 02/01/17 15:49
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -148,10 +148,6 @@ public class SelectionActivity extends AppCompatActivity implements
                     stateVisitFryerHouseFrag.setArguments(bundle);
                     getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, stateVisitFryerHouseFrag).commit();
                     break;
-                default:
-                    //Display all possible states fragment
-                    //TODO Handle this
-                    break;
             }
         }
     }
@@ -209,7 +205,6 @@ public class SelectionActivity extends AppCompatActivity implements
             public void onClick(DialogInterface dialog, int which) {
                 showProgressDialog();
                 sendResultIntent(resultIntent);
-//                dialog.cancel();
             }
         });
 
@@ -229,10 +224,7 @@ public class SelectionActivity extends AppCompatActivity implements
     }
 
     private void sendResultIntent(Intent result) {
-//        Log.d(TAG, "Selection Result Intent:" + result.getExtras().toString());
         setResult(RESULT_OK, result);
-//        overridePendingTransition(0, 0);
-//        hideProgressDialog();
         finish();
     }
 
@@ -264,6 +256,7 @@ public class SelectionActivity extends AppCompatActivity implements
         result.putExtra("id", id);
         switch (type) {
             case "CANCEL":
+                showProgressDialog();
                 setResult(RESULT_CANCELED);
                 finish();
                 break;

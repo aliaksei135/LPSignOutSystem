@@ -1,8 +1,8 @@
 /*
  * com.aliakseipilko.signoutsystem.DataHandlers.LocalDatabaseHandler was created by Aliaksei Pilko as part of SignOutSystem
- * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
+ * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 12/11/16 12:49
+ * Last modified 21/01/17 11:09
  */
 
 package com.aliakseipilko.signoutsystem.DataHandlers;
@@ -31,7 +31,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
     private static final String COLUMN_NATIVE_HOUSE = "home_house"; //String, Persons home house
     private static final String COLUMN_STATE = "state"; //Integer (Boolean), 1 (True)=In House, else 0 (false) = Out of House
     private static final String COLUMN_WHEREABOUTS = "whereabouts"; //String, shows the persons whereabouts
-    private static final String COLUMN_TAG_ID = "tag_id"; //BLOB (Byte[]), the ID of the persons NFC Tag
+    private static final String COLUMN_TAG_ID = "tag_id"; //BLOB (Byte[]), the ID of the persons NFC Tag **NOT IMPL**
     private static final String COLUMN_BIO_IMAGE = "bio_image"; //BLOB (Byte[]) , the image of the persons fingerprint
     private static final String COLUMN_PIN = "pin"; //Integer, A unique PIN for manual identification
     //SQL table for each year
@@ -48,6 +48,8 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
     private static final String TABLE_FIELD_VISITOR = "visitorField";
     private static final String TABLE_RECKITT_VISITOR = "visitorReckitt";
     private static final String TABLE_FRYER_VISITOR = "visitorFryer";
+
+    private static final String TABLE_PEOPLE = "people";
 
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "data.db";
@@ -226,6 +228,8 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
     }
 
     private String getYearTable(int year) {
+
+//        return TABLE_PEOPLE;
 
         switch (year) {
             case 7:
@@ -454,6 +458,19 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
                 " )";
 
         db.execSQL(query);
+
+        query = "CREATE TABLE IF NOT EXISTS " + TABLE_PEOPLE + "(" +
+                COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT" + "," +
+                COLUMN_NAME + " TEXT" + "," +
+                COLUMN_NATIVE_HOUSE + " TEXT" + "," +
+                COLUMN_STATE + " INTEGER" + "," +
+                COLUMN_WHEREABOUTS + " TEXT" + "," +
+                COLUMN_TAG_ID + " BLOB" + "," +
+                COLUMN_BIO_IMAGE + " BLOB" + "," +
+                COLUMN_PIN + " TEXT" +
+                " )";
+
+        db.execSQL(query);
     }
 
     @Override
@@ -466,6 +483,7 @@ public class LocalDatabaseHandler extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_Y11 + ";");
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_Y12 + ";");
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_Y13 + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PEOPLE + ";");
         //Rebuild tables
         onCreate(db);
     }

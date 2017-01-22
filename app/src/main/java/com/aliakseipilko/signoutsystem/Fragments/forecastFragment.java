@@ -1,14 +1,16 @@
 /*
  * com.aliakseipilko.signoutsystem.Fragments.forecastFragment was created by Aliaksei Pilko as part of SignOutSystem
- * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
+ * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 23/12/16 13:12
+ * Last modified 22/01/17 11:51
  */
 
 package com.aliakseipilko.signoutsystem.Fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -83,7 +85,7 @@ public class forecastFragment extends Fragment implements WeatherRemoteFetch.Wea
     }
 
     @Override
-    public void weatherForecastReadyCallback(Map<String, Map<String, Object>> forecast) {
+    public void weatherForecastReadyCallback(final Map<String, Map<String, Object>> forecast) {
 
         String firstTemp = (String) forecast.get("0").get("Temperature");
         String secondTemp = (String) forecast.get("3").get("Temperature");
@@ -93,33 +95,43 @@ public class forecastFragment extends Fragment implements WeatherRemoteFetch.Wea
         secondTemp = String.valueOf(Math.round(Double.parseDouble(secondTemp)));
         thirdTemp = String.valueOf(Math.round(Double.parseDouble(thirdTemp)));
 
-        firstTempView.setText(firstTemp + "℃");
-        secondTempView.setText(secondTemp + "℃");
-        thirdTempView.setText(thirdTemp + "℃");
+        final SimpleDateFormat format = new SimpleDateFormat("HH:mm");
 
-        SimpleDateFormat format = new SimpleDateFormat("HH:mm");
+        final Date firstTime = new Date((long) (forecast.get("0").get("Timestamp")) * 1000);
+        final Date secondTime = new Date((long) (forecast.get("3").get("Timestamp")) * 1000);
+        final Date thirdTime = new Date((long) (forecast.get("6").get("Timestamp")) * 1000);
 
-        Date firstTime = new Date((long) (forecast.get("0").get("Timestamp")) * 1000);
-        firstTimeView.setText(format.format(firstTime));
+        Handler handler = new Handler(Looper.getMainLooper());
+        final String finalFirstTemp = firstTemp;
+        final String finalSecondTemp = secondTemp;
+        final String finalThirdTemp = thirdTemp;
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                firstTempView.setText(finalFirstTemp + "℃");
+                secondTempView.setText(finalSecondTemp + "℃");
+                thirdTempView.setText(finalThirdTemp + "℃");
 
-        Date secondTime = new Date((long) (forecast.get("3").get("Timestamp")) * 1000);
-        secondTimeView.setText(format.format(secondTime));
+                firstTimeView.setText(format.format(firstTime));
+                secondTimeView.setText(format.format(secondTime));
+                thirdTimeView.setText(format.format(thirdTime));
 
-        Date thirdTime = new Date((long) (forecast.get("6").get("Timestamp")) * 1000);
-        thirdTimeView.setText(format.format(thirdTime));
+                Picasso.with(ctx)
+                        .load(ICON_BASE_URL + forecast.get("0").get("Icon") + ".png")
+                        .resize(80, 80)
+                        .into(firstIconView);
+                Picasso.with(ctx)
+                        .load(ICON_BASE_URL + forecast.get("3").get("Icon") + ".png")
+                        .resize(80, 80)
+                        .into(secondIconView);
+                Picasso.with(ctx)
+                        .load(ICON_BASE_URL + forecast.get("3").get("Icon") + ".png")
+                        .resize(80, 80)
+                        .into(thirdIconView);
+            }
+        });
 
-        Picasso.with(ctx)
-                .load(ICON_BASE_URL + forecast.get("0").get("Icon") + ".png")
-                .resize(80, 80)
-                .into(firstIconView);
-        Picasso.with(ctx)
-                .load(ICON_BASE_URL + forecast.get("3").get("Icon") + ".png")
-                .resize(80, 80)
-                .into(secondIconView);
-        Picasso.with(ctx)
-                .load(ICON_BASE_URL + forecast.get("3").get("Icon") + ".png")
-                .resize(80, 80)
-                .into(thirdIconView);
+
     }
 
     @Override

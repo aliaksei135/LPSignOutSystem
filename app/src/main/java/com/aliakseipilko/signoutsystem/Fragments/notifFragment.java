@@ -1,8 +1,8 @@
 /*
  * com.aliakseipilko.signoutsystem.Fragments.notifFragment was created by Aliaksei Pilko as part of SignOutSystem
- * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
+ * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 23/12/16 13:12
+ * Last modified 22/01/17 12:34
  */
 
 package com.aliakseipilko.signoutsystem.Fragments;
@@ -15,6 +15,8 @@ import com.google.api.client.util.store.DataStore;
 import com.google.api.client.util.store.MemoryDataStoreFactory;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -38,7 +40,7 @@ public class notifFragment extends Fragment {
     private Long notifLastUpdateTimeMillis;
     private TextSwitcher notifSwitcher;
     private List<String> notifList;
-    private int index;
+    private int index = 0;
     private GoogleSheetsHandler sheetsHandler;
     private StoredCredential storedCredential;
 
@@ -100,10 +102,16 @@ public class notifFragment extends Fragment {
 
         if (index >= notifList.size()) {
             index = 0;
-        } else {
-            notifSwitcher.setText(notifList.get(index));
-            index++;
         }
+
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                notifSwitcher.setText(notifList.get(index));
+                index++;
+            }
+        });
     }
 
     private List<String> getNotifList() {
@@ -113,9 +121,11 @@ public class notifFragment extends Fragment {
                     .setTransport(AndroidHttp.newCompatibleTransport())
                     .setJsonFactory(JacksonFactory.getDefaultInstance())
                     .build();
-            credential.setAccessToken(storedCredential.getAccessToken());
-            credential.setRefreshToken(storedCredential.getRefreshToken());
-            credential.setExpirationTimeMilliseconds(storedCredential.getExpirationTimeMilliseconds());
+            if (storedCredential != null) {
+                credential.setAccessToken(storedCredential.getAccessToken());
+                credential.setRefreshToken(storedCredential.getRefreshToken());
+                credential.setExpirationTimeMilliseconds(storedCredential.getExpirationTimeMilliseconds());
+            }
             return sheetsHandler.getLatestNotifs(credential);
         } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();

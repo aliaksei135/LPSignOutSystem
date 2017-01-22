@@ -1,3 +1,10 @@
+/*
+ * C:/Users/Aliaksei/AndroidStudioProjects/SignOutSystem/build.gradle was created by Aliaksei Pilko as part of SignOutSystem
+ * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
+ *
+ * Last modified 22/01/17 10:22
+ */
+
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
@@ -5,8 +12,8 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.2'
-        classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.5.5'
+        classpath 'com.android.tools.build:gradle:2.3.0-beta2'
+//        classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.5.5'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files

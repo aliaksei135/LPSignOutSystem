@@ -1,17 +1,17 @@
 
 /*
  * C:/Users/Aliaksei/AndroidStudioProjects/SignOutSystem/app/build.gradle was created by Aliaksei Pilko as part of SignOutSystem
- * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
+ * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 23/12/16 13:12
+ * Last modified 22/01/17 12:42
  */
 
 apply plugin: 'com.android.application'
-apply plugin: 'com.getkeepsafe.dexcount'
+//apply plugin: 'com.getkeepsafe.dexcount'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.3"
+    buildToolsVersion '25.0.0'
 
     defaultConfig {
         applicationId "com.aliakseipilko.signoutsystem"
@@ -36,18 +36,17 @@ android {
     }
 }
 
-
-dexcount {
-    format = "list"
-    includeClasses = false
-    includeFieldCount = true
-    includeTotalMethodCount = true
-    orderByMethodCount = true
-    verbose = false
-    maxTreeDepth = Integer.MAX_VALUE
-    teamCityIntegration = false
-    enableForInstantRun = false
-}
+//dexcount {
+//    format = "list"
+//    includeClasses = false
+//    includeFieldCount = true
+//    includeTotalMethodCount = true
+//    orderByMethodCount = true
+//    verbose = false
+//    maxTreeDepth = Integer.MAX_VALUE
+//    teamCityIntegration = false
+//    enableForInstantRun = false
+//}
 
 repositories {
     maven {
@@ -70,7 +69,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.4.0'
     compile 'com.android.support:design:23.4.0'
     compile 'com.android.support:support-v4:23.4.0'
-    compile 'com.android.support:percent:23.2.0'
+    compile 'com.android.support:percent:23.4.0'
 
     compile 'com.squareup.okhttp3:okhttp:3.3.1'
     compile 'com.squareup.okhttp3:logging-interceptor:3.3.1'

@@ -1,14 +1,16 @@
 /*
  * com.aliakseipilko.signoutsystem.Fragments.calendarFragment was created by Aliaksei Pilko as part of SignOutSystem
- * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
+ * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 23/12/16 13:12
+ * Last modified 22/01/17 12:42
  */
 
 package com.aliakseipilko.signoutsystem.Fragments;
 
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -29,6 +31,7 @@ import java.util.Locale;
 public class calendarFragment extends Fragment implements CalendarPickerController {
 
     private static AgendaCalendarView agendaCalendarView;
+    private List<CalendarEvent> events;
 
     public calendarFragment() {
         // Required empty public constructor
@@ -51,19 +54,35 @@ public class calendarFragment extends Fragment implements CalendarPickerControll
 
     public void populateCalendar() {
 
-        Calendar minDate = Calendar.getInstance();
-        Calendar maxDate = Calendar.getInstance();
+        final Calendar minDate = Calendar.getInstance();
+        final Calendar maxDate = Calendar.getInstance();
 
         minDate.add(Calendar.MONTH, 0);
 
-        maxDate.add(Calendar.MONTH, 2);
+        maxDate.add(Calendar.MONTH, 1);
 
         CalendarRemoteFetch calFetch = CalendarRemoteFetch.getInstance();
 
-        List<CalendarEvent> events = calFetch.getParsedCalData();
+        List<CalendarEvent> newEvents = calFetch.getParsedCalData();
+        if (events != null) {
+            if (events.size() == newEvents.size()) {
+                return;
+            } else {
+                events = newEvents;
+            }
+        } else {
+            events = newEvents;
+        }
 
         if (agendaCalendarView != null) {
-            agendaCalendarView.init(events, minDate, maxDate, Locale.UK, this);
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    agendaCalendarView.init(events, minDate, maxDate, Locale.UK, calendarFragment.this);
+                }
+            });
+
         }
     }
 

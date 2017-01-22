@@ -1,8 +1,8 @@
 /*
  * com.aliakseipilko.signoutsystem.Fragments.currentInfoFragment was created by Aliaksei Pilko as part of SignOutSystem
- * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
+ * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 23/12/16 13:12
+ * Last modified 22/01/17 11:44
  */
 
 package com.aliakseipilko.signoutsystem.Fragments;
@@ -10,6 +10,8 @@ package com.aliakseipilko.signoutsystem.Fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Keep;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -68,16 +70,24 @@ public class currentInfoFragment extends Fragment implements WeatherRemoteFetch.
     }
 
     @Override
-    public void weatherReadyCallback(Map<String, Object> result) {
+    public void weatherReadyCallback(final Map<String, Object> result) {
 
         String temp = (String) result.get("Temperature");
         temp = String.valueOf(Math.round(Double.parseDouble(temp)));
-        currentTemp.setText(temp + "℃");
+        Handler handler = new Handler(Looper.getMainLooper());
+        final String finalTemp = temp;
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                currentTemp.setText(finalTemp + "℃");
 
-        Picasso.with(ctx)
-                .load(ICON_BASE_URL + result.get("Icon") + ".png")
-                .resize(90, 90)
-                .into(weatherIcon);
+                Picasso.with(ctx)
+                        .load(ICON_BASE_URL + result.get("Icon") + ".png")
+                        .resize(90, 90)
+                        .into(weatherIcon);
+            }
+        });
+
     }
 
     @Override

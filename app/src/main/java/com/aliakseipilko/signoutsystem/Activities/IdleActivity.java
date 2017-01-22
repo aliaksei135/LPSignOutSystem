@@ -1,8 +1,8 @@
 /*
  * com.aliakseipilko.signoutsystem.Activities.IdleActivity was created by Aliaksei Pilko as part of SignOutSystem
- * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
+ * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 23/12/16 13:12
+ * Last modified 22/01/17 12:42
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -10,11 +10,13 @@ package com.aliakseipilko.signoutsystem.Activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.support.annotation.Keep;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 
 import com.aliakseipilko.signoutsystem.DataHandlers.BiometricDataHandler;
 import com.aliakseipilko.signoutsystem.Fragments.calendarFragment;
@@ -24,7 +26,6 @@ import com.aliakseipilko.signoutsystem.Fragments.notifFragment;
 import com.aliakseipilko.signoutsystem.Helpers.WeatherRemoteFetch;
 import com.aliakseipilko.signoutsystem.R;
 
-import SecuGen.FDxSDKPro.JSGFPLib;
 import SecuGen.FDxSDKPro.SGAutoOnEventNotifier;
 import SecuGen.FDxSDKPro.SGFingerPresentEvent;
 
@@ -35,7 +36,8 @@ public class IdleActivity extends AppCompatActivity implements SGFingerPresentEv
     private static final String TAG = "IdleActivity";
 
     private SGAutoOnEventNotifier autoOn;
-    private JSGFPLib bioLib;
+
+    private HandlerThread handlerThread = null;
 
     private Handler notifDisplayHandler;
     private Handler weatherUpdateHandler;
@@ -70,7 +72,7 @@ public class IdleActivity extends AppCompatActivity implements SGFingerPresentEv
             Log.d(TAG, "Weather Thread runs updates");
 
             //Refreshes weather data every 20 minutes
-            weatherUpdateHandler.postDelayed(weatherUpdateThread, 1200000);
+            weatherUpdateHandler.postDelayed(weatherUpdateThread, 30000/*1200000*/);
         }
     };
     private calendarFragment calendarFrag;
@@ -92,6 +94,10 @@ public class IdleActivity extends AppCompatActivity implements SGFingerPresentEv
         super.onCreate(savedInstanceState);
         hideSysUI();
         setContentView(R.layout.activity_idle);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        handlerThread = new HandlerThread("IdleHandlerThread");
+        handlerThread.start();
 
         autoOn = new SGAutoOnEventNotifier(BiometricDataHandler.bioLib, null);
         autoOn.start();
@@ -102,19 +108,19 @@ public class IdleActivity extends AppCompatActivity implements SGFingerPresentEv
         super.onAttachedToWindow();
 
         notifFrag = (notifFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_notif);
-        forecastFrag = new forecastFragment();
-        currentInfoFrag = new currentInfoFragment();
-        calendarFrag = new calendarFragment();
+        forecastFrag = (forecastFragment) getSupportFragmentManager().findFragmentById(R.id.forecastFragment);
+        currentInfoFrag = (currentInfoFragment) getSupportFragmentManager().findFragmentById(R.id.currentInfoFragment);
+        calendarFrag = (calendarFragment) getSupportFragmentManager().findFragmentById(R.id.calendarFragment);
 
-        notifDisplayHandler = new Handler();
-        weatherUpdateHandler = new Handler();
-        calendarUpdateHandler = new Handler();
+        notifDisplayHandler = new Handler(handlerThread.getLooper());
+        weatherUpdateHandler = new Handler(handlerThread.getLooper());
+        calendarUpdateHandler = new Handler(handlerThread.getLooper());
 
         wFetch = WeatherRemoteFetch.getInstance(this);
 
         notifDisplayHandler.postDelayed(notifUpdateThread, 10000);
         weatherUpdateHandler.postDelayed(weatherUpdateThread, 1);
-        calendarUpdateHandler.postDelayed(calendarUpdateThread, 500);
+        calendarUpdateHandler.postDelayed(calendarUpdateThread, 1);
 
         hideSysUI();
     }
@@ -145,6 +151,13 @@ public class IdleActivity extends AppCompatActivity implements SGFingerPresentEv
         notifDisplayHandler.removeCallbacksAndMessages(null);
         weatherUpdateHandler.removeCallbacksAndMessages(null);
         calendarUpdateHandler.removeCallbacksAndMessages(null);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        handlerThread.quitSafely();
+        handlerThread = null;
     }
 
     @Override

@@ -1,8 +1,8 @@
 /*
  * com.aliakseipilko.signoutsystem.DataHandlers.GoogleSheetsHandler was created by Aliaksei Pilko as part of SignOutSystem
- * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
+ * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 23/12/16 13:31
+ * Last modified 23/12/16 14:31
  */
 
 package com.aliakseipilko.signoutsystem.DataHandlers;
@@ -19,6 +19,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.support.annotation.Keep;
+import android.util.Log;
 
 import com.aliakseipilko.signoutsystem.R;
 
@@ -113,6 +114,9 @@ public class GoogleSheetsHandler {
     }
 
     public void dispatchCachedRequests() {
+
+        Log.d("SheetsHandler", "Dispatching offline requests!");
+
         if (cachedRequestCount < 1) {
             return;
         }

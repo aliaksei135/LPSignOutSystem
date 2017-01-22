@@ -1,8 +1,8 @@
 /*
  * com.aliakseipilko.signoutsystem.Activities.MainActivity was created by Aliaksei Pilko as part of SignOutSystem
- * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
+ * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 23/12/16 14:10
+ * Last modified 22/01/17 12:42
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -28,7 +28,6 @@ import com.google.api.client.util.store.DataStore;
 import com.google.api.client.util.store.MemoryDataStoreFactory;
 import com.google.api.services.sheets.v4.SheetsScopes;
 
-import android.accounts.AccountManager;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
@@ -54,6 +53,7 @@ import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -97,8 +97,6 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
     private static final List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS);
     private static String serverAuthCode = null;
-    private static boolean isVerificationScan = false;
-    private static IdleMonitor idleMonitor;
     private static StoredCredential storedCredential;
     private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
@@ -121,6 +119,8 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             }
         }
     };
+    private boolean isVerificationScan = false;
+    private IdleMonitor idleMonitor;
     private ConnectivityManager cm;
     private byte[] currentNewUserBiodata;
     private FingerprintUiHelper uiHelper;
@@ -134,8 +134,13 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     private final BroadcastReceiver networkStateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (cm.getActiveNetworkInfo().isConnected()) {
-                sheetsHandler.dispatchCachedRequests();
+            if (cm == null) {
+                cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            }
+            if (cm != null) {
+                if (cm.getActiveNetworkInfo().isConnected()) {
+                    sheetsHandler.dispatchCachedRequests();
+                }
             }
         }
     };
@@ -146,9 +151,6 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     public MainActivity() {
     }
 
-    //TODOLIST
-    //TODO Convert layout weights to percentages using com.android.support.percent (PercentRelativeLayout)
-    //TODO More aesthetic loading dialogs?
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,6 +158,8 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         super.onCreate(savedInstanceState);
         hideSysUI();
         setContentView(R.layout.activity_main);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
 
         //Get rid of the unneeded action bar
         if (getActionBar() != null) {
@@ -290,9 +294,6 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                 storedCredential = credentialDataStore.get("default");
                 if (storedCredential == null) {
                     doGoogleSignIn();
-                    if (serverAuthCode != null) {
-                        getCredential(null);
-                    }
                 }
             }
         } catch (IOException e) {
@@ -391,23 +392,19 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
                 } else if (resultCode == RESULT_CANCELED) {
                     Snackbar sb = Snackbar.make(findViewById(android.R.id.content), "Cancelled!", Snackbar.LENGTH_LONG);
-                    sb.getView().setBackgroundColor(getResources().getColor(R.color.warning_color));
+                    View sbv = sb.getView();
+                    TextView sbtv = (TextView) sbv.findViewById(android.support.design.R.id.snackbar_text);
+                    sbtv.setTextSize(25f);
+                    sbv.setBackgroundColor(getResources().getColor(R.color.warning_color));
+                    sbv.setMinimumHeight(125);
+                    sbv.setMinimumWidth(700);
                     sb.show();
                     onDismiss(null);
                 }
                 break;
             case REQUEST_FIRST_LAUNCH:
                 if (resultCode == RESULT_OK && data != null) {
-                    String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
                     getCredential(data.getStringExtra("authCode"));
-
-                    if (accountName != null) {
-                        SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = settings.edit();
-                        editor.putString("accountName", accountName);
-                        editor.apply();
-                    }
-
                 } else {
                     if (data != null) {
                         Toast.makeText(MainActivity.this, data.getStringExtra("result"), Toast.LENGTH_SHORT).show();
@@ -707,7 +704,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                 break;
             case "fingerprint":
                 //Fingerprint present
-                SGFingerPresentCallback();
+//                SGFingerPresentCallback();
                 break;
             case "ResetRegistered":
                 dbHandler.resetAllToRegistered();
@@ -1116,6 +1113,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                     Log.d(TAG, "handleSignInResult:" + googleSignInResult.isSuccess());
                     PreferenceManager.getDefaultSharedPreferences(MainActivity.this).edit().putBoolean("isFirstRun", false).apply();
                     MainActivity.serverAuthCode = serverAuthCode[0];
+                    getCredential(serverAuthCode[0]);
                 }
             });
         }
