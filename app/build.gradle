@@ -3,10 +3,11 @@
  * C:/Users/Aliaksei/AndroidStudioProjects/SignOutSystem/app/build.gradle was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 22/01/17 12:42
+ * Last modified 14/02/17 13:50
  */
 
 apply plugin: 'com.android.application'
+apply plugin: 'realm-android'
 //apply plugin: 'com.getkeepsafe.dexcount'
 
 android {
@@ -84,4 +85,8 @@ dependencies {
     compile 'com.survivingwithandroid:weatherlib_okhttpclient:1.6.0'
 
     compile files('libs/FDxSDKProAndroid.jar')
+
+    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5'
+    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
+    testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
 }

@@ -1,8 +1,8 @@
 /*
  * com.aliakseipilko.signoutsystem.DataHandlers.BiometricDataHandler was created by Aliaksei Pilko as part of SignOutSystem
- * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
+ * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 23/12/16 13:12
+ * Last modified 14/02/17 14:58
  */
 
 package com.aliakseipilko.signoutsystem.DataHandlers;
@@ -24,14 +24,14 @@ public class BiometricDataHandler {
     public static JSGFPLib bioLib;
     private static BiometricDataHandler ourInstance;
     private final SGDeviceInfoParam deviceParams = new SGDeviceInfoParam();
-    private final LocalDatabaseHandler dbHandler;
+    private final LocalRealmDBHandler dbHandler;
     private int bioImageHeight;
     private int bioImageWidth;
 
     private BiometricDataHandler(JSGFPLib bioLib, Context context) {
 
         BiometricDataHandler.bioLib = bioLib;
-        this.dbHandler = LocalDatabaseHandler.getInstance(context);
+        this.dbHandler = new LocalRealmDBHandler();
         initialiseLib();
     }
 
@@ -83,9 +83,9 @@ public class BiometricDataHandler {
         return minBuffer;
     }
 
-    public int matchBioData(byte[] toVerifyData, int year) {
+    public int matchBioData(byte[] toVerifyData) {
         //Get number of records in db
-        long recordNum = dbHandler.getRecordNum(year);
+        long recordNum = dbHandler.getRecordNum();
         if (recordNum <= 0) {
             return -1;
         }
@@ -96,7 +96,7 @@ public class BiometricDataHandler {
         boolean found = false;
         for (i = 1; i <= recordNum; i++) {
             match[0] = false;
-            storedData = dbHandler.getBioImage(i, year);
+            storedData = dbHandler.getBioImage(i);
             bioLib.MatchTemplate(storedData, toVerifyData, SGFDxSecurityLevel.SL_NORMAL, match);
             if (match[0]) {
                 found = true;

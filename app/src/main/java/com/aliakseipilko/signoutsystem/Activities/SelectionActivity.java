@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.SelectionActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 02/01/17 15:49
+ * Last modified 14/02/17 15:06
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -34,8 +34,6 @@ public class SelectionActivity extends AppCompatActivity implements
         stateStudyPeriodFragment.OnFragmentInteractionListener,
         stateVisitHouseFragment.OnFragmentInteractionListener,
         IdleMonitor.IdleCallback {
-
-    private static final String TAG = "SelectionActivity";
 
     ProgressDialog mProgressDialog;
     long id;
