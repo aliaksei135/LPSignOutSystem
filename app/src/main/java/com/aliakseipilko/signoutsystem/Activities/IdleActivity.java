@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.IdleActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 22/01/17 12:42
+ * Last modified 15/02/17 12:43
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -72,7 +72,7 @@ public class IdleActivity extends AppCompatActivity implements SGFingerPresentEv
             Log.d(TAG, "Weather Thread runs updates");
 
             //Refreshes weather data every 20 minutes
-            weatherUpdateHandler.postDelayed(weatherUpdateThread, 30000/*1200000*/);
+            weatherUpdateHandler.postDelayed(weatherUpdateThread, 1200000);
         }
     };
     private calendarFragment calendarFrag;

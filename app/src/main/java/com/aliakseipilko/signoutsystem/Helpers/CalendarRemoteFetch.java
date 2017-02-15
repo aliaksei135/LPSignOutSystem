@@ -1,8 +1,8 @@
 /*
  * com.aliakseipilko.signoutsystem.Helpers.CalendarRemoteFetch was created by Aliaksei Pilko as part of SignOutSystem
- * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
+ * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 23/12/16 13:12
+ * Last modified 15/02/17 12:34
  */
 
 package com.aliakseipilko.signoutsystem.Helpers;
@@ -41,7 +41,7 @@ import static android.os.Environment.DIRECTORY_DOWNLOADS;
 @Keep
 public class CalendarRemoteFetch {
 
-    private static final String CALENDAR_URL = "http://www.leightonpark.com/media/calendar/ical/Calendar";
+    private static final String CALENDAR_URL = "https://www.leightonpark.com/media/calendar/ical/Calendar";
     private static Long calendarLastUpdateTimeMillis;
     private static Long currentFileHash;
     private static List<CalendarEvent> events;
