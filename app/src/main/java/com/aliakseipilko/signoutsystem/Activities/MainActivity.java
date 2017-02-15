@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.MainActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 15/02/17 12:20
+ * Last modified 15/02/17 14:47
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -125,6 +125,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         }
     };
     private boolean isVerificationScan = false;
+    private boolean isFirstRun;
     private IdleMonitor idleMonitor;
     private ConnectivityManager cm;
     private byte[] currentNewUserBiodata;
@@ -289,33 +290,40 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     protected void onStart() {
 
         super.onStart();
-
-        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean isFirstRun = sharedPreferences.getBoolean("isFirstRun", true);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        isFirstRun = sharedPreferences.getBoolean("isFirstRun", true);
         boolean scheduledTasksSet = sharedPreferences.getBoolean("scheduledTasksSet", false);
+
+        if (credentialDataStore == null) {
+            try {
+                credentialDataStore = MemoryDataStoreFactory.getDefaultInstance().getDataStore("credentialDataStore");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         if (isFirstRun) {
             //show start activity
             Toast.makeText(MainActivity.this, "First Run\nPlease sign in", Toast.LENGTH_LONG)
                     .show();
             startActivityForResult(new Intent(MainActivity.this, FirstLaunch.class), REQUEST_FIRST_LAUNCH);
+        } else {
+
+            try {
+                if (storedCredential == null) {
+                    storedCredential = credentialDataStore.get("default");
+                    if (storedCredential == null) {
+                        doGoogleSignIn();
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         if (!scheduledTasksSet) {
             scheduleResetSignedIn();
             sharedPreferences.edit().putBoolean("scheduledTasksSet", true).apply();
-        }
-
-        try {
-            credentialDataStore = MemoryDataStoreFactory.getDefaultInstance().getDataStore("credentialDataStore");
-            if (storedCredential == null) {
-                storedCredential = credentialDataStore.get("default");
-                if (storedCredential == null) {
-                    doGoogleSignIn();
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -323,10 +331,13 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     protected void onResume() {
         super.onResume();
         hideSysUI();
-        if (serverAuthCode == null) {
-            doGoogleSignIn();
+        if (!isFirstRun) {
+            if (serverAuthCode == null) {
+                doGoogleSignIn();
+            }
+            idleMonitor.setTimer();
         }
-        idleMonitor.setTimer();
+
     }
 
     @Override
@@ -687,6 +698,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                 } else {
                     dbHandler.addNewRecord(name, house, year, pin, currentNewUserBiodata, false);
                     currentNewUserBiodata = null;
+                    handlePINID(pin, false);
                 }
             }
         });

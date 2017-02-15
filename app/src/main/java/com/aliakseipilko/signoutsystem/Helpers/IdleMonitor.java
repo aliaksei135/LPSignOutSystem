@@ -1,8 +1,8 @@
 /*
  * com.aliakseipilko.signoutsystem.Helpers.IdleMonitor was created by Aliaksei Pilko as part of SignOutSystem
- * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
+ * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 23/12/16 13:12
+ * Last modified 15/02/17 14:31
  */
 
 package com.aliakseipilko.signoutsystem.Helpers;
@@ -14,7 +14,7 @@ public class IdleMonitor {
 
     private static final String TAG = "IdleMonitor";
     private static IdleMonitor ourInstance;
-    private static IdleCallback callback;
+    private IdleCallback callback;
     private Handler timer;
     private Runnable task;
 
@@ -30,7 +30,7 @@ public class IdleMonitor {
         return ourInstance;
     }
 
-    private static void setDeviceStateIdle() {
+    private void setDeviceStateIdle() {
         Log.d(TAG, "Device state idle");
         callback.onDeviceStateIdle();
     }
@@ -75,7 +75,7 @@ public class IdleMonitor {
     }
 
     public void registerIdleCallback(IdleCallback callback) {
-        IdleMonitor.callback = callback;
+        this.callback = callback;
     }
 
     public interface IdleCallback {
