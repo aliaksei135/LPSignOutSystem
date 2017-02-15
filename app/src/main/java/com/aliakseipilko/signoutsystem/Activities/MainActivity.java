@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.MainActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 14/02/17 16:19
+ * Last modified 15/02/17 12:20
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -177,6 +177,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                 mDpm.setLockTaskPackages(deviceAdmin, new String[]{getPackageName()});
             }
         }
+        enableKioskMode(true);
 
         //Get rid of the unneeded action bar
         if (getActionBar() != null) {
