@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.MainActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 15/02/17 14:47
+ * Last modified 16/02/17 09:52
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -75,6 +75,7 @@ import com.aliakseipilko.signoutsystem.Helpers.AdminReceiver;
 import com.aliakseipilko.signoutsystem.Helpers.FingerprintUiHelper;
 import com.aliakseipilko.signoutsystem.Helpers.IdleMonitor;
 import com.aliakseipilko.signoutsystem.R;
+import com.aliakseipilko.signoutsystem.Services.PersistService;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -196,6 +197,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         registerReceiver(networkStateReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         idleMonitor.setTimer();
+        startService(new Intent(this, PersistService.class));
 
         //Initialise biometrics
         initBio();
