@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.MainActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 16/02/17 09:52
+ * Last modified 16/02/17 11:17
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -963,6 +963,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                 selectionIntent.putExtra("state", user.getWhereabouts());
                 selectionIntent.putExtra("year", user.getYear());
                 selectionIntent.putExtra("id", user.getId());
+                selectionIntent.putExtra("type", "PIN");
                 hideProgressDialog();
                 idleMonitor.nullify();
                 startActivityForResult(selectionIntent, REQUEST_SELECTION);
@@ -990,6 +991,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             selectionIntent.putExtra("state", dbHandler.getWhereabouts(matchResult));
             selectionIntent.putExtra("year", dbHandler.getYear(matchResult));
             selectionIntent.putExtra("id", matchResult);
+            selectionIntent.putExtra("type", "Fingerprint");
             hideProgressDialog();
             idleMonitor.nullify();
             startActivityForResult(selectionIntent, REQUEST_SELECTION);

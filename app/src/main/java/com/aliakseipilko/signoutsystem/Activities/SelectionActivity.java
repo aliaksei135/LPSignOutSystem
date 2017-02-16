@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.SelectionActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 14/02/17 15:06
+ * Last modified 16/02/17 12:00
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -37,7 +37,7 @@ public class SelectionActivity extends AppCompatActivity implements
 
     ProgressDialog mProgressDialog;
     long id;
-    private String name;
+    private String name, type;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +51,10 @@ public class SelectionActivity extends AppCompatActivity implements
         name = intent.getStringExtra("name");
         int year = intent.getIntExtra("year", 13);
         id = intent.getLongExtra("id", -1);
+        type = intent.getStringExtra("type");
+        if (type == null || type.isEmpty()) {
+            type = "Default";
+        }
 
         TextView currentStateTextView = (TextView) findViewById(R.id.currentStateTextView);
         if (currentStateTextView != null) {
@@ -252,6 +256,7 @@ public class SelectionActivity extends AppCompatActivity implements
         IdleMonitor.getInstance().setShortTimer();
         Intent result = new Intent();
         result.putExtra("id", id);
+        result.putExtra("type", type);
         switch (type) {
             case "CANCEL":
                 showProgressDialog();
@@ -261,50 +266,34 @@ public class SelectionActivity extends AppCompatActivity implements
             case "SIGN_OUT":
                 result.putExtra("name", name);
                 result.putExtra("location", "Signed Out");
-                //Not functional for now, added for compatibility with other methods in future eg NFC
-                result.putExtra("type", "Fingerprint");
                 break;
             case "GREEN":
                 result.putExtra("name", name);
                 result.putExtra("location", "Gone to Green");
-                //Not functional for now, added for compatibility with other methods in future eg NFC
-                result.putExtra("type", "Fingerprint");
                 break;
             case "STUDY_PERIOD":
                 result.putExtra("name", name);
                 result.putExtra("location", "Study Period");
-                //Not functional for now, added for compatibility with other methods in future eg NFC
-                result.putExtra("type", "Fingerprint");
                 break;
             case "VISIT_HOUSE_FIELD":
                 result.putExtra("name", name);
                 result.putExtra("location", "Visiting Field");
-                //Not functional for now, added for compatibility with other methods in future eg NFC
-                result.putExtra("type", "Fingerprint");
                 break;
             case "VISIT_HOUSE_GROVE":
                 result.putExtra("name", name);
                 result.putExtra("location", "Visiting Grove");
-                //Not functional for now, added for compatibility with other methods in future eg NFC
-                result.putExtra("type", "Fingerprint");
                 break;
             case "VISIT_HOUSE_RECKITT":
                 result.putExtra("name", name);
                 result.putExtra("location", "Visiting Reckitt");
-                //Not functional for now, added for compatibility with other methods in future eg NFC
-                result.putExtra("type", "Fingerprint");
                 break;
             case "VISIT_HOUSE_FRYER":
                 result.putExtra("name", name);
                 result.putExtra("location", "Visiting Fryer");
-                //Not functional for now, added for compatibility with other methods in future eg NFC
-                result.putExtra("type", "Fingerprint");
                 break;
             case "SIGN_IN":
                 result.putExtra("name", name);
                 result.putExtra("location", "Signed In");
-                //Not functional for now, added for compatibility with other methods in future eg NFC
-                result.putExtra("type", "Fingerprint");
                 break;
             default:
                 setResult(RESULT_CANCELED);

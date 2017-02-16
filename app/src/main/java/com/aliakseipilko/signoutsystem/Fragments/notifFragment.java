@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Fragments.notifFragment was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 22/01/17 12:34
+ * Last modified 16/02/17 12:00
  */
 
 package com.aliakseipilko.signoutsystem.Fragments;
@@ -33,7 +33,6 @@ import com.aliakseipilko.signoutsystem.R;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 public class notifFragment extends Fragment {
 
@@ -96,8 +95,11 @@ public class notifFragment extends Fragment {
                 notifLastUpdateTimeMillis == null
                 || (System.currentTimeMillis() - notifLastUpdateTimeMillis) >= 900000) { //Update if older than 15mins
             Log.d("NotifFragment", "Notifications List is Updated");
-            notifList = getNotifList();
-            notifLastUpdateTimeMillis = System.currentTimeMillis();
+            List<String> temp = getNotifList();
+            if (temp != null && temp.size() >= 1) {
+                notifList = temp;
+                notifLastUpdateTimeMillis = System.currentTimeMillis();
+            }
         }
 
         if (index >= notifList.size()) {
@@ -127,7 +129,7 @@ public class notifFragment extends Fragment {
                 credential.setExpirationTimeMilliseconds(storedCredential.getExpirationTimeMilliseconds());
             }
             return sheetsHandler.getLatestNotifs(credential);
-        } catch (ExecutionException | InterruptedException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
