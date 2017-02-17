@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.DataHandlers.BiometricDataHandler was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 14/02/17 14:58
+ * Last modified 17/02/17 12:23
  */
 
 package com.aliakseipilko.signoutsystem.DataHandlers;
@@ -118,8 +118,8 @@ public class BiometricDataHandler {
     public boolean matchBioDataSets(byte[] set1, byte[] set2) {
         boolean[] result = new boolean[1];
         bioLib.MatchTemplate(set1, set2, SGFDxSecurityLevel.SL_NORMAL, result);
-        int[] score = new int[1];
-        bioLib.GetMatchingScore(set1, set2, score);
+//        int[] score = new int[1];
+//        bioLib.GetMatchingScore(set1, set2, score);
 //        Log.d("BioHandler", "Modification matching score: " + score[0]);
         return result[0];
     }

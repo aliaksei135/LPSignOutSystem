@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.MyApp was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 15/02/17 14:46
+ * Last modified 17/02/17 19:09
  */
 
 package com.aliakseipilko.signoutsystem;
@@ -45,5 +45,18 @@ public class MyApp extends Application {
                 .encryptionKey(key)
                 .build();
         Realm.setDefaultConfiguration(config);
+
+        //Stop app from crashing out
+        //Handle all unchecked exceptions here
+//        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+//            @Override
+//            public void uncaughtException(Thread thread, Throwable ex) {
+//                Log.e("Uncaught Exceptions", thread.getName() + " throws uncaught exception. " +
+//                        "Cause: " + ex.getCause().getMessage() +
+//                        "\nMessage: " + ex.getMessage() +
+//                        "\nStacktrace: ");
+//                ex.printStackTrace();
+//            }
+//        });
     }
 }

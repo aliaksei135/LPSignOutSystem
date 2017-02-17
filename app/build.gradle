@@ -3,7 +3,7 @@
  * C:/Users/Aliaksei/AndroidStudioProjects/SignOutSystem/app/build.gradle was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 14/02/17 13:50
+ * Last modified 17/02/17 18:40
  */
 
 apply plugin: 'com.android.application'
@@ -30,7 +30,7 @@ android {
         }
         debug {
             minifyEnabled true
-            shrinkResources true
+            shrinkResources false
             zipAlignEnabled true
             proguardFile 'proguard-signoutsystem.txt'
         }

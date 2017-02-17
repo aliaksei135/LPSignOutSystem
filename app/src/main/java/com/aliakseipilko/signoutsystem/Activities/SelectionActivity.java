@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.SelectionActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 16/02/17 12:00
+ * Last modified 17/02/17 12:31
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -205,7 +205,7 @@ public class SelectionActivity extends AppCompatActivity implements
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                showProgressDialog();
+//                showProgressDialog();
                 sendResultIntent(resultIntent);
             }
         });
@@ -227,6 +227,7 @@ public class SelectionActivity extends AppCompatActivity implements
 
     private void sendResultIntent(Intent result) {
         setResult(RESULT_OK, result);
+        mProgressDialog = null;
         finish();
     }
 
@@ -259,7 +260,7 @@ public class SelectionActivity extends AppCompatActivity implements
         result.putExtra("type", type);
         switch (type) {
             case "CANCEL":
-                showProgressDialog();
+//                showProgressDialog();
                 setResult(RESULT_CANCELED);
                 finish();
                 break;

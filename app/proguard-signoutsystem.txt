@@ -2,6 +2,13 @@
 -dontobfuscate
 -dontoptimize
 ###############
+-optimizationpasses 5
+#-dontusemixedcaseclassnames
+#-dontskipnonpubliclibraryclasses
+#-dontpreverify
+-verbose
+#-optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
+-adaptresourcefilenames
 
 -keep class com.apilko.signoutsystem.** { *; }
 -keep public class * extends android.app.Activity
@@ -49,3 +56,25 @@
 
 -keep class android.support.v4.app.** { *; }
 -keep interface android.support.v4.app.** { *; }
+
+-keep public class android.support.v7.widget.** { *; }
+-keep public class android.support.v7.internal.widget.** { *; }
+-keep public class android.support.v7.internal.view.menu.** { *; }
+
+-keep public class * extends android.support.v4.view.ActionProvider {
+    public <init>(android.content.Context);
+}
+
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+
+-keep class * implements android.os.Parcelable {
+  public static final android.os.Parcelable$Creator *;
+}
+
+-keep class *.R
+
+-keepclasseswithmembers class **.R$* {
+    public static <fields>;
+}

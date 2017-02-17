@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.MainActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 16/02/17 11:17
+ * Last modified 17/02/17 18:18
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -314,7 +314,8 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             try {
                 if (storedCredential == null) {
                     storedCredential = credentialDataStore.get("default");
-                    if (storedCredential == null) {
+                    if (storedCredential == null
+                            || storedCredential.getExpirationTimeMilliseconds() <= 10000) {
                         doGoogleSignIn();
                     }
                 }
@@ -334,7 +335,9 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         super.onResume();
         hideSysUI();
         if (!isFirstRun) {
-            if (serverAuthCode == null) {
+            if (serverAuthCode == null
+                    || storedCredential == null
+                    || storedCredential.getExpirationTimeMilliseconds() <= 10000) {
                 doGoogleSignIn();
             }
             idleMonitor.setTimer();
@@ -364,10 +367,10 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         super.onDestroy();
         idleMonitor.nullify();
         unregisterReceiver(networkStateReceiver);
-//        unregisterReceiver(mUsbReceiver);
-//        autoOn.stop();
-//        bioLib.CloseDevice();
-//        bioLib.Close();
+        unregisterReceiver(mUsbReceiver);
+        autoOn.stop();
+        bioLib.CloseDevice();
+        bioLib.Close();
     }
 
     private void initBio() {
@@ -393,6 +396,9 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     @Override
     protected void onActivityResult(
             int requestCode, int resultCode, Intent data) {
+
+        //Cleanup after result activity
+        System.gc();
 
         switch (requestCode) {
             case REQUEST_SELECTION:
