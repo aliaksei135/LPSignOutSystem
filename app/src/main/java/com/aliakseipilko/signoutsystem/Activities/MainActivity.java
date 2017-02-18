@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.MainActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 17/02/17 18:18
+ * Last modified 18/02/17 10:57
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -342,7 +342,6 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             }
             idleMonitor.setTimer();
         }
-
     }
 
     @Override
@@ -362,13 +361,17 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     }
 
     @Override
-    protected void onDestroy() {
-
-        super.onDestroy();
+    protected void onPause() {
+        super.onPause();
         idleMonitor.nullify();
+        autoOn.stop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
         unregisterReceiver(networkStateReceiver);
         unregisterReceiver(mUsbReceiver);
-        autoOn.stop();
         bioLib.CloseDevice();
         bioLib.Close();
     }
