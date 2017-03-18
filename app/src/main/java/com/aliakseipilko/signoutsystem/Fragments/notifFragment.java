@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Fragments.notifFragment was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 18/03/17 21:08
+ * Last modified 18/03/17 21:33
  */
 
 package com.aliakseipilko.signoutsystem.Fragments;
@@ -36,10 +36,16 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
 public class notifFragment extends Fragment {
 
+    @BindView(R.id.notifTextSwitcher)
+    TextSwitcher notifSwitcher;
+    Unbinder unbinder;
     private Long notifLastUpdateTimeMillis;
-    private TextSwitcher notifSwitcher;
     private List<String> notifList;
     private int index = 0;
     private GoogleSheetsHandler sheetsHandler;
@@ -57,7 +63,9 @@ public class notifFragment extends Fragment {
         sheetsHandler = GoogleSheetsHandler.getInstance(getContext());
 
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_notif, container, false);
+        View view = inflater.inflate(R.layout.fragment_notif, container, false);
+        unbinder = ButterKnife.bind(this, view);
+        return view;
     }
 
     @Override
@@ -65,7 +73,6 @@ public class notifFragment extends Fragment {
 
         super.onViewCreated(view, savedInstanceState);
 
-        notifSwitcher = (TextSwitcher) getView().findViewById(R.id.notifTextSwitcher);
         notifSwitcher.setInAnimation(getContext(), android.R.anim.slide_in_left);
         notifSwitcher.setOutAnimation(getContext(), android.R.anim.slide_out_right);
 
@@ -81,6 +88,12 @@ public class notifFragment extends Fragment {
         };
         notifSwitcher.setFactory(viewFactory);
         displayNotifsView();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 
     public void displayNotifsView() {

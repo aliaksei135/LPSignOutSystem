@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Fragments.forecastFragment was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 22/01/17 11:51
+ * Last modified 18/03/17 21:33
  */
 
 package com.aliakseipilko.signoutsystem.Fragments;
@@ -11,7 +11,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,19 +26,33 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
 public class forecastFragment extends Fragment implements WeatherRemoteFetch.WeatherCallback {
 
     private static final String ICON_BASE_URL = "http://openweathermap.org/img/w/";
     //UI elements
-    private static ImageView firstIconView;
-    private static ImageView secondIconView;
-    private static ImageView thirdIconView;
-    private static TextView firstTempView;
-    private static TextView secondTempView;
-    private static TextView thirdTempView;
-    private static TextView firstTimeView;
-    private static TextView secondTimeView;
-    private static TextView thirdTimeView;
+    @BindView(R.id.firstHourTimeTextView)
+    TextView firstTimeView;
+    @BindView(R.id.secondHourTimeTextView)
+    TextView secondTimeView;
+    @BindView(R.id.thirdHourTimeTextView)
+    TextView thirdTimeView;
+    @BindView(R.id.firstHourForecastImageView)
+    ImageView firstIconView;
+    @BindView(R.id.secondHourForecastImageView)
+    ImageView secondIconView;
+    @BindView(R.id.thirdHourForecastImageView)
+    ImageView thirdIconView;
+    @BindView(R.id.firstHourForecastTextView)
+    TextView firstTempView;
+    @BindView(R.id.secondHourForecastTextView)
+    TextView secondTempView;
+    @BindView(R.id.thirdHourForecastTextView)
+    TextView thirdTempView;
+    Unbinder unbinder;
     private Context ctx;
 
     public forecastFragment() {
@@ -51,26 +64,9 @@ public class forecastFragment extends Fragment implements WeatherRemoteFetch.Wea
                              Bundle savedInstanceState) {
 
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_forecast, container, false);
-    }
-
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-
-        super.onViewCreated(view, savedInstanceState);
-
-        firstTimeView = (TextView) getView().findViewById(R.id.firstHourTimeTextView);
-        secondTimeView = (TextView) getView().findViewById(R.id.secondHourTimeTextView);
-        thirdTimeView = (TextView) getView().findViewById(R.id.thirdHourTimeTextView);
-
-        firstIconView = (ImageView) getView().findViewById(R.id.firstHourForecastImageView);
-        secondIconView = (ImageView) getView().findViewById(R.id.secondHourForecastImageView);
-        thirdIconView = (ImageView) getView().findViewById(R.id.thirdHourForecastImageView);
-
-        firstTempView = (TextView) getView().findViewById(R.id.firstHourForecastTextView);
-        secondTempView = (TextView) getView().findViewById(R.id.secondHourForecastTextView);
-        thirdTempView = (TextView) getView().findViewById(R.id.thirdHourForecastTextView);
-
+        View view = inflater.inflate(R.layout.fragment_forecast, container, false);
+        unbinder = ButterKnife.bind(this, view);
+        return view;
     }
 
     public void updateWeather(WeatherRemoteFetch weatherFetch, Context ctx) {
@@ -137,16 +133,7 @@ public class forecastFragment extends Fragment implements WeatherRemoteFetch.Wea
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        //Destroy view references to prevent memory leak
-        firstIconView = null;
-        secondIconView = null;
-        thirdIconView = null;
-        firstTempView = null;
-        secondTempView = null;
-        thirdTempView = null;
-        firstTimeView = null;
-        secondTimeView = null;
-        thirdTimeView = null;
+        unbinder.unbind();
     }
 
 }

@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Fragments.currentInfoFragment was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 22/01/17 11:44
+ * Last modified 18/03/17 21:33
  */
 
 package com.aliakseipilko.signoutsystem.Fragments;
@@ -28,14 +28,25 @@ import com.squareup.picasso.Picasso;
 
 import java.util.Map;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
 @Keep
 public class currentInfoFragment extends Fragment implements WeatherRemoteFetch.WeatherCallback {
 
     private static final String ICON_BASE_URL = "http://openweathermap.org/img/w/";
     //    private static Context context;
     //UI Elements
-    private static TextView currentTemp;
-    private static ImageView weatherIcon;
+    @BindView(R.id.weather_icon)
+    ImageView weatherIcon;
+    @BindView(R.id.current_temp)
+    TextView currentTemp;
+    @BindView(R.id.timeTextClock)
+    TextClock timeClock;
+    @BindView(R.id.dateTextClock)
+    TextClock dateClock;
+    Unbinder unbinder;
     private Context ctx;
 
     public currentInfoFragment() {
@@ -45,18 +56,15 @@ public class currentInfoFragment extends Fragment implements WeatherRemoteFetch.
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        return inflater.inflate(R.layout.fragment_current_info, container, false);
+        View view = inflater.inflate(R.layout.fragment_current_info, container, false);
+        unbinder = ButterKnife.bind(this, view);
+        return view;
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 
         super.onViewCreated(view, savedInstanceState);
-
-        weatherIcon = (ImageView) getView().findViewById(R.id.weather_icon);
-        currentTemp = (TextView) getView().findViewById(R.id.current_temp);
-        TextClock timeClock = (TextClock) getView().findViewById(R.id.timeTextClock);
-        TextClock dateClock = (TextClock) getView().findViewById(R.id.dateTextClock);
 
         timeClock.setFormat24Hour("HH:mm:ss");
         dateClock.setFormat24Hour("EEEE dd\nMMMM");
@@ -95,4 +103,9 @@ public class currentInfoFragment extends Fragment implements WeatherRemoteFetch.
         //Not needed here
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
+    }
 }

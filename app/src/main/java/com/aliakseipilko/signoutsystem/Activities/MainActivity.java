@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.MainActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 18/03/17 21:08
+ * Last modified 18/03/17 21:27
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -78,6 +78,8 @@ import SecuGen.FDxSDKPro.JSGFPLib;
 import SecuGen.FDxSDKPro.SGAutoOnEventNotifier;
 import SecuGen.FDxSDKPro.SGFDxErrorCode;
 import SecuGen.FDxSDKPro.SGFingerPresentEvent;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 @Keep
 public class MainActivity extends AppCompatActivity implements SGFingerPresentEvent, GoogleApiClient.OnConnectionFailedListener, DialogInterface.OnDismissListener, IdleMonitor.IdleCallback {
@@ -111,6 +113,17 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             }
         }
     };
+    @BindView(R.id.manualSigningButton)
+    Button manualSigningButton;
+    @BindView(R.id.srButton)
+    Button scannerRestartButton;
+    @BindView(R.id.idleActTestButton)
+    Button idleActTestButton;
+    @BindView(R.id.flActTestButton)
+    Button flActTestButton;
+    @BindView(R.id.newUserTestButton)
+    Button newUserTestButton;
+
     private boolean isVerificationScan = false;
     private boolean isFirstRun;
     private IdleMonitor idleMonitor;
@@ -189,15 +202,9 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         autoOn = new SGAutoOnEventNotifier(bioLib, this);
         autoOn.start();
 
-        //UI
-        Button manualSigningButton = (Button) findViewById(R.id.manualSigningButton);
+        ButterKnife.bind(this);
 
-        //DEBUG BUTTONS
-        Button scannerRestartButton = (Button) findViewById(R.id.srButton);
-        Button idleActTestButton = (Button) findViewById(R.id.idleActTestButton);
-        Button flActTestButton = (Button) findViewById(R.id.flActTestButton);
-        Button newUserTestButton = (Button) findViewById(R.id.newUserTestButton);
-
+        //DEBUG
         assert manualSigningButton != null;
         manualSigningButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -354,26 +361,6 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                 if (resultCode == RESULT_OK && data != null && data.getExtras() != null) {
 
                     new MakeLogEntryTask().execute(data.getExtras());
-
-//                    String name = data.getStringExtra("name");
-//                    String location = data.getStringExtra("location");
-//                    String type = data.getStringExtra("type");
-//                    long id = data.getLongExtra("id", -1);
-//                    String[] info = {name, location, type};
-//                    //Defaults to year 13, however this shouldn't happen as year is already validated before selection activity
-//                    int year = data.getIntExtra("year", 13);
-
-//                    if (sheetsHandler.makeNewLogEntry(info, getCredential(null))) {
-//                        dbHandler.updateLocation(id, location, year);
-//                        onDismiss(null);
-//                        Snackbar sb = Snackbar.make(findViewById(android.R.id.content), "Goodbye " + name + "!", Snackbar.LENGTH_LONG);
-//                        sb.getView().setBackgroundColor(getResources().getColor(R.color.success_color));
-//                        sb.show();
-//                    } else {
-//                        Snackbar sb = Snackbar.make(findViewById(android.R.id.content), "That didn't work!", Snackbar.LENGTH_LONG);
-//                        sb.getView().setBackgroundColor(getResources().getColor(R.color.warning_color));
-//                        sb.show();
-//                    }
 
                 } else if (resultCode == RESULT_CANCELED) {
                     Snackbar sb = Snackbar.make(findViewById(android.R.id.content), "Cancelled!", Snackbar.LENGTH_LONG);
@@ -583,23 +570,20 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                                     dialog.cancel();
 
                                 } else {
-//                                    Toast.makeText(MainActivity.this, "First Digit cannot be zero", Toast.LENGTH_SHORT).show();
                                     pinField.setError("First Digit cannot be zero");
                                 }
                             } else {
-//                                Toast.makeText(MainActivity.this, "PIN must be at least 5 digits long", Toast.LENGTH_SHORT).show();
                                 pinField.setError("PIN must be at least 5 digits long");
                             }
                         } else {
-//                            Toast.makeText(MainActivity.this, "PIN Collision!\nPlease enter a new PIN", Toast.LENGTH_SHORT).show();
                             pinField.setError("Choose another PIN");
                         }
                     } else {
-//                        Toast.makeText(MainActivity.this, "PINs don't match", Toast.LENGTH_SHORT).show();
+//
                         pinConfirmField.setError("PINs don't match!");
                     }
                 } else {
-//                    Toast.makeText(MainActivity.this, "Enter ALL the information", Toast.LENGTH_SHORT).show();
+//
                     nameInput.setError("Enter ALL the required information");
                 }
             }
@@ -650,7 +634,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (currentNewUserBiodata == null) {
-
+                    //Something happens
                 } else {
                     dbHandler.addNewRecord(name, house, year, pin, currentNewUserBiodata, false);
                     currentNewUserBiodata = null;

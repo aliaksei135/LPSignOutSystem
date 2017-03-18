@@ -1,8 +1,8 @@
 /*
  * com.aliakseipilko.signoutsystem.Fragments.stateVisitHouseFragment was created by Aliaksei Pilko as part of SignOutSystem
- * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
+ * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 23/12/16 13:12
+ * Last modified 18/03/17 21:33
  */
 
 package com.aliakseipilko.signoutsystem.Fragments;
@@ -20,8 +20,23 @@ import android.widget.Toast;
 
 import com.aliakseipilko.signoutsystem.R;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
 public class stateVisitHouseFragment extends Fragment {
 
+    @BindView(R.id.study_period_button5)
+    Button studyPeriodButton;
+    @BindView(R.id.going_home_button5)
+    Button signOutButton;
+    @BindView(R.id.sign_in_button5)
+    Button signInButton;
+    @BindView(R.id.cancel_button5)
+    Button cancelButton;
+    @BindView(R.id.going_to_green_button5)
+    Button atGreenButton;
+    Unbinder unbinder;
     private OnFragmentInteractionListener mListener;
 
     public stateVisitHouseFragment() {
@@ -42,7 +57,9 @@ public class stateVisitHouseFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_state_visit_house, container, false);
+        View view = inflater.inflate(R.layout.fragment_state_visit_house, container, false);
+        unbinder = ButterKnife.bind(this, view);
+        return view;
     }
 
     @Override
@@ -50,35 +67,30 @@ public class stateVisitHouseFragment extends Fragment {
 
         super.onViewCreated(view, savedInstanceState);
 
-        Button studyPeriodButton = (Button) getView().findViewById(R.id.study_period_button5);
         studyPeriodButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onButtonPressed("STUDY_PERIOD");
             }
         });
-        Button signOutButton = (Button) getView().findViewById(R.id.going_home_button5);
         signOutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onButtonPressed("SIGN_OUT");
             }
         });
-        Button signInButton = (Button) getView().findViewById(R.id.sign_in_button5);
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onButtonPressed("SIGN_IN");
             }
         });
-        Button cancelButton = (Button) getView().findViewById(R.id.cancel_button5);
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onButtonPressed("CANCEL");
             }
         });
-        Button atGreenButton = (Button) getView().findViewById(R.id.going_to_green_button5);
 
         int year = getArguments().getInt("year");
 
@@ -126,13 +138,12 @@ public class stateVisitHouseFragment extends Fragment {
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this fragment to allow an
-     * interaction in this fragment to be communicated to the activity and potentially other
-     * fragments contained in that activity. <p/> See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html" >Communicating
-     * with Other Fragments</a> for more information.
-     */
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
+    }
+
     public interface OnFragmentInteractionListener {
 
         void onFragmentInteraction(String type);

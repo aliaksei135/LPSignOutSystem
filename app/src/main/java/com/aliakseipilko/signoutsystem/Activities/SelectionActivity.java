@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.SelectionActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 17/02/17 12:31
+ * Last modified 18/03/17 21:27
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -27,6 +27,9 @@ import com.aliakseipilko.signoutsystem.Fragments.stateVisitHouseFragment;
 import com.aliakseipilko.signoutsystem.Helpers.IdleMonitor;
 import com.aliakseipilko.signoutsystem.R;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class SelectionActivity extends AppCompatActivity implements
         stateSignedInFragment.OnFragmentInteractionListener,
         stateSignedOutFragment.OnFragmentInteractionListener,
@@ -37,6 +40,8 @@ public class SelectionActivity extends AppCompatActivity implements
 
     ProgressDialog mProgressDialog;
     long id;
+    @BindView(R.id.currentStateTextView)
+    TextView currentStateTextView;
     private String name, type;
 
     @Override
@@ -56,7 +61,8 @@ public class SelectionActivity extends AppCompatActivity implements
             type = "Default";
         }
 
-        TextView currentStateTextView = (TextView) findViewById(R.id.currentStateTextView);
+        ButterKnife.bind(this);
+
         if (currentStateTextView != null) {
             currentStateTextView.setText(state);
         }

@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Fragments.calendarFragment was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 22/01/17 12:42
+ * Last modified 18/03/17 21:33
  */
 
 package com.aliakseipilko.signoutsystem.Fragments;
@@ -28,9 +28,15 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
 public class calendarFragment extends Fragment implements CalendarPickerController {
 
-    private static AgendaCalendarView agendaCalendarView;
+    @BindView(R.id.agenda_calendar_view)
+    AgendaCalendarView agendaCalendarView;
+    Unbinder unbinder;
     private List<CalendarEvent> events;
 
     public calendarFragment() {
@@ -41,7 +47,9 @@ public class calendarFragment extends Fragment implements CalendarPickerControll
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_calendar, container, false);
+        View view = inflater.inflate(R.layout.fragment_calendar, container, false);
+        unbinder = ButterKnife.bind(this, view);
+        return view;
     }
 
     @Override
@@ -49,7 +57,6 @@ public class calendarFragment extends Fragment implements CalendarPickerControll
 
         super.onViewCreated(view, savedInstanceState);
 
-        agendaCalendarView = (AgendaCalendarView) getView().findViewById(R.id.agenda_calendar_view);
     }
 
     public void populateCalendar() {
@@ -101,4 +108,9 @@ public class calendarFragment extends Fragment implements CalendarPickerControll
         //Do nothing
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
+    }
 }

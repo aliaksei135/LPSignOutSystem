@@ -1,8 +1,8 @@
 /*
  * com.aliakseipilko.signoutsystem.Fragments.stateSignedInFragment was created by Aliaksei Pilko as part of SignOutSystem
- * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
+ * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 23/12/16 13:12
+ * Last modified 18/03/17 21:33
  */
 
 package com.aliakseipilko.signoutsystem.Fragments;
@@ -21,14 +21,24 @@ import android.widget.Toast;
 import com.aliakseipilko.signoutsystem.R;
 import com.sevenheaven.segmentcontrol.SegmentControl;
 
-/**
- * A simple {@link Fragment} subclass. Activities that contain this fragment must implement the
- * {@link stateSignedInFragment.OnFragmentInteractionListener} interface to handle interaction
- * events. Use the {@link stateSignedInFragment#newInstance} factory method to create an instance of
- * this fragment.
- */
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
+
 public class stateSignedInFragment extends Fragment {
 
+    @BindView(R.id.house_button1)
+    SegmentControl houseButton;
+    @BindView(R.id.study_period_button1)
+    Button studyPeriodButton;
+    @BindView(R.id.going_to_green_button1)
+    Button atGreenButton;
+    @BindView(R.id.going_home_button1)
+    Button signOutButton;
+    @BindView(R.id.cancel_button1)
+    Button cancelButton;
+    Unbinder unbinder;
     private OnFragmentInteractionListener mListener;
 
     public stateSignedInFragment() {
@@ -45,7 +55,6 @@ public class stateSignedInFragment extends Fragment {
 
         super.onViewCreated(view, savedInstanceState);
 
-        SegmentControl houseButton = (SegmentControl) getView().findViewById(R.id.house_button1);
         houseButton.setOnSegmentControlClickListener(new SegmentControl.OnSegmentControlClickListener() {
             @Override
             public void onSegmentControlClick(int index) {
@@ -64,23 +73,19 @@ public class stateSignedInFragment extends Fragment {
                 }
             }
         });
-        Button studyPeriodButton = (Button) getView().findViewById(R.id.study_period_button1);
         studyPeriodButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onButtonPressed("STUDY_PERIOD");
             }
         });
-        Button atGreenButton = (Button) getView().findViewById(R.id.going_to_green_button1);
 
-        Button signOutButton = (Button) getView().findViewById(R.id.going_home_button1);
         signOutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onButtonPressed("SIGN_OUT");
             }
         });
-        Button cancelButton = (Button) getView().findViewById(R.id.cancel_button1);
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -113,7 +118,9 @@ public class stateSignedInFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_state_signed_in, container, false);
+        View view = inflater.inflate(R.layout.fragment_state_signed_in, container, false);
+        unbinder = ButterKnife.bind(this, view);
+        return view;
     }
 
     private void onButtonPressed(String type) {
@@ -140,6 +147,12 @@ public class stateSignedInFragment extends Fragment {
 
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 
     /**

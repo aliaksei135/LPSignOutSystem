@@ -1,8 +1,8 @@
 /*
  * com.aliakseipilko.signoutsystem.Fragments.stateAtGreenFragment was created by Aliaksei Pilko as part of SignOutSystem
- * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
+ * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 23/12/16 13:12
+ * Last modified 18/03/17 21:33
  */
 
 package com.aliakseipilko.signoutsystem.Fragments;
@@ -19,6 +19,10 @@ import android.widget.Button;
 import com.aliakseipilko.signoutsystem.R;
 import com.sevenheaven.segmentcontrol.SegmentControl;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
 /**
  * A simple {@link Fragment} subclass. Activities that contain this fragment must implement the
  * {@link stateAtGreenFragment.OnFragmentInteractionListener} interface to handle interaction
@@ -27,6 +31,17 @@ import com.sevenheaven.segmentcontrol.SegmentControl;
  */
 public class stateAtGreenFragment extends Fragment {
 
+    @BindView(R.id.house_button3)
+    SegmentControl houseButton;
+    @BindView(R.id.study_period_button3)
+    Button studyPeriodButton;
+    @BindView(R.id.going_home_button3)
+    Button signOutButton;
+    @BindView(R.id.sign_in_button3)
+    Button signInButton;
+    @BindView(R.id.cancel_button3)
+    Button cancelButton;
+    Unbinder unbinder;
     private OnFragmentInteractionListener mListener;
 
     public stateAtGreenFragment() {
@@ -44,7 +59,9 @@ public class stateAtGreenFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_state_at_green, container, false);
+        View view = inflater.inflate(R.layout.fragment_state_at_green, container, false);
+        unbinder = ButterKnife.bind(this, view);
+        return view;
     }
 
     @Override
@@ -52,7 +69,6 @@ public class stateAtGreenFragment extends Fragment {
 
         super.onViewCreated(view, savedInstanceState);
 
-        SegmentControl houseButton = (SegmentControl) getView().findViewById(R.id.house_button3);
         houseButton.setOnSegmentControlClickListener(new SegmentControl.OnSegmentControlClickListener() {
             @Override
             public void onSegmentControlClick(int index) {
@@ -71,28 +87,24 @@ public class stateAtGreenFragment extends Fragment {
                 }
             }
         });
-        Button studyPeriodButton = (Button) getView().findViewById(R.id.study_period_button3);
         studyPeriodButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onButtonPressed("STUDY_PERIOD");
             }
         });
-        Button signOutButton = (Button) getView().findViewById(R.id.going_home_button3);
         signOutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onButtonPressed("SIGN_OUT");
             }
         });
-        Button signInButton = (Button) getView().findViewById(R.id.sign_in_button3);
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onButtonPressed("SIGN_IN");
             }
         });
-        Button cancelButton = (Button) getView().findViewById(R.id.cancel_button3);
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -127,13 +139,12 @@ public class stateAtGreenFragment extends Fragment {
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this fragment to allow an
-     * interaction in this fragment to be communicated to the activity and potentially other
-     * fragments contained in that activity. <p/> See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html" >Communicating
-     * with Other Fragments</a> for more information.
-     */
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
+    }
+
     public interface OnFragmentInteractionListener {
 
         void onFragmentInteraction(String type);

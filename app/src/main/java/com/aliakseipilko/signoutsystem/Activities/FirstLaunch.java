@@ -1,8 +1,8 @@
 /*
  * com.aliakseipilko.signoutsystem.Activities.FirstLaunch was created by Aliaksei Pilko as part of SignOutSystem
- * Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
+ * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 23/12/16 13:12
+ * Last modified 18/03/17 21:27
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -28,10 +28,15 @@ import android.widget.Toast;
 
 import com.aliakseipilko.signoutsystem.R;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class FirstLaunch extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
     private static final int RC_SIGN_IN = 9001;
     private static final String TAG = "FirstLaunch";
+    @BindView(R.id.google_sign_in_button)
+    SignInButton gSignInButton;
     private GoogleApiClient mGoogleApiClient;
 
     @Override
@@ -40,7 +45,6 @@ public class FirstLaunch extends AppCompatActivity implements GoogleApiClient.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_first_launch);
 
-        SignInButton gSignInButton = (SignInButton) findViewById(R.id.google_sign_in_button);
         assert gSignInButton != null;
         gSignInButton.setSize(SignInButton.SIZE_WIDE);
         gSignInButton.setColorScheme(SignInButton.COLOR_DARK);
@@ -51,6 +55,8 @@ public class FirstLaunch extends AppCompatActivity implements GoogleApiClient.On
                 signIn();
             }
         });
+
+        ButterKnife.bind(this);
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestScopes(new Scope(SheetsScopes.SPREADSHEETS))
