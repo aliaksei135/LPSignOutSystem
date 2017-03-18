@@ -2,7 +2,7 @@
   ~ C:/Users/Aliaksei/AndroidStudioProjects/SignOutSystem/app/src/main/AndroidManifest.xml was created by Aliaksei Pilko as part of SignOutSystem
   ~ Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
   ~
-  ~ Last modified 16/02/17 09:52
+  ~ Last modified 18/03/17 21:08
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.aliakseipilko.signoutsystem">
@@ -18,6 +18,9 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.USE_CREDENTIALS" />
+    <!--<uses-permission android:name="android.permission.ACCOUNT_MANAGER"/>-->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
 
     <application
         android:name=".MyApp"

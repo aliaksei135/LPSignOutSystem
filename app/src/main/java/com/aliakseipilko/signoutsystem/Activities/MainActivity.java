@@ -2,32 +2,23 @@
  * com.aliakseipilko.signoutsystem.Activities.MainActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 18/02/17 10:57
+ * Last modified 18/03/17 21:08
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
 
-import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.OptionalPendingResult;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Scope;
-import com.google.api.client.auth.oauth2.DataStoreCredentialRefreshListener;
 import com.google.api.client.auth.oauth2.StoredCredential;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
-import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
-import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.DataStore;
-import com.google.api.client.util.store.MemoryDataStoreFactory;
 import com.google.api.services.sheets.v4.SheetsScopes;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
@@ -77,10 +68,7 @@ import com.aliakseipilko.signoutsystem.Helpers.IdleMonitor;
 import com.aliakseipilko.signoutsystem.R;
 import com.aliakseipilko.signoutsystem.Services.PersistService;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
@@ -102,8 +90,6 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     private static final String NATIVE_HOUSE = "School";
     private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
     private static final List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS);
-    private static String serverAuthCode = null;
-    private static StoredCredential storedCredential;
     private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
 
@@ -135,7 +121,6 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     private JSGFPLib bioLib;
     private ProgressDialog mProgressDialog;
     private DevicePolicyManager mDpm;
-    private GoogleApiClient mGoogleApiClient;
     private BiometricDataHandler bioHandler;
     private SGAutoOnEventNotifier autoOn;
     private GoogleSheetsHandler sheetsHandler;
@@ -256,20 +241,6 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                 makeNewUser(null);
             }
         });
-
-
-        //Initialise google apis
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestScopes(new Scope(SheetsScopes.SPREADSHEETS))
-                .requestServerAuthCode(getResources().getString(R.string.server_client_id))
-                .build();
-
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this, this)
-                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                .addScope(new Scope(SheetsScopes.SPREADSHEETS))
-                .build();
-
     }
 
     private void scheduleResetSignedIn() {
@@ -296,32 +267,11 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         isFirstRun = sharedPreferences.getBoolean("isFirstRun", true);
         boolean scheduledTasksSet = sharedPreferences.getBoolean("scheduledTasksSet", false);
 
-        if (credentialDataStore == null) {
-            try {
-                credentialDataStore = MemoryDataStoreFactory.getDefaultInstance().getDataStore("credentialDataStore");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
         if (isFirstRun) {
             //show start activity
             Toast.makeText(MainActivity.this, "First Run\nPlease sign in", Toast.LENGTH_LONG)
                     .show();
             startActivityForResult(new Intent(MainActivity.this, FirstLaunch.class), REQUEST_FIRST_LAUNCH);
-        } else {
-
-            try {
-                if (storedCredential == null) {
-                    storedCredential = credentialDataStore.get("default");
-                    if (storedCredential == null
-                            || storedCredential.getExpirationTimeMilliseconds() <= 10000) {
-                        doGoogleSignIn();
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
 
         if (!scheduledTasksSet) {
@@ -335,11 +285,6 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         super.onResume();
         hideSysUI();
         if (!isFirstRun) {
-            if (serverAuthCode == null
-                    || storedCredential == null
-                    || storedCredential.getExpirationTimeMilliseconds() <= 10000) {
-                doGoogleSignIn();
-            }
             idleMonitor.setTimer();
         }
     }
@@ -444,7 +389,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                 break;
             case REQUEST_FIRST_LAUNCH:
                 if (resultCode == RESULT_OK && data != null) {
-                    getCredential(data.getStringExtra("authCode"));
+                    Toast.makeText(MainActivity.this, "All good!", Toast.LENGTH_SHORT).show();
                 } else {
                     if (data != null) {
                         Toast.makeText(MainActivity.this, data.getStringExtra("result"), Toast.LENGTH_SHORT).show();
@@ -1130,177 +1075,34 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         startActivity(new Intent(MainActivity.this, IdleActivity.class));
     }
 
-    private String doGoogleSignIn() {
-        final String[] serverAuthCode = new String[1];
-        OptionalPendingResult<GoogleSignInResult> opr = Auth.GoogleSignInApi.silentSignIn(mGoogleApiClient);
-        if (opr.isDone()) {
-            // If the user's cached credentials are valid, the OptionalPendingResult will be "done"
-            // and the GoogleSignInResult will be available instantly.
-            Log.d(TAG, "Got cached sign-in");
-            GoogleSignInResult result = opr.get();
-            serverAuthCode[0] = result.getSignInAccount().getServerAuthCode();
-            Log.d(TAG, "handleSignInResult:" + result.isSuccess());
-        } else {
-            // If the user has not previously signed in on this device or the sign-in has expired,
-            // this asynchronous branch will attempt to sign in the user silently.  Cross-device
-            // single sign-on will occur in this branch.
-//            showProgressDialog();
-            opr.setResultCallback(new ResultCallback<GoogleSignInResult>() {
-                @Override
-                public void onResult(@NonNull GoogleSignInResult googleSignInResult) {
-                    if (googleSignInResult.getSignInAccount() != null) {
-                        serverAuthCode[0] = googleSignInResult.getSignInAccount().getServerAuthCode();
-                    } else {
-                        startActivityForResult(new Intent(MainActivity.this, FirstLaunch.class), REQUEST_FIRST_LAUNCH);
-                    }
-                    hideProgressDialog();
-                    Log.d(TAG, "handleSignInResult:" + googleSignInResult.isSuccess());
-                    PreferenceManager.getDefaultSharedPreferences(MainActivity.this).edit().putBoolean("isFirstRun", false).apply();
-                    MainActivity.serverAuthCode = serverAuthCode[0];
-                    getCredential(serverAuthCode[0]);
-                }
-            });
-        }
-        return serverAuthCode[0];
-    }
 
-    private GoogleCredential getCredential(String authCode) {
+    private GoogleCredential getCredential() {
 
-        GoogleCredential credential;
-
-        if (authCode == null && storedCredential != null) {
-            if (storedCredential.getExpirationTimeMilliseconds() != null) {
-                if (storedCredential.getExpirationTimeMilliseconds() < 3600000) { //Token with less than an hour till expiry
-                    credential = getNewCredential(serverAuthCode);
-                    serverAuthCode = null;
-                    if (credential != null) {
-                        try {
-                            storedCredential = new StoredCredential(credential);
-                            saveCredential(credential);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-                        return credential;
-                    }
-                } else {
-                    try {
-                        InputStream is = getResources().openRawResource(R.raw.client_secret);
-                        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JacksonFactory.getDefaultInstance(), new BufferedReader(new InputStreamReader(is)));
-                        credential = new GoogleCredential.Builder()
-                                .setTransport(AndroidHttp.newCompatibleTransport())
-                                .setJsonFactory(JacksonFactory.getDefaultInstance())
-                                .setClientSecrets(clientSecrets)
-                                .build();
-                        credential.setAccessToken(storedCredential.getAccessToken());
-                        credential.setRefreshToken(storedCredential.getRefreshToken());
-                        credential.setExpirationTimeMilliseconds(storedCredential.getExpirationTimeMilliseconds());
-                        return credential;
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            } else {
-                try {
-                    InputStream is = getResources().openRawResource(R.raw.client_secret);
-                    GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JacksonFactory.getDefaultInstance(), new BufferedReader(new InputStreamReader(is)));
-                    credential = new GoogleCredential.Builder()
-                            .setTransport(AndroidHttp.newCompatibleTransport())
-                            .setJsonFactory(JacksonFactory.getDefaultInstance())
-                            .setClientSecrets(clientSecrets)
-                            .addRefreshListener(new DataStoreCredentialRefreshListener("default", credentialDataStore))
-                            .build();
-                    credential.setAccessToken(storedCredential.getAccessToken());
-                    credential.setRefreshToken(storedCredential.getRefreshToken());
-                    return credential;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        } else {
-            if (authCode != null) {
-                credential = getNewCredential(authCode);
-            } else {
-                credential = getNewCredential(serverAuthCode);
-                serverAuthCode = null;
-            }
-            if (credential != null) {
-                storedCredential = new StoredCredential(credential);
-                try {
-                    saveCredential(credential);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return credential;
-            }
-        }
-        return null;
-    }
-
-    private GoogleCredential getNewCredential(String authCode) {
+        AccountManager am = AccountManager.get(getBaseContext());
+        Account[] accounts = am.getAccounts();
+        AccountManagerFuture<Bundle> amf = am.getAuthToken(accounts[0], "oauth2:https://www.googleapis.com/auth/spreadsheets", null, true, null, null);
         try {
-            return new GetAuthorisedCredentialTask().execute(authCode).get();
+            return new GetCredentialTask().execute(amf).get();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    private void saveCredential(GoogleCredential credential) throws IOException {
+    private class GetCredentialTask extends AsyncTask<AccountManagerFuture<Bundle>, Void, GoogleCredential> {
 
-        StoredCredential storedCredential = new StoredCredential();
-        storedCredential.setAccessToken(credential.getAccessToken());
-        storedCredential.setRefreshToken(credential.getRefreshToken());
-        credentialDataStore.set("default", storedCredential);
-    }
-
-    private class GetAuthorisedCredentialTask extends AsyncTask<String, Void, GoogleCredential> {
-
-
+        @SafeVarargs
         @Override
-        protected GoogleCredential doInBackground(String... params) {
-
+        protected final GoogleCredential doInBackground(AccountManagerFuture<Bundle>... params) {
             try {
-                return authorise(params[0]);
-            } catch (IOException e) {
+                Bundle result = params[0].getResult();
+                GoogleCredential credential = new GoogleCredential();
+                credential.setAccessToken(result.getString(AccountManager.KEY_AUTHTOKEN));
+                return credential;
+            } catch (OperationCanceledException | IOException | AuthenticatorException e) {
                 e.printStackTrace();
-                cancel(true);
                 return null;
             }
-        }
-
-        GoogleCredential authorise(String authCode) throws IOException {
-            if (authCode == null) {
-                throw new IOException("No Server Auth Code!");
-            }
-            InputStream is = getResources().openRawResource(R.raw.client_secret);
-            GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JacksonFactory.getDefaultInstance(), new BufferedReader(new InputStreamReader(is)));
-
-            HttpTransport transport = AndroidHttp.newCompatibleTransport();
-            GoogleTokenResponse tokenResponse = new GoogleAuthorizationCodeTokenRequest(
-                    transport,
-                    JacksonFactory.getDefaultInstance(),
-                    clientSecrets.getDetails().getClientId(),
-                    clientSecrets.getDetails().getClientSecret(),
-                    authCode,
-                    "")
-                    .setScopes(SCOPES)
-                    .execute();
-
-            String accessToken = tokenResponse.getAccessToken();
-            String refreshToken = tokenResponse.getRefreshToken();
-            Long expiresInSeconds = tokenResponse.getExpiresInSeconds();
-
-            GoogleCredential credential = new GoogleCredential.Builder()
-                    .setTransport(AndroidHttp.newCompatibleTransport())
-                    .setJsonFactory(JacksonFactory.getDefaultInstance())
-                    .setClientSecrets(clientSecrets)
-                    .build();
-            credential.setAccessToken(accessToken);
-            credential.setRefreshToken(refreshToken);
-            credential.setExpiresInSeconds(expiresInSeconds);
-            Log.d("SheetsHandler", "Credential: " + credential.toString());
-            return credential;
         }
     }
 
@@ -1316,7 +1118,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            credential = getCredential(null);
+            credential = getCredential();
         }
 
         @Override
