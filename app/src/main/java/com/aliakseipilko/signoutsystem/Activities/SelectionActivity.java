@@ -2,11 +2,12 @@
  * com.aliakseipilko.signoutsystem.Activities.SelectionActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 18/03/17 21:27
+ * Last modified 25/03/17 20:44
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -179,6 +180,7 @@ public class SelectionActivity extends AppCompatActivity implements
                         | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
     }
 
+    @SuppressLint("RtlHardcoded")
     private void userActionConfirm(final Intent resultIntent) {
 
         String type = resultIntent.getStringExtra("location");
@@ -205,7 +207,7 @@ public class SelectionActivity extends AppCompatActivity implements
         textView.setText(type + "?");
         textView.setGravity(Gravity.CENTER);
         textView.setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Large);
-        textView.setPadding(5, 5, 5, 5);
+        textView.setPadding(10, 10, 10, 10);
         builder.setView(textView);
 
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -221,13 +223,13 @@ public class SelectionActivity extends AppCompatActivity implements
 
         AlertDialog dialog = builder.show();
 
-        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setPadding(8, 8, 8, 8);
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setPadding(106, 25, 106, 25);
         dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextAppearance(this, android.R.style.TextAppearance_Holo_Large);
-        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.warning_color));
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setBackgroundColor(getResources().getColor(R.color.warning_color));
 
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setPadding(8, 8, 8, 8);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setPadding(106, 25, 106, 25);
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextAppearance(this, android.R.style.TextAppearance_Holo_Large);
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.success_color));
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setBackgroundColor(getResources().getColor(R.color.success_color));
 
     }
 
