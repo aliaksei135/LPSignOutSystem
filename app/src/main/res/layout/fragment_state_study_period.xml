@@ -1,8 +1,8 @@
 <!--
   ~ C:/Users/Aliaksei/AndroidStudioProjects/SignOutSystem/app/src/main/res/layout/fragment_state_study_period.xml was created by Aliaksei Pilko as part of SignOutSystem
-  ~ Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
+  ~ Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
   ~
-  ~ Last modified 23/12/16 13:12
+  ~ Last modified 26/03/17 11:49
   -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -44,7 +44,6 @@
         android:layout_above="@+id/house_button4"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="92dp"
-        android:drawableLeft="@drawable/edu"
         android:drawablePadding="2dp"
         android:text="Green" />
 
@@ -55,7 +54,6 @@
         android:layout_alignParentEnd="true"
         android:layout_alignTop="@+id/going_to_green_button4"
         android:layout_marginEnd="78dp"
-        android:drawableLeft="@drawable/edu"
         android:drawablePadding="2dp"
         android:text="Home" />
 
@@ -75,7 +73,6 @@
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/cancel_button4"
         android:layout_centerHorizontal="true"
-        android:drawableLeft="@drawable/edu"
         android:drawablePadding="2dp"
         android:text="Sign In" />
 
