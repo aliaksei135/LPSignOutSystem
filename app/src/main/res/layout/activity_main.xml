@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?><!--
   ~ C:/Users/Aliaksei/AndroidStudioProjects/SignOutSystem/app/src/main/res/layout/activity_main.xml was created by Aliaksei Pilko as part of SignOutSystem
-  ~ Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
+  ~ Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
   ~
-  ~ Last modified 23/12/16 13:12
+  ~ Last modified 23/04/17 20:43
   -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -54,6 +54,7 @@
         android:textSize="36sp" />
 
     <TextView
+        android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/manualSigningButton"
@@ -62,5 +63,13 @@
         android:gravity="center"
         android:text="@string/initText"
         android:textAppearance="@style/TextAppearance.AppCompat.Display3" />
+
+    <Button
+        android:id="@+id/disableDebugButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/srButton"
+        android:layout_alignEnd="@+id/textView"
+        android:text="Button" />
 
 </RelativeLayout>

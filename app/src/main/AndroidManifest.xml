@@ -2,7 +2,7 @@
   ~ C:/Users/Aliaksei/AndroidStudioProjects/SignOutSystem/app/src/main/AndroidManifest.xml was created by Aliaksei Pilko as part of SignOutSystem
   ~ Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
   ~
-  ~ Last modified 18/03/17 21:08
+  ~ Last modified 23/04/17 20:38
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.aliakseipilko.signoutsystem">
@@ -19,7 +19,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
-    <!--<uses-permission android:name="android.permission.ACCOUNT_MANAGER"/>-->
+    <!-- <uses-permission android:name="android.permission.ACCOUNT_MANAGER"/> -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
 
     <application
@@ -74,9 +74,8 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-
         <receiver
-            android:name="com.aliakseipilko.signoutsystem.Helpers.AdminReceiver"
+            android:name=".Helpers.AdminReceiver"
             android:label="@string/app_name"
             android:permission="android.permission.BIND_DEVICE_ADMIN">
             <meta-data
@@ -96,6 +95,36 @@
             android:name=".Services.PersistService"
             android:enabled="true" />
 
+        <activity
+            android:name=".Activities.ManageSearchActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_manage_search"
+            android:parentActivityName=".Activities.MainActivity"
+            android:theme="@style/FullscreenTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.aliakseipilko.signoutsystem.Activities.MainActivity" />
+        </activity>
+        <activity
+            android:name=".Activities.ManageResultsActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_manage_results"
+            android:parentActivityName=".Activities.ManageSearchActivity"
+            android:theme="@style/FullscreenTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.aliakseipilko.signoutsystem.Activities.ManageSearchActivity" />
+        </activity>
+        <activity
+            android:name=".Activities.ManageUserActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_manage_user"
+            android:parentActivityName=".Activities.ManageSearchActivity"
+            android:theme="@style/FullscreenTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.aliakseipilko.signoutsystem.Activities.ManageSearchActivity" />
+        </activity>
     </application>
 
 </manifest>

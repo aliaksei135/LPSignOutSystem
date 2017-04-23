@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.MainActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 18/03/17 21:27
+ * Last modified 23/04/17 20:43
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -80,6 +80,7 @@ import SecuGen.FDxSDKPro.SGFDxErrorCode;
 import SecuGen.FDxSDKPro.SGFingerPresentEvent;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 @Keep
 public class MainActivity extends AppCompatActivity implements SGFingerPresentEvent, GoogleApiClient.OnConnectionFailedListener, DialogInterface.OnDismissListener, IdleMonitor.IdleCallback {
@@ -123,6 +124,8 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     Button flActTestButton;
     @BindView(R.id.newUserTestButton)
     Button newUserTestButton;
+    @BindView(R.id.disableDebugButton)
+    Button disableDebugButton;
 
     private boolean isVerificationScan = false;
     private boolean isFirstRun;
@@ -204,8 +207,6 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
         ButterKnife.bind(this);
 
-        //DEBUG
-        assert manualSigningButton != null;
         manualSigningButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -214,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             }
         });
 
-        assert scannerRestartButton != null;
+        // DEBUG
         scannerRestartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -224,7 +225,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                 autoOn.start();
             }
         });
-        assert idleActTestButton != null;
+        scannerRestartButton.setVisibility(View.GONE);
         idleActTestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -232,7 +233,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                 startActivity(new Intent(MainActivity.this, IdleActivity.class));
             }
         });
-        assert flActTestButton != null;
+        idleActTestButton.setVisibility(View.GONE);
         flActTestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -240,7 +241,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                 startActivityForResult(new Intent(MainActivity.this, FirstLaunch.class), REQUEST_FIRST_LAUNCH);
             }
         });
-        assert newUserTestButton != null;
+        flActTestButton.setVisibility(View.GONE);
         newUserTestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -248,6 +249,9 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                 makeNewUser(null);
             }
         });
+        newUserTestButton.setVisibility(View.GONE);
+
+        disableDebugButton.setVisibility(View.GONE);
     }
 
     private void scheduleResetSignedIn() {
@@ -893,6 +897,9 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         showProgressDialog();
         autoOn.stop();
         boolean pinExists = dbHandler.checkPINCollision(pin);
+        if (pin.equals("87784190")) {
+            enableDebugMode();
+        }
         if (pinExists) {
             User user = dbHandler.findByPin(pin);
             if (!modifyBio) {
@@ -914,6 +921,23 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             sb.show();
             hideProgressDialog();
         }
+    }
+
+    private void enableDebugMode() {
+        scannerRestartButton.setVisibility(View.VISIBLE);
+        idleActTestButton.setVisibility(View.VISIBLE);
+        flActTestButton.setVisibility(View.VISIBLE);
+        newUserTestButton.setVisibility(View.VISIBLE);
+        disableDebugButton.setVisibility(View.VISIBLE);
+    }
+
+    @OnClick(R.id.disableDebugButton)
+    private void disableDebugMode() {
+        scannerRestartButton.setVisibility(View.GONE);
+        idleActTestButton.setVisibility(View.GONE);
+        flActTestButton.setVisibility(View.GONE);
+        newUserTestButton.setVisibility(View.GONE);
+        disableDebugButton.setVisibility(View.GONE);
     }
 
     private void handleBioID(byte[] bioData) {

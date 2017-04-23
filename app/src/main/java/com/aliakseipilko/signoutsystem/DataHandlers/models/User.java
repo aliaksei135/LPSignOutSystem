@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.DataHandlers.models.User was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 14/02/17 16:19
+ * Last modified 23/04/17 20:28
  */
 
 package com.aliakseipilko.signoutsystem.DataHandlers.models;
@@ -97,5 +97,10 @@ public class User extends RealmObject {
 
     public void setPin(String pin) {
         this.pin = pin;
+    }
+
+    @Override
+    public String toString() {
+        return "Year: " + String.valueOf(year) + "\tName: " + name;
     }
 }
