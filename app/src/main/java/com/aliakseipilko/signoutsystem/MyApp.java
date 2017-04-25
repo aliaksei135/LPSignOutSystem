@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.MyApp was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 17/02/17 19:09
+ * Last modified 25/04/17 20:53
  */
 
 package com.aliakseipilko.signoutsystem;
@@ -10,6 +10,12 @@ package com.aliakseipilko.signoutsystem;
 import android.app.Application;
 
 import com.squareup.leakcanary.LeakCanary;
+
+import de.adorsys.android.securestoragelibrary.CryptoException;
+import de.adorsys.android.securestoragelibrary.SecurePreferences;
+
+import java.math.BigInteger;
+import java.security.SecureRandom;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -39,24 +45,24 @@ public class MyApp extends Application {
         LeakCanary.install(this);
 
         Realm.init(getApplicationContext());
-        //This is obfuscated by Proguard so is inaccessible and unreadable
-        byte[] key = hexStringToByteArray("5b9fd2a46d1e47007893ff93fd75d5a161f80e671ae10466fd205201441b7ecd024be0f6dda2b290917d172c3bfe417042d64db61cd73c7e8fe8ed1370a3187c");
+
+        String strKey = SecurePreferences.getStringValue("REALM_KEY", this, null);
+
+        if (strKey == null) {
+            // Each digit in Base 32 can encode 5 bits so round 256 to nearest multiple of 5
+            strKey = new BigInteger(260, new SecureRandom()).toString(32);
+            try {
+                SecurePreferences.setValue("REALM_KEY", strKey, this);
+            } catch (CryptoException e) {
+                e.printStackTrace();
+            }
+        }
+
+        byte[] key = hexStringToByteArray(strKey);
         RealmConfiguration config = new RealmConfiguration.Builder()
                 .encryptionKey(key)
                 .build();
         Realm.setDefaultConfiguration(config);
 
-        //Stop app from crashing out
-        //Handle all unchecked exceptions here
-//        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-//            @Override
-//            public void uncaughtException(Thread thread, Throwable ex) {
-//                Log.e("Uncaught Exceptions", thread.getName() + " throws uncaught exception. " +
-//                        "Cause: " + ex.getCause().getMessage() +
-//                        "\nMessage: " + ex.getMessage() +
-//                        "\nStacktrace: ");
-//                ex.printStackTrace();
-//            }
-//        });
     }
 }

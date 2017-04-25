@@ -3,7 +3,7 @@
  * C:/Users/Aliaksei/AndroidStudioProjects/SignOutSystem/app/build.gradle was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 20/03/17 21:37
+ * Last modified 25/04/17 20:36
  */
 
 apply plugin: 'com.android.application'
@@ -92,4 +92,6 @@ dependencies {
 
     compile 'com.jakewharton:butterknife:8.1.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.1.0'
+
+    compile project(':securestoragelibrary')
 }
