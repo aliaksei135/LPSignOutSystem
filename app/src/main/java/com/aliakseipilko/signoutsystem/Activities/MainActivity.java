@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.MainActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 23/04/17 20:43
+ * Last modified 28/04/17 21:19
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -54,6 +54,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -429,6 +430,9 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Enter Name and House");
 
+        final ScrollView sc = new ScrollView(this);
+        sc.setOverScrollMode(View.OVER_SCROLL_ALWAYS);
+
         final LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
 
@@ -439,7 +443,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         layout.addView(nameTitle);
 
         final EditText nameInput = new EditText(this);
-        nameInput.setInputType(InputType.TYPE_CLASS_TEXT);
+        nameInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
         layout.addView(nameInput);
 
         final TextView houseTitle = new TextView(this);
@@ -467,7 +471,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         layout.addView(yearSpinner);
 
         final TextView pinTitle = new TextView(this);
-        pinTitle.setText("Enter a PIN as a backup");
+        pinTitle.setText("Enter a Backup PIN");
         pinTitle.setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Medium);
         pinTitle.setPadding(20, 15, 20, 1);
         layout.addView(pinTitle);
@@ -527,7 +531,8 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         //Autofill house from previous context
 //        houseSpinner.setSelection(house);
 
-        builder.setView(layout);
+        sc.addView(layout);
+        builder.setView(sc);
         builder.setCancelable(false);
 
         final AlertDialog dialog = builder.create();
@@ -535,14 +540,15 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
         autoOn.stop();
 
-        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setPadding(8, 8, 8, 8);
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setPadding(106, 25, 106, 25);
         dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextAppearance(this, android.R.style.TextAppearance_Holo_Large);
-        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.warning_color));
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setBackgroundColor(getResources().getColor(R.color.warning_color));
 
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setPadding(8, 8, 8, 8);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setPadding(106, 25, 106, 25);
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextAppearance(this, android.R.style.TextAppearance_Holo_Large);
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.success_color));
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setBackgroundColor(getResources().getColor(R.color.success_color));
 
+        //TODO Check if this button actually exists? (The time is 0030, gimme a break)
         dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setPadding(8, 8, 8, 8);
         dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextAppearance(this, android.R.style.TextAppearance_Holo_Large);
         dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(getResources().getColor(R.color.neutral_color));
@@ -550,20 +556,25 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //Check empty fields
                 if (!(nameInput.getText().toString().isEmpty())
                         || !(houseSpinner.getSelectedItem().equals("Select your House"))
                         || !(yearSpinner.getSelectedItem().equals("Select your year"))
                         || !(pinField.getText().toString().isEmpty())
                         || !(pinConfirmField.getText().toString().isEmpty())) {
 
+                    //Check Pin duplication match
                     if (pinField.getText().toString().equals(pinConfirmField.getText().toString())) {
 
                         String pin = pinConfirmField.getText().toString();
 
-                        if (!(dbHandler.checkPINCollision(pin))) {
+                        //Check PIN collisions in DB and debug access code
+                        if (!(dbHandler.checkPINCollision(pin)) || pin.equals("87784190")) {
 
+                            //Check pin sufficient length
                             if (!(pinField.getText().toString().length() <= 4)) {
 
+                                //Check PIN doesnt begin with zero (the zero will end up stripped)
                                 if (!(pinField.getText().toString().charAt(0) == '0')) {
 
                                     pushNewUser(nameInput.getText().toString(),
@@ -583,11 +594,9 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                             pinField.setError("Choose another PIN");
                         }
                     } else {
-//
                         pinConfirmField.setError("PINs don't match!");
                     }
                 } else {
-//
                     nameInput.setError("Enter ALL the required information");
                 }
             }
@@ -932,7 +941,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     }
 
     @OnClick(R.id.disableDebugButton)
-    private void disableDebugMode() {
+    void disableDebugMode() {
         scannerRestartButton.setVisibility(View.GONE);
         idleActTestButton.setVisibility(View.GONE);
         flActTestButton.setVisibility(View.GONE);

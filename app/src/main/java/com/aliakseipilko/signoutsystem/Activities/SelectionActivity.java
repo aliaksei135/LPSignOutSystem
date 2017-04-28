@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.SelectionActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 25/03/17 20:44
+ * Last modified 28/04/17 21:06
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -262,10 +262,14 @@ public class SelectionActivity extends AppCompatActivity implements
     @Override
     //Fragment Listener interface implementation
     public void onFragmentInteraction(String type) {
-        IdleMonitor.getInstance().setShortTimer();
+        IdleMonitor im = IdleMonitor.getInstance();
+        im.registerIdleCallback(this);
+        im.setShortTimer();
+
         Intent result = new Intent();
         result.putExtra("id", id);
         result.putExtra("type", type);
+
         switch (type) {
             case "CANCEL":
 //                showProgressDialog();
@@ -310,6 +314,8 @@ public class SelectionActivity extends AppCompatActivity implements
                 break;
         }
         if (!type.equals("CANCEL")) {
+            im.nullify();
+            im = null;
             userActionConfirm(result);
         }
     }

@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.ManageSearchActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 23/04/17 20:43
+ * Last modified 28/04/17 21:15
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -37,7 +37,7 @@ public class ManageSearchActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.search_button)
-    private void validateSearchField() {
+    void validateSearchField() {
         if (searchField.getText().length() <= 0) {
             searchField.setError("Enter search text");
         } else {

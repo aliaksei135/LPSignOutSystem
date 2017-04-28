@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.MyApp was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 25/04/17 20:53
+ * Last modified 28/04/17 21:19
  */
 
 package com.aliakseipilko.signoutsystem;
@@ -11,7 +11,6 @@ import android.app.Application;
 
 import com.squareup.leakcanary.LeakCanary;
 
-import de.adorsys.android.securestoragelibrary.CryptoException;
 import de.adorsys.android.securestoragelibrary.SecurePreferences;
 
 import java.math.BigInteger;
@@ -53,7 +52,7 @@ public class MyApp extends Application {
             strKey = new BigInteger(260, new SecureRandom()).toString(32);
             try {
                 SecurePreferences.setValue("REALM_KEY", strKey, this);
-            } catch (CryptoException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
