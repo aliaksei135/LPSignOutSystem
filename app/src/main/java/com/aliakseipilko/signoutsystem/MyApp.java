@@ -2,10 +2,12 @@
  * com.aliakseipilko.signoutsystem.MyApp was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 28/04/17 21:19
+ * Last modified 08/05/17 22:10
  */
 
 package com.aliakseipilko.signoutsystem;
+
+import com.google.common.base.Charsets;
 
 import android.app.Application;
 
@@ -48,8 +50,7 @@ public class MyApp extends Application {
         String strKey = SecurePreferences.getStringValue("REALM_KEY", this, null);
 
         if (strKey == null) {
-            // Each digit in Base 32 can encode 5 bits so round 256 to nearest multiple of 5
-            strKey = new BigInteger(260, new SecureRandom()).toString(32);
+            strKey = new BigInteger(212, new SecureRandom()).toString(64);
             try {
                 SecurePreferences.setValue("REALM_KEY", strKey, this);
             } catch (Exception e) {
@@ -57,7 +58,8 @@ public class MyApp extends Application {
             }
         }
 
-        byte[] key = hexStringToByteArray(strKey);
+        byte[] key = strKey.getBytes(Charsets.UTF_8);
+
         RealmConfiguration config = new RealmConfiguration.Builder()
                 .encryptionKey(key)
                 .build();

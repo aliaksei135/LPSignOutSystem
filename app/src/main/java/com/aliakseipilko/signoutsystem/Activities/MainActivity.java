@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.MainActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 28/04/17 21:19
+ * Last modified 08/05/17 22:10
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -20,6 +20,7 @@ import android.accounts.AccountManagerFuture;
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.app.AlarmManager;
+import android.app.Dialog;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.app.admin.DevicePolicyManager;
@@ -52,10 +53,10 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -82,6 +83,8 @@ import SecuGen.FDxSDKPro.SGFingerPresentEvent;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+
+import static android.R.attr.name;
 
 @Keep
 public class MainActivity extends AppCompatActivity implements SGFingerPresentEvent, GoogleApiClient.OnConnectionFailedListener, DialogInterface.OnDismissListener, IdleMonitor.IdleCallback {
@@ -394,6 +397,19 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         }
     }
 
+    private void showLoadingLogResult() {
+        Snackbar sb = Snackbar.make(findViewById(android.R.id.content), "Goodbye " + name + "!", Snackbar.LENGTH_INDEFINITE);
+        Snackbar.SnackbarLayout sbv = (Snackbar.SnackbarLayout) sb.getView();
+        ProgressBar pb = new ProgressBar(this);
+        pb.setIndeterminate(true);
+        sbv.addView(pb);
+        sbv.setBackgroundColor(getResources().getColor(R.color.neutral_color));
+        sbv.setMinimumHeight(125);
+        sbv.setMinimumWidth(700);
+        sb.show();
+    }
+
+
     private void showLogResult(boolean result, long id, String name, String location, int year) {
         if (result) {
             dbHandler.updateLocation(id, location);
@@ -427,139 +443,38 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             currentNewUserBiodata = bioData;
         }
 
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Enter Name and House");
+        final Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog_new_user);
 
-        final ScrollView sc = new ScrollView(this);
-        sc.setOverScrollMode(View.OVER_SCROLL_ALWAYS);
+        final EditText nameInput = (EditText) dialog.findViewById(R.id.new_user_name_et);
 
-        final LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-
-        final TextView nameTitle = new TextView(this);
-        nameTitle.setText("Full Name");
-        nameTitle.setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Medium);
-        nameTitle.setPadding(20, 1, 20, 1);
-        layout.addView(nameTitle);
-
-        final EditText nameInput = new EditText(this);
-        nameInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
-        layout.addView(nameInput);
-
-        final TextView houseTitle = new TextView(this);
-        houseTitle.setText("House");
-        houseTitle.setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Medium);
-        houseTitle.setPadding(20, 15, 20, 1);
-        layout.addView(houseTitle);
-
-        final Spinner houseSpinner = new Spinner(this);
-        final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, new String[]{"Select your House", "School", "Grove", "Field", "Reckitt", "Fryer"});
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        final Spinner houseSpinner = (Spinner) dialog.findViewById(R.id.new_user_house_sp);
+        SpinnerAdapter adapter = ArrayAdapter.createFromResource(this, R.array.new_user_houses, android.R.layout.simple_spinner_item);
         houseSpinner.setAdapter(adapter);
-        layout.addView(houseSpinner);
 
-        final TextView yearTitle = new TextView(this);
-        yearTitle.setText("Year");
-        yearTitle.setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Medium);
-        yearTitle.setPadding(20, 15, 20, 1);
-        layout.addView(yearTitle);
-
-        final Spinner yearSpinner = new Spinner(this);
-        final ArrayAdapter<String> adap = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, new String[]{"Select your year", "7", "8", "9", "10", "11", "12", "13"});
-        adap.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        final Spinner yearSpinner = (Spinner) dialog.findViewById(R.id.new_user_year_sp);
+        SpinnerAdapter adap = ArrayAdapter.createFromResource(this, R.array.new_user_years, android.R.layout.simple_spinner_item);
         yearSpinner.setAdapter(adap);
-        layout.addView(yearSpinner);
 
-        final TextView pinTitle = new TextView(this);
-        pinTitle.setText("Enter a Backup PIN");
-        pinTitle.setTextAppearance(this, android.R.style.TextAppearance_DeviceDefault_Medium);
-        pinTitle.setPadding(20, 15, 20, 1);
-        layout.addView(pinTitle);
+        final EditText pinField = (EditText) dialog.findViewById(R.id.new_user_pin_et);
 
-        final EditText pinField = new EditText(this);
-        pinField.setHint("Enter a PIN");
-        pinField.setInputType(InputType.TYPE_CLASS_NUMBER);
-        layout.addView(pinField);
+        final EditText pinConfirmField = (EditText) dialog.findViewById(R.id.new_user_pin_confirm_et);
 
-        final EditText pinConfirmField = new EditText(this);
-        pinConfirmField.setHint("Confirm your PIN");
-        pinConfirmField.setInputType(InputType.TYPE_CLASS_NUMBER);
-        layout.addView(pinConfirmField);
+        Button positiveButton = (Button) dialog.findViewById(R.id.new_user_yes_btn);
+        Button negativeButton = (Button) dialog.findViewById(R.id.new_user_no_btn);
 
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                //This is overridden after the dialog shows anyway
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                //This is overridden after the dialog shows anyway
-            }
-        });
-
-        //Autofill year from previous data
-//        switch (year) {
-//            case 7:
-//                //Zeroth position is placeholder text
-//                yearSpinner.setSelection(1);
-//                break;
-//            case 8:
-//                yearSpinner.setSelection(2);
-//                break;
-//            case 9:
-//                yearSpinner.setSelection(3);
-//                break;
-//            case 10:
-//                yearSpinner.setSelection(4);
-//                break;
-//            case 11:
-//                yearSpinner.setSelection(5);
-//                break;
-//            case 12:
-//                yearSpinner.setSelection(6);
-//                break;
-//            case 13:
-//                yearSpinner.setSelection(7);
-//                break;
-//            default:
-//                yearSpinner.setSelection(0);
-//                break;
-//        }
-
-        //Autofill house from previous context
-//        houseSpinner.setSelection(house);
-
-        sc.addView(layout);
-        builder.setView(sc);
-        builder.setCancelable(false);
-
-        final AlertDialog dialog = builder.create();
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         dialog.show();
 
         autoOn.stop();
 
-        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setPadding(106, 25, 106, 25);
-        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextAppearance(this, android.R.style.TextAppearance_Holo_Large);
-        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setBackgroundColor(getResources().getColor(R.color.warning_color));
-
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setPadding(106, 25, 106, 25);
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextAppearance(this, android.R.style.TextAppearance_Holo_Large);
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setBackgroundColor(getResources().getColor(R.color.success_color));
-
-        //TODO Check if this button actually exists? (The time is 0030, gimme a break)
-        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setPadding(8, 8, 8, 8);
-        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextAppearance(this, android.R.style.TextAppearance_Holo_Large);
-        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(getResources().getColor(R.color.neutral_color));
-
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+        positiveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //Check empty fields
                 if (!(nameInput.getText().toString().isEmpty())
                         || !(houseSpinner.getSelectedItem().equals("Select your House"))
-                        || !(yearSpinner.getSelectedItem().equals("Select your year"))
+                        || !(yearSpinner.getSelectedItem().equals("Select your Year"))
                         || !(pinField.getText().toString().isEmpty())
                         || !(pinConfirmField.getText().toString().isEmpty())) {
 
@@ -582,6 +497,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                                             Integer.parseInt(yearSpinner.getSelectedItem().toString()),
                                             pinConfirmField.getText().toString());
 
+                                    //Cancel without dismiss listener set to ensure autoOn remains stopped
                                     dialog.cancel();
 
                                 } else {
@@ -602,9 +518,10 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             }
         });
 
-        dialog.getButton(DialogInterface.BUTTON_NEGATIVE).setOnClickListener(new View.OnClickListener() {
+        negativeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //Set Dismiss listener and dismiss to ensure autoOn starts up
                 dialog.setOnDismissListener(MainActivity.this);
                 dialog.cancel();
             }
@@ -675,6 +592,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         if (bioHandler.matchBioDataSets(currentNewUserBiodata, verifyData)) {
             uiHelper.showSuccess();
             confirmationButton.setVisibility(View.VISIBLE);
+            autoOn.stop();
         } else {
             uiHelper.showError();
             isVerificationScan = true;
@@ -1136,6 +1054,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         protected void onPreExecute() {
             super.onPreExecute();
             credential = getCredential();
+            showLoadingLogResult();
         }
 
         @Override

@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.FirstLaunch was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 18/03/17 21:27
+ * Last modified 08/05/17 22:10
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -44,8 +44,8 @@ public class FirstLaunch extends AppCompatActivity implements GoogleApiClient.On
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_first_launch);
+        ButterKnife.bind(this);
 
-        assert gSignInButton != null;
         gSignInButton.setSize(SignInButton.SIZE_WIDE);
         gSignInButton.setColorScheme(SignInButton.COLOR_DARK);
         gSignInButton.setEnabled(true);
@@ -56,7 +56,6 @@ public class FirstLaunch extends AppCompatActivity implements GoogleApiClient.On
             }
         });
 
-        ButterKnife.bind(this);
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestScopes(new Scope(SheetsScopes.SPREADSHEETS))

@@ -1,8 +1,8 @@
 <!--
   ~ C:/Users/Aliaksei/AndroidStudioProjects/SignOutSystem/app/src/main/res/values/styles.xml was created by Aliaksei Pilko as part of SignOutSystem
-  ~ Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
+  ~ Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
   ~
-  ~ Last modified 23/12/16 13:12
+  ~ Last modified 08/05/17 21:09
   -->
 
 <resources>
@@ -36,5 +36,8 @@
         <item name="android:background">@color/black_overlay</item>
     </style>
 
+    <style name="NewUserDialog" parent="AppTheme">
+        <item name="android:layout_marginTop">15dp</item>
+    </style>
 
 </resources>

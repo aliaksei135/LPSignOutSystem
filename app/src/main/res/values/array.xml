@@ -1,10 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?><!--
   ~ C:/Users/Aliaksei/AndroidStudioProjects/SignOutSystem/app/src/main/res/values/array.xml was created by Aliaksei Pilko as part of SignOutSystem
-  ~ Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
+  ~ Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
   ~
-  ~ Last modified 11/11/16 20:12
+  ~ Last modified 08/05/17 21:53
   -->
 
 <resources>
+
+    <string-array name="new_user_houses">
+        <item>Select your House</item>
+        <item>School</item>
+        <item>Grove</item>
+        <item>Field</item>
+        <item>Reckitt</item>
+        <item>Fryer</item>
+    </string-array>
+
+    <string-array name="new_user_years">
+        <item>Select your Year</item>
+        <item>13</item>
+        <item>12</item>
+        <item>11</item>
+        <item>10</item>
+        <item>9</item>
+        <item>8</item>
+        <item>7</item>
+    </string-array>
 
 </resources>

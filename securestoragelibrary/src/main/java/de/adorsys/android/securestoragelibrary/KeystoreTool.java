@@ -2,7 +2,7 @@
  * de.adorsys.android.securestoragelibrary.KeystoreTool was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 25/04/17 20:56
+ * Last modified 29/04/17 09:00
  */
 
 package de.adorsys.android.securestoragelibrary;
@@ -53,7 +53,7 @@ class KeystoreTool {
     private static final String KEY_CIPHER_JELLYBEAN_PROVIDER = "AndroidOpenSSL";
     private static final String KEY_CIPHER_MARSHMALLOW_PROVIDER = "AndroidKeyStoreBCWorkaround";
     private static final String KEY_TRANSFORMATION_ALGORITHM = "RSA/ECB/PKCS1Padding";
-    private static final String KEY_X500PRINCIPAL = "CN=SecureDeviceStorage, O=Adorsys, C=Germany";
+    private static final String KEY_X500PRINCIPAL = "CN=SecureDeviceStorage, O=Aliaksei Pilko, C=UK";
 
     @Nullable
     static String encryptMessage(@NonNull Context context, @NonNull String plainMessage) throws CryptoException {
