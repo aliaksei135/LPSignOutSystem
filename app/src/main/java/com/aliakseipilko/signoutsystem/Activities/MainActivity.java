@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.MainActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 08/05/17 22:10
+ * Last modified 08/05/17 22:11
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -412,7 +412,6 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
 
     private void showLogResult(boolean result, long id, String name, String location, int year) {
         if (result) {
-            dbHandler.updateLocation(id, location);
             onDismiss(null);
             Snackbar sb = Snackbar.make(findViewById(android.R.id.content), "Goodbye " + name + "!", Snackbar.LENGTH_LONG);
             View sbv = sb.getView();
@@ -422,6 +421,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             sbv.setMinimumHeight(125);
             sbv.setMinimumWidth(700);
             sb.show();
+            dbHandler.updateLocation(id, location);
         } else {
             Snackbar sb = Snackbar.make(findViewById(android.R.id.content), "That didn't work!", Snackbar.LENGTH_LONG);
             View sbv = sb.getView();
