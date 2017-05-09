@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.SelectionActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 28/04/17 21:06
+ * Last modified 09/05/17 20:33
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -196,6 +196,8 @@ public class SelectionActivity extends AppCompatActivity implements
             case "Visiting Reckitt":
                 type = getString(R.string.reckitt_visit);
                 break;
+            case "Visiting Fryer":
+                type = getString(R.string.fryer_visit);
             default:
                 break;
         }
@@ -268,7 +270,7 @@ public class SelectionActivity extends AppCompatActivity implements
 
         Intent result = new Intent();
         result.putExtra("id", id);
-        result.putExtra("type", type);
+        result.putExtra("type", this.type);
 
         switch (type) {
             case "CANCEL":
@@ -310,6 +312,7 @@ public class SelectionActivity extends AppCompatActivity implements
                 break;
             default:
                 setResult(RESULT_CANCELED);
+                im.nullify();
                 finish();
                 break;
         }

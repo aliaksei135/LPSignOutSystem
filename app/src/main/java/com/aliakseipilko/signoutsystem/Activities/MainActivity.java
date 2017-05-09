@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.MainActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 09/05/17 20:12
+ * Last modified 09/05/17 21:13
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -82,8 +82,6 @@ import SecuGen.FDxSDKPro.SGFingerPresentEvent;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-
-import static android.R.attr.name;
 
 @Keep
 public class MainActivity extends AppCompatActivity implements SGFingerPresentEvent, GoogleApiClient.OnConnectionFailedListener, DialogInterface.OnDismissListener, IdleMonitor.IdleCallback {
@@ -397,7 +395,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     }
 
     private void showLoadingLogResult() {
-        Snackbar sb = Snackbar.make(findViewById(android.R.id.content), "Goodbye " + name + "!", Snackbar.LENGTH_INDEFINITE);
+        Snackbar sb = Snackbar.make(findViewById(android.R.id.content), "Working on it...", Snackbar.LENGTH_INDEFINITE);
         Snackbar.SnackbarLayout sbv = (Snackbar.SnackbarLayout) sb.getView();
         ProgressBar pb = new ProgressBar(this);
         pb.setIndeterminate(true);
@@ -431,6 +429,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             sbv.setMinimumWidth(700);
             sb.show();
         }
+        autoOn.start();
     }
 
     //First data input stage of user enrollment
