@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.MainActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 08/05/17 22:11
+ * Last modified 09/05/17 20:12
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -56,7 +56,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -449,11 +448,13 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         final EditText nameInput = (EditText) dialog.findViewById(R.id.new_user_name_et);
 
         final Spinner houseSpinner = (Spinner) dialog.findViewById(R.id.new_user_house_sp);
-        SpinnerAdapter adapter = ArrayAdapter.createFromResource(this, R.array.new_user_houses, android.R.layout.simple_spinner_item);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.new_user_houses, R.layout.spinner_holder);
+        adapter.setDropDownViewResource(R.layout.spinner_holder);
         houseSpinner.setAdapter(adapter);
 
         final Spinner yearSpinner = (Spinner) dialog.findViewById(R.id.new_user_year_sp);
-        SpinnerAdapter adap = ArrayAdapter.createFromResource(this, R.array.new_user_years, android.R.layout.simple_spinner_item);
+        ArrayAdapter<CharSequence> adap = ArrayAdapter.createFromResource(this, R.array.new_user_years, R.layout.spinner_holder);
+        adap.setDropDownViewResource(R.layout.spinner_holder);
         yearSpinner.setAdapter(adap);
 
         final EditText pinField = (EditText) dialog.findViewById(R.id.new_user_pin_et);

@@ -2,7 +2,7 @@
   ~ C:/Users/Aliaksei/AndroidStudioProjects/SignOutSystem/app/src/main/res/values/styles.xml was created by Aliaksei Pilko as part of SignOutSystem
   ~ Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
   ~
-  ~ Last modified 08/05/17 21:09
+  ~ Last modified 09/05/17 20:12
   -->
 
 <resources>
@@ -38,6 +38,10 @@
 
     <style name="NewUserDialog" parent="AppTheme">
         <item name="android:layout_marginTop">15dp</item>
+    </style>
+
+    <style name="LargeSpinner">
+        <item name="android:textSize">22sp</item>
     </style>
 
 </resources>
