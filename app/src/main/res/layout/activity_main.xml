@@ -2,7 +2,7 @@
   ~ C:/Users/Aliaksei/AndroidStudioProjects/SignOutSystem/app/src/main/res/layout/activity_main.xml was created by Aliaksei Pilko as part of SignOutSystem
   ~ Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
   ~
-  ~ Last modified 23/04/17 20:43
+  ~ Last modified 13/05/17 10:31
   -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -70,6 +70,14 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/srButton"
         android:layout_alignEnd="@+id/textView"
-        android:text="Button" />
+        android:text="Disable Debug Mode" />
+
+    <Button
+        android:id="@+id/serviceModeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/disableDebugButton"
+        android:layout_alignEnd="@+id/textView"
+        android:text="Search Database" />
 
 </RelativeLayout>

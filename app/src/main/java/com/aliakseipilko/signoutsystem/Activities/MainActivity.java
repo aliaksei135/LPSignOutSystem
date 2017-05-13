@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Activities.MainActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 09/05/17 21:13
+ * Last modified 13/05/17 10:31
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
@@ -127,6 +127,8 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
     Button newUserTestButton;
     @BindView(R.id.disableDebugButton)
     Button disableDebugButton;
+    @BindView(R.id.serviceModeButton)
+    Button searchDbButton;
 
     private boolean isVerificationScan = false;
     private boolean isFirstRun;
@@ -253,6 +255,15 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         newUserTestButton.setVisibility(View.GONE);
 
         disableDebugButton.setVisibility(View.GONE);
+
+        searchDbButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                idleMonitor.nullify();
+                startActivity(new Intent(MainActivity.this, ManageSearchActivity.class));
+            }
+        });
+        searchDbButton.setVisibility(View.GONE);
     }
 
     private void scheduleResetSignedIn() {
@@ -856,6 +867,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         flActTestButton.setVisibility(View.VISIBLE);
         newUserTestButton.setVisibility(View.VISIBLE);
         disableDebugButton.setVisibility(View.VISIBLE);
+        searchDbButton.setVisibility(View.VISIBLE);
     }
 
     @OnClick(R.id.disableDebugButton)
@@ -865,6 +877,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         flActTestButton.setVisibility(View.GONE);
         newUserTestButton.setVisibility(View.GONE);
         disableDebugButton.setVisibility(View.GONE);
+        searchDbButton.setVisibility(View.GONE);
     }
 
     private void handleBioID(byte[] bioData) {
