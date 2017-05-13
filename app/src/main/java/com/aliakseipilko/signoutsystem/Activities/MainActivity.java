@@ -2,16 +2,14 @@
  * com.aliakseipilko.signoutsystem.Activities.MainActivity was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 13/05/17 10:31
+ * Last modified 13/05/17 14:05
  */
 
 package com.aliakseipilko.signoutsystem.Activities;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.api.client.auth.oauth2.StoredCredential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
-import com.google.api.client.util.store.DataStore;
 import com.google.api.services.sheets.v4.SheetsScopes;
 
 import android.accounts.Account;
@@ -156,13 +154,11 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
             }
         }
     };
-    private DataStore<StoredCredential> credentialDataStore;
     private LocalRealmDBHandler dbHandler;
 
     //Null Constructor
     public MainActivity() {
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -837,6 +833,7 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         boolean pinExists = dbHandler.checkPINCollision(pin);
         if (pin.equals("87784190")) {
             enableDebugMode();
+            return;
         }
         if (pinExists) {
             User user = dbHandler.findByPin(pin);
@@ -847,6 +844,11 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
                 selectionIntent.putExtra("year", user.getYear());
                 selectionIntent.putExtra("id", user.getId());
                 selectionIntent.putExtra("type", "PIN");
+                if (user.getNativeHouse().equals(NATIVE_HOUSE)) {
+                    selectionIntent.putExtra("visitor", false);
+                } else {
+                    selectionIntent.putExtra("visitor", true);
+                }
                 hideProgressDialog();
                 idleMonitor.nullify();
                 startActivityForResult(selectionIntent, REQUEST_SELECTION);
@@ -1022,7 +1024,6 @@ public class MainActivity extends AppCompatActivity implements SGFingerPresentEv
         idleMonitor.nullify();
         startActivity(new Intent(MainActivity.this, IdleActivity.class));
     }
-
 
     private GoogleCredential getCredential() {
 

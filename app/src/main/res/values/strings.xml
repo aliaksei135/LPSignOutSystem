@@ -2,7 +2,7 @@
   ~ C:/Users/Aliaksei/AndroidStudioProjects/SignOutSystem/app/src/main/res/values/strings.xml was created by Aliaksei Pilko as part of SignOutSystem
   ~ Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
   ~
-  ~ Last modified 13/05/17 10:32
+  ~ Last modified 13/05/17 13:20
   -->
 
 <resources>
@@ -61,5 +61,8 @@
 
     <string name="title_activity_manage_results">Manage Search Results</string>
     <string name="title_activity_manage_user">Manage User</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>
