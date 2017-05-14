@@ -1,8 +1,8 @@
 <!--
   ~ C:/Users/Aliaksei/AndroidStudioProjects/SignOutSystem/app/src/main/res/values/styles.xml was created by Aliaksei Pilko as part of SignOutSystem
-  ~ Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
+  ~ Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
   ~
-  ~ Last modified 23/12/16 13:12
+  ~ Last modified 13/05/17 10:44
   -->
 
 <resources>
@@ -36,5 +36,17 @@
         <item name="android:background">@color/black_overlay</item>
     </style>
 
+    <style name="NewUserDialog" parent="AppTheme">
+        <item name="android:layout_marginTop">15dp</item>
+    </style>
+
+    <style name="LargeSpinner">
+        <item name="android:textSize">22sp</item>
+    </style>
+
+    <style name="SelectionFragmentStyle">
+        <item name="android:textSize">32sp</item>
+        <item name="android:padding">20dp</item>
+    </style>
 
 </resources>

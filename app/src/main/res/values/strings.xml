@@ -1,8 +1,8 @@
 <!--
   ~ C:/Users/Aliaksei/AndroidStudioProjects/SignOutSystem/app/src/main/res/values/strings.xml was created by Aliaksei Pilko as part of SignOutSystem
-  ~ Copyright (c) Aliaksei Pilko 2016.  All Rights Reserved.
+  ~ Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
   ~
-  ~ Last modified 23/12/16 13:12
+  ~ Last modified 13/05/17 13:20
   -->
 
 <resources>
@@ -49,8 +49,20 @@
     <string name="fingerprint_hint">Touch sensor</string>
     <string name="fingerprint_not_recognized">Fingerprints don\'t match. Try again</string>
     <string name="fingerprint_success">Fingerprints match! Press OK to finish</string>
+
     <string name="grove_visit">Why would you want to do that? Are you sure you want to visit Grove</string>
     <string name="field_visit">Last chance to turn back… Are you sure you want to visit Field</string>
     <string name="reckitt_visit">It\'s a long trek to a land far away, do you really want to visit Reckitt</string>
+    <string name="fryer_visit">Are you sure you want to visit Fryer</string>
+
+    <string name="title_activity_manage_search">Record Search</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+
+    <string name="title_activity_manage_results">Manage Search Results</string>
+    <string name="title_activity_manage_user">Manage User</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

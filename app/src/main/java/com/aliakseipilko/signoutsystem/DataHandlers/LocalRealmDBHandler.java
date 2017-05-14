@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.DataHandlers.LocalRealmDBHandler was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 14/02/17 16:19
+ * Last modified 23/04/17 20:43
  */
 
 package com.aliakseipilko.signoutsystem.DataHandlers;
@@ -10,8 +10,10 @@ package com.aliakseipilko.signoutsystem.DataHandlers;
 
 import com.aliakseipilko.signoutsystem.DataHandlers.models.User;
 
+import io.realm.Case;
 import io.realm.Realm;
 import io.realm.RealmResults;
+import io.realm.Sort;
 
 public class LocalRealmDBHandler {
 
@@ -91,6 +93,15 @@ public class LocalRealmDBHandler {
         realm.commitTransaction();
     }
 
+    public void updatePIN(long id, String newPin) {
+        User user = realm.where(User.class).equalTo("id", id).findFirst();
+
+        realm.beginTransaction();
+        user.setPin(newPin);
+        realm.copyToRealmOrUpdate(user);
+        realm.commitTransaction();
+    }
+
     public void updateLocation(long id, String location) {
         User user = realm.where(User.class).equalTo("id", id).findFirst();
 
@@ -114,7 +125,20 @@ public class LocalRealmDBHandler {
         });
     }
 
-    public long getNextID() {
+    public RealmResults<User> searchRecords(String searchKey) {
+        return realm.where(User.class)
+                .contains("name", searchKey, Case.INSENSITIVE)
+                .or()
+                .contains("year", searchKey)
+                .findAll()
+                .sort("name", Sort.DESCENDING);
+    }
+
+    public User getRecordById(long id) {
+        return realm.where(User.class).equalTo("id", id).findFirst();
+    }
+
+    private long getNextID() {
         Number idNum = realm.where(User.class).max("id");
         if (idNum == null) {
             return 1;

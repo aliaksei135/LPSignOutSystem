@@ -2,7 +2,7 @@
  * com.aliakseipilko.signoutsystem.Fragments.stateAtGreenFragment was created by Aliaksei Pilko as part of SignOutSystem
  * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
  *
- * Last modified 18/03/17 21:33
+ * Last modified 13/05/17 13:20
  */
 
 package com.aliakseipilko.signoutsystem.Fragments;
@@ -23,12 +23,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
-/**
- * A simple {@link Fragment} subclass. Activities that contain this fragment must implement the
- * {@link stateAtGreenFragment.OnFragmentInteractionListener} interface to handle interaction
- * events. Use the {@link stateAtGreenFragment#newInstance} factory method to create an instance of
- * this fragment.
- */
 public class stateAtGreenFragment extends Fragment {
 
     @BindView(R.id.house_button3)
@@ -47,7 +41,6 @@ public class stateAtGreenFragment extends Fragment {
     public stateAtGreenFragment() {
         // Required empty public constructor
     }
-
 
     public static stateAtGreenFragment newInstance() {
 
@@ -68,6 +61,7 @@ public class stateAtGreenFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 
         super.onViewCreated(view, savedInstanceState);
+
 
         houseButton.setOnSegmentControlClickListener(new SegmentControl.OnSegmentControlClickListener() {
             @Override

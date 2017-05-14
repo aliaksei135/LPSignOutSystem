@@ -1,1 +1,8 @@
-include ':app'
+/*
+ * C:/Users/Aliaksei/AndroidStudioProjects/SignOutSystem/settings.gradle was created by Aliaksei Pilko as part of SignOutSystem
+ * Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
+ *
+ * Last modified 25/04/17 20:23
+ */
+
+include ':app', ':securestoragelibrary'

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ C:/Users/Aliaksei/AndroidStudioProjects/SignOutSystem/app/src/main/res/layout/spinner_holder.xml was created by Aliaksei Pilko as part of SignOutSystem
+  ~ Copyright (c) Aliaksei Pilko 2017.  All Rights Reserved.
+  ~
+  ~ Last modified 09/05/17 20:12
+  -->
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="2dp"
+    android:textColor="#fff"
+    android:textSize="22sp" />
